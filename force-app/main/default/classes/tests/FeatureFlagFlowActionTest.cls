@@ -1,0 +1,103 @@
+@IsTest
+private class FeatureFlagFlowActionTest {
+
+    @IsTest
+    static void testSingleFlagEvaluation() {
+        FeatureFlagFlowAction.FlowInput input = new FeatureFlagFlowAction.FlowInput();
+        input.flagKey = 'SAMPLE_BOOLEAN_FLAG';
+
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs =
+            FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
+        Test.stopTest();
+
+        System.assertEquals(1, outputs.size());
+        System.assertNotEquals(null, outputs[0].isEnabled);
+        System.assertNotEquals(null, outputs[0].reason);
+    }
+
+    @IsTest
+    static void testBulkFlagEvaluation() {
+        List<FeatureFlagFlowAction.FlowInput> inputs = new List<FeatureFlagFlowAction.FlowInput>();
+        for (Integer i = 0; i < 20; i++) {
+            FeatureFlagFlowAction.FlowInput input = new FeatureFlagFlowAction.FlowInput();
+            input.flagKey = 'SAMPLE_BOOLEAN_FLAG';
+            inputs.add(input);
+        }
+
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs = FeatureFlagFlowAction.evaluate(inputs);
+        Test.stopTest();
+
+        System.assertEquals(20, outputs.size(), 'Output count must match input count');
+        for (FeatureFlagFlowAction.FlowOutput output : outputs) {
+            System.assertNotEquals(null, output.isEnabled);
+        }
+    }
+
+    @IsTest
+    static void testNullUserIdDefaultsToRunningUser() {
+        FeatureFlagFlowAction.FlowInput input = new FeatureFlagFlowAction.FlowInput();
+        input.flagKey = 'SAMPLE_BOOLEAN_FLAG';
+        input.userId  = null; // Should default to running user
+
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs =
+            FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
+        Test.stopTest();
+
+        System.assertEquals(1, outputs.size());
+        System.assertNotEquals(null, outputs[0].isEnabled);
+    }
+
+    @IsTest
+    static void testExplicitUserId() {
+        Id userId = UserInfo.getUserId();
+
+        // Add a rule for this user
+        insert new Feature_Flag_Rule__c(
+            Name                = 'Flow Action User Rule',
+            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c        = 'User',
+            Rule_Value__c       = String.valueOf(userId),
+            Priority__c         = 10,
+            Is_Active__c        = true
+        );
+
+        FeatureFlagFlowAction.FlowInput input = new FeatureFlagFlowAction.FlowInput();
+        input.flagKey = 'SAMPLE_BOOLEAN_FLAG';
+        input.userId  = String.valueOf(userId);
+
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs =
+            FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
+        Test.stopTest();
+
+        System.assertEquals(true, outputs[0].isEnabled, 'User rule should enable flag for specified user');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, outputs[0].reason);
+    }
+
+    @IsTest
+    static void testBlankFlagKeyReturnsError() {
+        FeatureFlagFlowAction.FlowInput input = new FeatureFlagFlowAction.FlowInput();
+        input.flagKey = '';
+
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs =
+            FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
+        Test.stopTest();
+
+        System.assertEquals(1, outputs.size());
+        System.assertEquals(false, outputs[0].isEnabled);
+        System.assertEquals(FeatureFlagResult.REASON_ERROR, outputs[0].reason);
+    }
+
+    @IsTest
+    static void testEmptyInputListReturnsEmptyOutput() {
+        Test.startTest();
+        List<FeatureFlagFlowAction.FlowOutput> outputs =
+            FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>());
+        Test.stopTest();
+        System.assertEquals(0, outputs.size());
+    }
+}

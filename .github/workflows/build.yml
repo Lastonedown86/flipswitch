@@ -1,0 +1,186 @@
+name: FlipSwitch CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'force-app/**'
+      - '.github/workflows/**'
+      - 'sfdx-project.json'
+      - 'package.json'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'force-app/**'
+      - '.github/workflows/**'
+      - 'sfdx-project.json'
+      - 'package.json'
+
+jobs:
+  # ─── Stage 1: Code Quality ─────────────────────────────────────────────────
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint LWC (ESLint)
+        run: npm run lint
+
+      - name: Check formatting (Prettier)
+        run: npm run prettier:check
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Run SFDX Scanner (PMD)
+        run: |
+          sf plugins install @salesforce/sfdx-scanner
+          sf scanner run \
+            --target "force-app/main/default/classes" \
+            --engine pmd \
+            --severity-threshold 2 \
+            --format table
+
+  # ─── Stage 2: LWC Unit Tests ───────────────────────────────────────────────
+  lwc-tests:
+    name: LWC Unit Tests
+    runs-on: ubuntu-latest
+    needs: code-quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Jest tests
+        run: npm test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: lwc
+        continue-on-error: true
+
+  # ─── Stage 3: Apex Tests ───────────────────────────────────────────────────
+  apex-tests:
+    name: Apex Tests
+    runs-on: ubuntu-latest
+    needs: code-quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Authenticate DevHub
+        run: |
+          echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          rm ./auth-url.txt
+
+      - name: Create scratch org
+        run: |
+          sf org create scratch \
+            --definition-file config/project-scratch-def.json \
+            --alias flipswitch-ci \
+            --duration-days 1 \
+            --wait 10
+
+      - name: Deploy source
+        run: |
+          sf project deploy start \
+            --target-org flipswitch-ci \
+            --wait 20
+
+      - name: Run Apex tests (async)
+        run: |
+          sf apex run test \
+            --target-org flipswitch-ci \
+            --test-level RunLocalTests \
+            --code-coverage \
+            --result-format human \
+            --wait 20 \
+            --output-dir test-results/async
+
+      - name: Assert 90% coverage
+        run: |
+          COVERAGE=$(sf apex run test \
+            --target-org flipswitch-ci \
+            --test-level RunLocalTests \
+            --code-coverage \
+            --result-format json \
+            --wait 20 2>/dev/null | \
+            python3 -c "import sys,json; data=json.load(sys.stdin); print(data.get('result',{}).get('summary',{}).get('orgWideCoverage','0').replace('%',''))")
+          echo "Org-wide coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 90" | bc -l) )); then
+            echo "Coverage ${COVERAGE}% is below the 90% threshold"
+            exit 1
+          fi
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-test-results
+          path: test-results/
+
+      - name: Delete scratch org
+        if: always()
+        run: sf org delete scratch --target-org flipswitch-ci --no-prompt
+
+  # ─── Stage 4: Package ──────────────────────────────────────────────────────
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    needs: [lwc-tests, apex-tests]
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Authenticate DevHub
+        run: |
+          echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          rm ./auth-url.txt
+
+      - name: Create package version (beta on feature branches)
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
+        run: |
+          sf package version create \
+            --package FlipSwitch \
+            --definition-file config/project-scratch-def.json \
+            --installation-key-bypass \
+            --code-coverage \
+            --wait 30
+
+      - name: Create and promote package version (main branch)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          VERSION_ID=$(sf package version create \
+            --package FlipSwitch \
+            --definition-file config/project-scratch-def.json \
+            --installation-key-bypass \
+            --code-coverage \
+            --wait 30 \
+            --json | python3 -c "import sys,json; print(json.load(sys.stdin)['result']['SubscriberPackageVersionId'])")
+          echo "Promoting package version: $VERSION_ID"
+          sf package version promote --package "$VERSION_ID" --no-prompt

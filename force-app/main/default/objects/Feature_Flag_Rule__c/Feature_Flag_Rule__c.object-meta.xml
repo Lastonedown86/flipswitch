@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Runtime targeting rules for feature flags. Admin-editable without deployments. Evaluated in Priority__c order (ascending).</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableLicensing>false</enableLicensing>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>End_Date__c</fullName>
+        <description>Optional. Rule is automatically deactivated after this datetime.</description>
+        <label>End Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Feature_Flag_Key__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <description>DeveloperName of the Feature_Flag__mdt record this rule applies to.</description>
+        <externalId>false</externalId>
+        <label>Feature Flag Key</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Is_Active__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Deactivate to disable this rule without deleting it.</description>
+        <label>Is Active</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Priority__c</fullName>
+        <description>Evaluation order. Lower number = higher priority. Rules with the same priority are evaluated in insertion order.</description>
+        <externalId>false</externalId>
+        <label>Priority</label>
+        <precision>6</precision>
+        <required>true</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Rule_Type__c</fullName>
+        <description>How the rule is matched. User/Profile/Permission_Set = exact match. Percentage = deterministic hash. Kill_Switch = immediately disables.</description>
+        <label>Rule Type</label>
+        <required>true</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>User</fullName>
+                    <default>false</default>
+                    <label>User</label>
+                </value>
+                <value>
+                    <fullName>Profile</fullName>
+                    <default>false</default>
+                    <label>Profile</label>
+                </value>
+                <value>
+                    <fullName>Permission_Set</fullName>
+                    <default>false</default>
+                    <label>Permission Set</label>
+                </value>
+                <value>
+                    <fullName>Percentage</fullName>
+                    <default>false</default>
+                    <label>Percentage</label>
+                </value>
+                <value>
+                    <fullName>Custom_Field</fullName>
+                    <default>false</default>
+                    <label>Custom Field</label>
+                </value>
+                <value>
+                    <fullName>Segment</fullName>
+                    <default>false</default>
+                    <label>Segment</label>
+                </value>
+                <value>
+                    <fullName>Kill_Switch</fullName>
+                    <default>false</default>
+                    <label>Kill Switch</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Rule_Value__c</fullName>
+        <description>The value to match. For User/Profile/Permission_Set: semicolon-delimited IDs or names. For Percentage: integer 0-100. For Segment: JSON key-value pairs. For Kill_Switch: leave blank.</description>
+        <label>Rule Value</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Start_Date__c</fullName>
+        <description>Optional. Rule is only evaluated on or after this datetime.</description>
+        <label>Start Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Variant_Value__c</fullName>
+        <description>For multi-variant flags: the variant key to return when this rule matches (e.g. treatment_a). Leave blank for Boolean flags.</description>
+        <externalId>false</externalId>
+        <label>Variant Value</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Feature Flag Rule</label>
+    <nameField>
+        <label>Rule Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Feature Flag Rules</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

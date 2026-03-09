@@ -1,0 +1,25 @@
+{
+  "name": "flipswitch",
+  "version": "1.0.0",
+  "description": "Salesforce Progressive Delivery Feature Flag Framework",
+  "private": true,
+  "scripts": {
+    "lint": "eslint force-app/main/default/lwc",
+    "prettier": "prettier --write \"force-app/**/*.{html,js,css,json}\"",
+    "prettier:check": "prettier --check \"force-app/**/*.{html,js,css,json}\"",
+    "test": "lwc-jest --coverage",
+    "test:watch": "lwc-jest --watch",
+    "scratch:create": "sf org create scratch -f config/project-scratch-def.json -a flipswitch-dev -d 30",
+    "scratch:deploy": "sf project deploy start --target-org flipswitch-dev",
+    "scratch:test": "sf apex run test --target-org flipswitch-dev --code-coverage --result-format human --wait 20"
+  },
+  "devDependencies": {
+    "@lwc/eslint-plugin-lwc": "^1.8.0",
+    "@salesforce/eslint-config-lwc": "^3.5.0",
+    "@salesforce/eslint-plugin-aura": "^2.1.0",
+    "@salesforce/sfdx-lwc-jest": "^3.1.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.0",
+    "prettier-plugin-apex": "^2.2.0"
+  }
+}
