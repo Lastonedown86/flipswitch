@@ -14,7 +14,7 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
 
 ### Objects to Create
 
-1. **`Feature_Flag__mdt`** (Custom Metadata Type) — Flag definitions
+1. **`FlipSwitch_Flag__mdt`** (Custom Metadata Type) — Flag definitions
    - `DeveloperName` (inherited) — unique flag key (e.g. `DARK_MODE`, `NEW_CHECKOUT_FLOW`)
    - `Label` (inherited) — human-readable name
    - `Description__c` (LongTextArea) — purpose and owner
@@ -24,8 +24,8 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
    - `Expiration_Date__c` (Date) — auto-expiration date (null = never)
    - `Category__c` (Text) — grouping for admin UI (e.g. `Checkout`, `UI`, `Backend`)
 
-2. **`Feature_Flag_Rule__c`** (Custom Object) — Runtime targeting rules
-   - `Feature_Flag_Key__c` (Text, indexed) — references `DeveloperName` of the CMDT
+2. **`FlipSwitch_Rule__c`** (Custom Object) — Runtime targeting rules
+   - `Flag_Key__c` (Text, indexed) — references `DeveloperName` of the CMDT
    - `Rule_Type__c` (Picklist) — `User` | `Profile` | `Permission_Set` | `Percentage` | `Custom_Field` | `Segment`
    - `Rule_Value__c` (LongTextArea) — JSON or semicolon-delimited values (user IDs, profile names, %, etc.)
    - `Variant_Value__c` (Text) — value to return when rule matches (for multi-variant)
@@ -34,13 +34,13 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
    - `Start_Date__c` (DateTime) — scheduled activation
    - `End_Date__c` (DateTime) — scheduled deactivation
 
-3. **`Feature_Flag_Variant__c`** (Custom Object) — Variant definitions for multi-variant flags
-   - `Feature_Flag_Key__c` (Text, indexed)
+3. **`FlipSwitch_Variant__c`** (Custom Object) — Variant definitions for multi-variant flags
+   - `Flag_Key__c` (Text, indexed)
    - `Variant_Key__c` (Text) — e.g. `control`, `treatment_a`, `treatment_b`
    - `Weight__c` (Number) — percentage weight for random assignment (all weights for a flag should sum to 100)
    - `Payload__c` (LongTextArea) — optional JSON payload for variant-specific config
 
-4. **`Feature_Flag_Evaluation__e`** (Platform Event) — Evaluation audit trail
+4. **`FlipSwitch_Evaluation__e`** (Platform Event) — Evaluation audit trail
    - `Flag_Key__c` (Text)
    - `User_Id__c` (Text)
    - `Result__c` (Text) — evaluated value
@@ -48,11 +48,11 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
    - `Timestamp__c` (DateTime)
    - `Evaluation_Reason__c` (Text) — why this result (e.g. `RULE_MATCH`, `DEFAULT`, `KILL_SWITCH`, `EXPIRED`)
 
-5. **`Feature_Flag_Assignment__c`** (Custom Object) — Sticky assignments for percentage/variant rollouts
-   - `Feature_Flag_Key__c` (Text, indexed)
+5. **`FlipSwitch_Assignment__c`** (Custom Object) — Sticky assignments for percentage/variant rollouts
+   - `Flag_Key__c` (Text, indexed)
    - `User_Id__c` (Text, indexed)
    - `Assigned_Variant__c` (Text) — sticky variant for this user
-   - Unique constraint on `Feature_Flag_Key__c` + `User_Id__c`
+   - Unique constraint on `Flag_Key__c` + `User_Id__c`
 
 ---
 
@@ -160,14 +160,14 @@ FeatureFlag.flag('NEW_CHECKOUT')
 8. **`FeatureFlagCache.cls`** — Platform Cache integration
    - Org-level cache for CMDT flag definitions (rarely change)
    - Session-level cache for user evaluations (per-request dedup)
-   - Cache invalidation on rule changes (via trigger on `Feature_Flag_Rule__c`)
+   - Cache invalidation on rule changes (via trigger on `FlipSwitch_Rule__c`)
    - Graceful fallback if cache partition unavailable
 
 9. **`FeatureFlagLogger.cls`** — Async logging
-   - Publishes `Feature_Flag_Evaluation__e` platform events
+   - Publishes `FlipSwitch_Evaluation__e` platform events
    - Sampling rate config (don't log 100% in high-volume orgs)
    - Respects `.silent()` flag from builder
-   - Trigger subscriber writes to `Feature_Flag_Evaluation_Log__c` (optional Big Object for retention)
+   - Trigger subscriber writes to `FlipSwitch_Evaluation_Log__c` (optional Big Object for retention)
 
 10. **`FeatureFlagHash.cls`** — Deterministic hashing util
     - Consistent hashing for percentage rollouts: `hash(userId + flagKey) % 100`
@@ -188,7 +188,7 @@ FeatureFlag.flag('NEW_CHECKOUT')
     - `FeatureFlag.SaveMethod.EVENT_BUS` — default, publish Platform Events
     - `FeatureFlag.SaveMethod.QUEUEABLE` — defer logging to async job
     - `FeatureFlag.SaveMethod.SYNCHRONOUS` — direct DML (testing/debug only)
-    - Configurable per-user via `Feature_Flag_Settings__c.Default_Save_Method__c`
+    - Configurable per-user via `FlipSwitch_Settings__c.Default_Save_Method__c`
 
 14. **Scenario Tagging** (mirrors Logger's `setScenario()`)
     - `FeatureFlag.setScenario('Checkout Flow')` — tags all subsequent evaluations in the transaction
@@ -200,12 +200,12 @@ FeatureFlag.flag('NEW_CHECKOUT')
     - Actions: `isEnabled`, `getVariant`, `evaluate`, `setScenario`
     - Same pattern as NebulaLogger's `CallableLogger`
 
-16. **`FeatureFlagPlugin`** (Interface) + `Feature_Flag_Plugin__mdt` — extensibility framework
+16. **`FeatureFlagPlugin`** (Interface) + `FlipSwitch_Plugin__mdt` — extensibility framework
     - `void onEvaluate(FeatureFlagResult result, FeatureFlagContext context)` — hook after each evaluation
     - Configured via CMDT — orgs add custom logic (Slack alerts on kill switch, external analytics sync)
     - Plugin framework available in unlocked package only (managed package platform limitation)
 
-17. **`Feature_Flag_Settings__c`** (Hierarchy Custom Setting) — per-user/profile framework config
+17. **`FlipSwitch_Settings__c`** (Hierarchy Custom Setting) — per-user/profile framework config
     - `Is_Logging_Enabled__c` — disable evaluation logging per user
     - `Override_All_Flags__c` (Picklist: None/Enable/Disable) — force all flags for QA/testing
     - `Default_Save_Method__c` — per-user save strategy override
@@ -277,7 +277,7 @@ FeatureFlag.flag('NEW_CHECKOUT')
 
 ### Kill Switches
 - `Is_Active__c = false` on CMDT immediately disables (requires deployment or Metadata API)
-- **Runtime kill switch**: Special rule with `Rule_Type__c = 'Kill_Switch'` on `Feature_Flag_Rule__c` (no deployment needed)
+- **Runtime kill switch**: Special rule with `Rule_Type__c = 'Kill_Switch'` on `FlipSwitch_Rule__c` (no deployment needed)
 - Admin UI one-click kill switch creates this rule instantly
 
 ### Auto-Expiration
@@ -288,10 +288,10 @@ FeatureFlag.flag('NEW_CHECKOUT')
 ### Circuit Breaker
 - If evaluation throws exception, return default value (never break the caller)
 - Log errors but don't propagate — feature flags must be safe to use everywhere
-- Configurable via `Feature_Flag_Config__mdt` custom metadata for framework settings
+- Configurable via `FlipSwitch_Config__mdt` custom metadata for framework settings
 
 ### Evaluation Analytics
-- Platform Event subscriber aggregates into `Feature_Flag_Metric__c`
+- Platform Event subscriber aggregates into `FlipSwitch_Metric__c`
 - Tracks: evaluation count per flag, variant distribution, unique users per variant
 - Powers reports/dashboards for experiment analysis
 
@@ -361,26 +361,26 @@ force-app/
     │       ├── FeatureFlagCacheTest.cls
     │       └── FeatureFlagHashTest.cls
     ├── customMetadata/
-    │   ├── Feature_Flag__mdt/
-    │   ├── Feature_Flag_Config__mdt/
-    │   └── Feature_Flag_Plugin__mdt/
+    │   ├── FlipSwitch_Flag__mdt/
+    │   ├── FlipSwitch_Config__mdt/
+    │   └── FlipSwitch_Plugin__mdt/
     ├── customSettings/
-    │   └── Feature_Flag_Settings__c/       (hierarchy)
+    │   └── FlipSwitch_Settings__c/         (hierarchy)
     ├── objects/
-    │   ├── Feature_Flag_Rule__c/
-    │   ├── Feature_Flag_Variant__c/
-    │   ├── Feature_Flag_Assignment__c/
-    │   └── Feature_Flag_Metric__c/
+    │   ├── FlipSwitch_Rule__c/
+    │   ├── FlipSwitch_Variant__c/
+    │   ├── FlipSwitch_Assignment__c/
+    │   └── FlipSwitch_Metric__c/
     ├── platformEventChannelMembers/
-    │   └── Feature_Flag_Evaluation__e/
+    │   └── FlipSwitch_Evaluation__e/
     ├── lwc/
     │   ├── featureFlagGate/
     │   ├── featureFlagVariant/
     │   ├── featureFlagService/
     │   └── featureFlagAdmin/
     ├── permissionsets/
-    │   ├── Feature_Flag_Admin.permissionset-meta.xml
-    │   └── Feature_Flag_User.permissionset-meta.xml
+    │   ├── FlipSwitch_Admin.permissionset-meta.xml
+    │   └── FlipSwitch_User.permissionset-meta.xml
     ├── tabs/
     └── flexipages/
 ```
@@ -401,7 +401,7 @@ force-app/
 ## Phase 7: Observability & Integration
 
 ### New Relic Integration (mirrors NebulaLogger pattern)
-- `Feature_Flag_Evaluation__e` Platform Events → subscriber trigger → New Relic via same pub/sub path
+- `FlipSwitch_Evaluation__e` Platform Events → subscriber trigger → New Relic via same pub/sub path
 - Dashboard templates: flag evaluation counts, variant distribution, kill switch activations
 - PagerDuty alerts: kill switch triggers, evaluation error rate spikes
 - Scenario tagging (`FeatureFlag.setScenario('Checkout Flow')`) enables per-flow dashboards
@@ -465,12 +465,13 @@ Native feature flag framework — same architecture patterns as NebulaLogger (Pl
 ## Decisions
 
 - **Storage: Hybrid CMDT + Custom Objects** — CMDTs for flag definitions (deployable, CI/CD friendly, no storage limits) + Custom Objects for runtime rules (admin-editable without deployment). This is the recommended pattern because pure CMDT would require deployments for any rule change, and pure Custom Objects would lose CI/CD deployability.
-- **Percentage rollout: Deterministic hash** — `SHA-256(userId + flagKey) % 100` gives consistent assignment without storing per-user records. `Feature_Flag_Assignment__c` exists as optional sticky assignment table for cases where hash-based assignment isn't sufficient (e.g., when percentage changes and you want to preserve existing assignments).
+- **Percentage rollout: Deterministic hash** — `SHA-256(userId + flagKey) % 100` gives consistent assignment without storing per-user records. `FlipSwitch_Assignment__c` exists as optional sticky assignment table for cases where hash-based assignment isn't sufficient (e.g., when percentage changes and you want to preserve existing assignments).
 - **Logging: Platform Events** — Async, non-blocking, decoupled. Won't impact DML limits or transaction performance. Subscriber writes to reportable object.
 - **Scope included**: Apex API (static + fluent), LWC components (gate + variant + admin), Flow invocable action, evaluation logging, kill switches, auto-expiration, percentage rollouts, multi-variant support, plugin framework, Callable interface, New Relic/NebulaLogger integration.
 - **Scope excluded**: Aura components (legacy, not prioritized), Visualforce support, external integrations (LaunchDarkly sync), mobile SDK, real-time streaming of flag changes, AppExchange listing, managed package (deferred to v2 if demand).
 - **Distribution**: Personal GitHub, MIT license, unlocked package only (v1). Same model as NebulaLogger.
 - **Starting from scratch** — no existing patterns to migrate from.
+- **Object naming**: All Salesforce metadata (CMDT, Custom Objects, Platform Events, Custom Settings, permission sets) uses the `FlipSwitch_` prefix to avoid naming conflicts with orgs that already have `Feature_Flag_*` objects. Apex classes retain the `FeatureFlag` prefix (no conflict risk since classes are scoped to the package).
 
 ---
 
