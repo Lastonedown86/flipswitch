@@ -6,7 +6,7 @@
  *
  *              Available in unlocked package only.
  */
-public interface FeatureFlagPlugin {
+public inherited sharing interface FeatureFlagPlugin {
     /**
      * @description Called after each flag evaluation completes.
      * @param result  The evaluation result

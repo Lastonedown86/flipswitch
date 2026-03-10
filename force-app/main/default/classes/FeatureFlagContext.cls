@@ -6,7 +6,7 @@
  *              Consumers never instantiate this directly — it is built
  *              automatically by the builder chain.
  */
-public class FeatureFlagContext {
+public inherited sharing class FeatureFlagContext {
 
     public Id userId             { get; private set; }
     public Id profileId          { get; private set; }

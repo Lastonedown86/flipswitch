@@ -13,7 +13,7 @@
  *              All exceptions are caught by the circuit breaker; callers
  *              always receive a safe default result, never an exception.
  */
-public class FeatureFlagEvaluator {
+public inherited sharing class FeatureFlagEvaluator {
 
     /**
      * @description Evaluate a single flag for the given context.

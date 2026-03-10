@@ -5,7 +5,7 @@
  *              Uses an upsert on Flag_Key__c (external ID) to update-or-create
  *              the metric for each flag.
  */
-public class FeatureFlagEvaluationTriggerHandler {
+public inherited sharing class FeatureFlagEvaluationTriggerHandler {
 
     public static void handleEvaluationEvents(List<Feature_Flag_Evaluation__e> events) {
         // Accumulate counts per flag key

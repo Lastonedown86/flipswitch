@@ -21,7 +21,7 @@
  *              - 'setScenario'  { scenario }                 → null
  *              - 'flushLogs'    {}                           → null
  */
-public class CallableFeatureFlag implements System.Callable {
+public inherited sharing class CallableFeatureFlag implements System.Callable {
 
     public Object call(String action, Map<String, Object> args) {
         switch on action.toLowerCase() {

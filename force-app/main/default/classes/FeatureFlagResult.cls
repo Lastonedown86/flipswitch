@@ -3,7 +3,7 @@
  *              Contains the evaluated value, variant key, reason for the result,
  *              and optional variant payload.
  */
-public class FeatureFlagResult {
+public inherited sharing class FeatureFlagResult {
 
     /** Reason constants — why this result was returned */
     public static final String REASON_RULE_MATCH  = 'RULE_MATCH';

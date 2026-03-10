@@ -10,7 +10,7 @@
  *                  .fallback(false)
  *                  .isEnabled()
  */
-public class FeatureFlagBuilder {
+public inherited sharing class FeatureFlagBuilder {
 
     private final String flagKey;
     private Id targetUserId;

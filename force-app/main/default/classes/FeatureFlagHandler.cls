@@ -9,6 +9,6 @@
  *       .whenDisabled(new LegacyCheckoutHandler())
  *       .execute();
  */
-public interface FeatureFlagHandler {
+public inherited sharing interface FeatureFlagHandler {
     void handle();
 }

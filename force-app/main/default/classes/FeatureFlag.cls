@@ -12,7 +12,7 @@
  *              FeatureFlag.flag('MY_FLAG').forUser(id).withAttribute('k','v').isEnabled()
  *              FeatureFlag.flags('A','B').forUser(id).evaluateAll()
  */
-public class FeatureFlag {
+public inherited sharing class FeatureFlag {
 
     /**
      * @description How evaluation logs are persisted.

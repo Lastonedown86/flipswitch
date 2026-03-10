@@ -8,7 +8,7 @@
  *              Gracefully degrades to a no-op if the Platform Cache partition
  *              is not configured — the framework still works, just slower.
  */
-public class FeatureFlagCache {
+public inherited sharing class FeatureFlagCache {
 
     private static final String PARTITION_NAME;
     private static final String ORG_PARTITION_KEY_PREFIX    = 'ff_flag_';

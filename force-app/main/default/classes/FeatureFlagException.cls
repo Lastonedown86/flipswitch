@@ -3,4 +3,4 @@
  *              Thrown internally; callers are protected by the circuit breaker
  *              in FeatureFlagEvaluator and never see this exception directly.
  */
-public class FeatureFlagException extends Exception {}
+public inherited sharing class FeatureFlagException extends Exception {}

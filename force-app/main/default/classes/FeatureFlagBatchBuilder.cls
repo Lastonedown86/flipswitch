@@ -10,7 +10,7 @@
  *                      .forUser(userId)
  *                      .evaluateAll();
  */
-public class FeatureFlagBatchBuilder {
+public inherited sharing class FeatureFlagBatchBuilder {
 
     private final List<String> flagKeys;
     private Id targetUserId;

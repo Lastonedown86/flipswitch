@@ -11,7 +11,7 @@
  *              3. Set Flag Key (required) and User Id (optional)
  *              4. Use {!Is_Enabled} or {!Variant} outputs in a Decision element
  */
-public class FeatureFlagFlowAction {
+public inherited sharing class FeatureFlagFlowAction {
 
     /**
      * @description Input wrapper for Flow invocable variables.

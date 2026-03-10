@@ -12,7 +12,7 @@
  *              - Sends email notification to the org's default system admin
  *              - Invalidates the Platform Cache for affected flags
  */
-public class FeatureFlagExpirationJob implements Schedulable {
+public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
 
     public void execute(SchedulableContext sc) {
         Datetime now = Datetime.now();

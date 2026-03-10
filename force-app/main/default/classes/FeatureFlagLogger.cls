@@ -11,7 +11,7 @@
  *              - FeatureFlagBuilder.silent() to suppress a specific call
  *              - FeatureFlag.SaveMethod for how events are persisted
  */
-public class FeatureFlagLogger {
+public inherited sharing class FeatureFlagLogger {
 
     private static final List<Feature_Flag_Evaluation__e> buffer =
         new List<Feature_Flag_Evaluation__e>();

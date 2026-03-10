@@ -6,7 +6,7 @@
  *              the same user always gets the same result for the same flag,
  *              without storing any per-user assignment records.
  */
-public class FeatureFlagHash {
+public inherited sharing class FeatureFlagHash {
 
     /**
      * @description Returns a deterministic integer in [0, 99] for a given
