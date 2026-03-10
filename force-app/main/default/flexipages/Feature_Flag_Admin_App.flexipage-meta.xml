@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>FlipSwitch — Feature Flag Admin Dashboard</description>
+    <flexiPageRegions>
+        <componentInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>flagKey</name>
+                    <value></value>
+                </componentInstanceProperties>
+                <componentName>c:featureFlagAdmin</componentName>
+            </componentInstance>
+        </componentInstances>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>Feature Flag Admin</masterLabel>
+    <pageTemplate>AppPage_Default</pageTemplate>
+    <type>AppPage</type>
+</FlexiPage>
