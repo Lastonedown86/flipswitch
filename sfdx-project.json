@@ -1,0 +1,16 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "FlipSwitch",
+      "versionName": "Version 1.0.0",
+      "versionNumber": "1.0.0.NEXT",
+      "versionDescription": "Progressive Delivery Feature Flag Framework for Salesforce"
+    }
+  ],
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "64.0",
+  "packageAliases": {}
+}

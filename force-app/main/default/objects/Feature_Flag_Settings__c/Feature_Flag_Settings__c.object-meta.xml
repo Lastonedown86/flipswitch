@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Per-user/profile configuration for FlipSwitch. Override logging and flag behavior per user or profile.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Default_Save_Method__c</fullName>
+        <description>How evaluation logs are saved. EVENT_BUS = Platform Event (default), QUEUEABLE = async job, SYNCHRONOUS = direct DML (debug only).</description>
+        <label>Default Save Method</label>
+        <required>false</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>EVENT_BUS</fullName>
+                    <default>true</default>
+                    <label>Event Bus</label>
+                </value>
+                <value>
+                    <fullName>QUEUEABLE</fullName>
+                    <default>false</default>
+                    <label>Queueable</label>
+                </value>
+                <value>
+                    <fullName>SYNCHRONOUS</fullName>
+                    <default>false</default>
+                    <label>Synchronous</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Is_Logging_Enabled__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Set to false to disable evaluation logging for this user/profile. Useful for high-volume service users.</description>
+        <label>Is Logging Enabled</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Override_All_Flags__c</fullName>
+        <description>QA/testing override. Enable_All forces all flags on; Disable_All forces all flags off. Use None for normal evaluation.</description>
+        <label>Override All Flags</label>
+        <required>false</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>None</fullName>
+                    <default>true</default>
+                    <label>None</label>
+                </value>
+                <value>
+                    <fullName>Enable_All</fullName>
+                    <default>false</default>
+                    <label>Enable All</label>
+                </value>
+                <value>
+                    <fullName>Disable_All</fullName>
+                    <default>false</default>
+                    <label>Disable All</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <label>Feature Flag Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

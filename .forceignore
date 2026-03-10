@@ -1,0 +1,14 @@
+# Ignore standard Salesforce profiles — too noisy for source tracking
+**/profiles/
+
+# Ignore managed package components
+**/installedPackages/
+
+# Ignore lwc test output
+force-app/main/default/lwc/**/__tests__/**
+
+# Ignore Node modules
+node_modules/
+
+# Ignore scratch org auth files
+auth-url.txt
