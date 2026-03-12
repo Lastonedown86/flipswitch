@@ -8,18 +8,24 @@
                     <lightning-button
                         label="Refresh"
                         icon-name="utility:refresh"
-                        onclick={handleRefresh}
-                        class="slds-m-bottom_small">
+                        onclick="
+                            {
+                                handleRefresh;
+                            }
+                        "
+                        class="slds-m-bottom_small"
+                    >
                     </lightning-button>
-                    <template if:true={flags}>
+                    <template if:true="{flags}">
                         <lightning-datatable
                             key-field="DeveloperName"
-                            data={flags}
-                            columns={flagColumns}
-                            onrowaction={handleFlagRowAction}>
+                            data="{flags}"
+                            columns="{flagColumns}"
+                            onrowaction="{handleFlagRowAction}"
+                        >
                         </lightning-datatable>
                     </template>
-                    <template if:true={flagsError}>
+                    <template if:true="{flagsError}">
                         <p class="slds-text-color_error">{flagsError}</p>
                     </template>
                 </div>
@@ -30,45 +36,75 @@
                 <div class="slds-m-around_medium">
                     <lightning-input
                         label="Flag Key"
-                        value={newRule.flagKey}
-                        onchange={handleRuleFieldChange}
+                        value="{newRule.flagKey}"
+                        onchange="
+                            {
+                                handleRuleFieldChange;
+                            }
+                        "
                         data-field="flagKey"
-                        required>
+                        required
+                    >
                     </lightning-input>
                     <lightning-combobox
                         label="Rule Type"
-                        value={newRule.ruleType}
-                        options={ruleTypeOptions}
-                        onchange={handleRuleFieldChange}
+                        value="{newRule.ruleType}"
+                        options="{ruleTypeOptions}"
+                        onchange="
+                            {
+                                handleRuleFieldChange;
+                            }
+                        "
                         data-field="ruleType"
-                        required>
+                        required
+                    >
                     </lightning-combobox>
                     <lightning-input
                         label="Rule Value"
-                        value={newRule.ruleValue}
-                        onchange={handleRuleFieldChange}
-                        data-field="ruleValue">
+                        value="{newRule.ruleValue}"
+                        onchange="
+                            {
+                                handleRuleFieldChange;
+                            }
+                        "
+                        data-field="ruleValue"
+                    >
                     </lightning-input>
                     <lightning-input
                         label="Priority"
                         type="number"
-                        value={newRule.priority}
-                        onchange={handleRuleFieldChange}
-                        data-field="priority">
+                        value="{newRule.priority}"
+                        onchange="
+                            {
+                                handleRuleFieldChange;
+                            }
+                        "
+                        data-field="priority"
+                    >
                     </lightning-input>
                     <lightning-input
                         label="Variant Value (multi-variant only)"
-                        value={newRule.variantValue}
-                        onchange={handleRuleFieldChange}
-                        data-field="variantValue">
+                        value="{newRule.variantValue}"
+                        onchange="
+                            {
+                                handleRuleFieldChange;
+                            }
+                        "
+                        data-field="variantValue"
+                    >
                     </lightning-input>
                     <lightning-button
                         label="Save Rule"
                         variant="brand"
-                        onclick={handleSaveRule}
-                        class="slds-m-top_small">
+                        onclick="
+                            {
+                                handleSaveRule;
+                            }
+                        "
+                        class="slds-m-top_small"
+                    >
                     </lightning-button>
-                    <template if:true={saveMessage}>
+                    <template if:true="{saveMessage}">
                         <p class="slds-m-top_small">{saveMessage}</p>
                     </template>
                 </div>
@@ -78,27 +114,42 @@
             <lightning-tab label="Kill Switch" value="killswitch">
                 <div class="slds-m-around_medium">
                     <p class="slds-m-bottom_small">
-                        Immediately disable a flag without a deployment.
-                        Creates a Kill_Switch rule that overrides all targeting.
+                        Immediately disable a flag without a deployment. Creates a Kill_Switch rule that overrides all
+                        targeting.
                     </p>
                     <lightning-input
                         label="Flag Key to Kill"
-                        value={killSwitchFlagKey}
-                        onchange={handleKillSwitchKeyChange}>
+                        value="{killSwitchFlagKey}"
+                        onchange="
+                            {
+                                handleKillSwitchKeyChange;
+                            }
+                        "
+                    >
                     </lightning-input>
                     <lightning-button
                         label="Activate Kill Switch"
                         variant="destructive"
-                        onclick={handleActivateKillSwitch}
-                        class="slds-m-top_small">
+                        onclick="
+                            {
+                                handleActivateKillSwitch;
+                            }
+                        "
+                        class="slds-m-top_small"
+                    >
                     </lightning-button>
                     <lightning-button
                         label="Deactivate Kill Switch"
                         variant="neutral"
-                        onclick={handleDeactivateKillSwitch}
-                        class="slds-m-top_small slds-m-left_small">
+                        onclick="
+                            {
+                                handleDeactivateKillSwitch;
+                            }
+                        "
+                        class="slds-m-top_small slds-m-left_small"
+                    >
                     </lightning-button>
-                    <template if:true={killSwitchMessage}>
+                    <template if:true="{killSwitchMessage}">
                         <p class="slds-m-top_small">{killSwitchMessage}</p>
                     </template>
                 </div>

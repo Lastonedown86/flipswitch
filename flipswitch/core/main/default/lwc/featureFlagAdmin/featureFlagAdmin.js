@@ -62,11 +62,13 @@ export default class FeatureFlagAdmin extends LightningElement {
     handleRefresh() {
         this.dispatchEvent(new CustomEvent('refresh'));
         // Force wire re-evaluation
-        getAllFlags({}).then((data) => {
-            this.flags = data;
-        }).catch((error) => {
-            this.flagsError = error.body.message;
-        });
+        getAllFlags({})
+            .then((data) => {
+                this.flags = data;
+            })
+            .catch((error) => {
+                this.flagsError = error.body.message;
+            });
     }
 
     handleFlagRowAction(event) {
