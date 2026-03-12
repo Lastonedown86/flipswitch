@@ -1,12 +1,28 @@
 {
+  "name": "FlipSwitch",
   "packageDirectories": [
     {
-      "path": "force-app",
-      "default": true,
+      "path": "./flipswitch/core",
+      "default": false,
       "package": "FlipSwitch",
       "versionName": "Version 1.0.0",
       "versionNumber": "1.0.0.NEXT",
-      "versionDescription": "Progressive Delivery Feature Flag Framework for Salesforce"
+      "versionDescription": "Progressive Delivery Feature Flag Framework for Salesforce",
+      "definitionFile": "./config/scratch-orgs/base-scratch-def.json",
+      "scopeProfiles": true,
+      "postInstallUrl": "https://github.com/Lastonedown86/flipswitch/wiki",
+      "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases",
+      "unpackagedMetadata": {
+        "path": "./flipswitch/extra-tests"
+      }
+    },
+    {
+      "path": "./flipswitch/extra-tests",
+      "default": false
+    },
+    {
+      "path": "./flipswitch/dev",
+      "default": true
     }
   ],
   "namespace": "",

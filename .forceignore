@@ -5,10 +5,13 @@
 **/installedPackages/
 
 # Ignore lwc test output
-force-app/main/default/lwc/**/__tests__/**
+flipswitch/**/lwc/**/__tests__/**
 
 # Ignore Node modules
 node_modules/
 
 # Ignore scratch org auth files
 auth-url.txt
+
+# Ignore test coverage output
+test-coverage/

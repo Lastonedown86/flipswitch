@@ -6,9 +6,11 @@ npm-debug.log*
 .sf/
 .sfdx/
 auth-url.txt
+jwt-server.key
 
 # Test output
 test-results/
+test-coverage/
 coverage/
 .nyc_output/
 
