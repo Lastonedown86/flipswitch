@@ -121,22 +121,25 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: 'Install Salesforce CLI'
+        run: npm install --global @salesforce/cli
+
       - name: 'Authenticate DevHub'
         run: |
           echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
-          npx sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
           rm ./auth-url.txt
 
       - name: 'Create Scratch Org'
-        run: npx sf org create scratch --no-namespace --no-track-source --duration-days 1 --definition-file ./config/scratch-orgs/base-scratch-def.json --wait 20 --set-default --json
+        run: sf org create scratch --no-namespace --no-track-source --duration-days 1 --definition-file ./config/scratch-orgs/base-scratch-def.json --wait 20 --set-default --json
 
       # Deploy only the core directory first and run all tests as part of the deployment
       # This ensures the core package has sufficient code coverage on its own
       - name: 'Validate Core Source in Scratch Org'
-        run: npx sf project deploy validate --concise --source-dir ./flipswitch/core/ --test-level RunLocalTests
+        run: sf project deploy validate --concise --source-dir ./flipswitch/core/ --test-level RunLocalTests
 
       - name: 'Deploy All Source to Scratch Org'
-        run: npx sf project deploy start --source-dir ./flipswitch/
+        run: sf project deploy start --source-dir ./flipswitch/
 
       - name: 'Assign Permission Sets'
         run: npm run permset:assign:all
@@ -158,7 +161,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 'Delete Scratch Org'
-        run: npx sf org delete scratch --no-prompt
+        run: sf org delete scratch --no-prompt
         if: ${{ always() }}
 
   # ─── Stage 4: Create Package Version (main only) ───────────────────────────
@@ -191,10 +194,13 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: 'Install Salesforce CLI'
+        run: npm install --global @salesforce/cli
+
       - name: 'Authenticate DevHub'
         run: |
           echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
-          npx sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
           rm ./auth-url.txt
 
       - name: 'Create Package Version'
@@ -207,4 +213,4 @@ jobs:
 
       - name: 'Promote Package Version'
         if: steps.create-version.outputs.version_id != ''
-        run: npx sf package version promote --no-prompt --package "${{ steps.create-version.outputs.version_id }}"
+        run: sf package version promote --no-prompt --package "${{ steps.create-version.outputs.version_id }}"
