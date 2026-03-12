@@ -12,6 +12,8 @@
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>FlipSwitch Admin</masterLabel>
-    <template>flexipage:defaultAppFullWidthHeaderPage</template>
+    <template>
+        <name>flexipage:defaultAppFullWidthHeaderPage</name>
+    </template>
     <type>AppPage</type>
 </FlexiPage>
