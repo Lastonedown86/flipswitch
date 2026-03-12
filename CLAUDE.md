@@ -47,26 +47,26 @@ force-app/main/default/
 │       ├── FeatureFlagCacheTest.cls
 │       └── FeatureFlagHashTest.cls
 ├── customMetadata/
-│   ├── Feature_Flag__mdt/                 # Flag definitions
-│   ├── Feature_Flag_Config__mdt/          # Framework settings
-│   └── Feature_Flag_Plugin__mdt/          # Plugin configuration
+│   ├── FlipSwitch_Flag__mdt/              # Flag definitions
+│   ├── FlipSwitch_Config__mdt/            # Framework settings
+│   └── FlipSwitch_Plugin__mdt/            # Plugin configuration
 ├── customSettings/
-│   └── Feature_Flag_Settings__c/          # Hierarchy custom setting
+│   └── FlipSwitch_Settings__c/            # Hierarchy custom setting
 ├── objects/
-│   ├── Feature_Flag_Rule__c/              # Runtime targeting rules
-│   ├── Feature_Flag_Variant__c/           # Multi-variant definitions
-│   ├── Feature_Flag_Assignment__c/        # Sticky user assignments
-│   └── Feature_Flag_Metric__c/            # Evaluation analytics
+│   ├── FlipSwitch_Rule__c/                # Runtime targeting rules
+│   ├── FlipSwitch_Variant__c/             # Multi-variant definitions
+│   ├── FlipSwitch_Assignment__c/          # Sticky user assignments
+│   └── FlipSwitch_Metric__c/             # Evaluation analytics
 ├── platformEventChannelMembers/
-│   └── Feature_Flag_Evaluation__e/        # Audit trail events
+│   └── FlipSwitch_Evaluation__e/          # Audit trail events
 ├── lwc/
 │   ├── featureFlagGate/                   # Conditional rendering
 │   ├── featureFlagVariant/                # Multi-variant rendering
 │   ├── featureFlagService/                # Imperative JS service module
 │   └── featureFlagAdmin/                  # Admin dashboard
 ├── permissionsets/
-│   ├── Feature_Flag_Admin.permissionset-meta.xml
-│   └── Feature_Flag_User.permissionset-meta.xml
+│   ├── FlipSwitch_Admin.permissionset-meta.xml
+│   └── FlipSwitch_User.permissionset-meta.xml
 ├── tabs/
 └── flexipages/
 ```
@@ -75,9 +75,9 @@ force-app/main/default/
 
 ### Hybrid Storage Model
 
-- **CMDT** (`Feature_Flag__mdt`) for flag definitions — deployable via CI/CD, no data storage limits
-- **Custom Objects** (`Feature_Flag_Rule__c`, etc.) for runtime rules — admin-editable without deployments
-- **Platform Events** (`Feature_Flag_Evaluation__e`) for async logging — non-blocking, decoupled
+- **CMDT** (`FlipSwitch_Flag__mdt`) for flag definitions — deployable via CI/CD, no data storage limits
+- **Custom Objects** (`FlipSwitch_Rule__c`, etc.) for runtime rules — admin-editable without deployments
+- **Platform Events** (`FlipSwitch_Evaluation__e`) for async logging — non-blocking, decoupled
 
 ### Dual API Pattern
 
@@ -113,7 +113,7 @@ The evaluator checks rules in this priority:
 - **Platform Events for logging**: async, won't impact DML limits
 - **Circuit breaker**: evaluation errors return default values, never break the caller
 - **Lazy evaluation with memoization**: most transactions check 1-3 flags, batch on demand
-- **No namespace**: unlocked package for maximum extensibility and plugin support
+- **Product-branded metadata names**: all Salesforce objects/CMDT/events use `FlipSwitch_` prefix to avoid conflicts with existing org metadata; Apex classes use `FeatureFlag` prefix (no conflict risk)
 
 ## Coding Conventions
 
@@ -122,7 +122,7 @@ The evaluator checks rules in this priority:
 - All public classes prefixed with `FeatureFlag` (e.g., `FeatureFlagBuilder`, `FeatureFlagCache`)
 - Interfaces: `FeatureFlagHandler`, `FeatureFlagPlugin`
 - Test classes: `<ClassName>Test.cls` (e.g., `FeatureFlagBuilderTest`)
-- CMDT/Object names: `Feature_Flag_*` with underscores
+- CMDT/Object/Event names: `FlipSwitch_*` with underscores (avoids naming conflicts in subscriber orgs)
 - LWC components: camelCase (e.g., `featureFlagGate`, `featureFlagAdmin`)
 
 ### Patterns
