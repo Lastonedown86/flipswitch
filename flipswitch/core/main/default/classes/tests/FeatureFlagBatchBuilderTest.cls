@@ -29,9 +29,9 @@ private class FeatureFlagBatchBuilderTest {
         // SAMPLE_BOOLEAN_FLAG is the only CMDT record we have in test context.
         // Test with two references to confirm the map is populated.
         Test.startTest();
-        Map<String, FeatureFlagResult> results = FeatureFlag
-            .flags(new List<String>{ 'SAMPLE_BOOLEAN_FLAG' })
-            .evaluateAll();
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).evaluateAll();
         Test.stopTest();
 
         System.assertNotEquals(null, results.get('SAMPLE_BOOLEAN_FLAG'));
@@ -44,9 +44,9 @@ private class FeatureFlagBatchBuilderTest {
 
         Integer queriesBefore = Limits.getQueries();
         Test.startTest();
-        Map<String, FeatureFlagResult> results = FeatureFlag
-            .flags(new List<String>{ 'SAMPLE_BOOLEAN_FLAG' })
-            .forUser(UserInfo.getUserId())
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).forUser(UserInfo.getUserId())
             .evaluateAll();
         Integer queriesUsed = Limits.getQueries() - queriesBefore;
         Test.stopTest();
@@ -70,9 +70,9 @@ private class FeatureFlagBatchBuilderTest {
         insert segRule;
 
         Test.startTest();
-        Map<String, FeatureFlagResult> results = FeatureFlag
-            .flags(new List<String>{ 'SAMPLE_BOOLEAN_FLAG' })
-            .withAttribute('env', 'staging')
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).withAttribute('env', 'staging')
             .evaluateAll();
         Test.stopTest();
 
@@ -83,9 +83,9 @@ private class FeatureFlagBatchBuilderTest {
     @IsTest
     static void testEmptyFlagListReturnsEmptyMap() {
         Test.startTest();
-        Map<String, FeatureFlagResult> results = FeatureFlag
-            .flags(new List<String>())
-            .evaluateAll();
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>()
+        ).evaluateAll();
         Test.stopTest();
 
         System.assertEquals(0, results.size(), 'Empty flag list should return empty map');
@@ -97,9 +97,9 @@ private class FeatureFlagBatchBuilderTest {
         insertUserRule('SAMPLE_BOOLEAN_FLAG');
 
         Test.startTest();
-        Map<String, FeatureFlagResult> results = FeatureFlag
-            .flags(new List<String>{ 'SAMPLE_BOOLEAN_FLAG' })
-            .forUser(currentUser)
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).forUser(currentUser)
             .evaluateAll();
         Test.stopTest();
 

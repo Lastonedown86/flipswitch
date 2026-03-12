@@ -12,6 +12,5 @@
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>FlipSwitch Admin</masterLabel>
-    <pageTemplate>AppPage_Default</pageTemplate>
     <type>AppPage</type>
 </FlexiPage>
