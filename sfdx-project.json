@@ -9,7 +9,7 @@
       "versionNumber": "1.0.0.NEXT",
       "versionDescription": "Progressive Delivery Feature Flag Framework for Salesforce",
       "definitionFile": "./config/scratch-orgs/base-scratch-def.json",
-      "scopeProfiles": true,
+      "scopeProfiles": false,
       "postInstallUrl": "https://github.com/Lastonedown86/flipswitch/wiki",
       "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases"
     }
