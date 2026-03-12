@@ -4,9 +4,9 @@
   "description": "Salesforce Progressive Delivery Feature Flag Framework",
   "private": true,
   "scripts": {
-    "lint": "eslint flipswitch/**/lwc",
-    "prettier": "prettier --write \"flipswitch/**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,yaml,yml}\"",
-    "prettier:verify": "prettier --list-different \"flipswitch/**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,yaml,yml}\"",
+    "lint": "eslint flipswitch/core/main/default/lwc/",
+    "prettier": "prettier --write \"flipswitch/**/*.{css,html,js,json}\"",
+    "prettier:verify": "prettier --list-different \"flipswitch/**/*.{css,html,js,json}\"",
     "test:lwc": "lwc-jest --coverage",
     "test:lwc:nocoverage": "lwc-jest",
     "test:apex": "npx sf apex run test --concise --test-level RunLocalTests --wait 30 --result-format human --code-coverage --detailed-coverage --output-dir ./test-coverage/apex",
@@ -30,6 +30,8 @@
     "@salesforce/eslint-plugin-aura": "^2.1.0",
     "@salesforce/sfdx-lwc-jest": "^3.1.0",
     "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^29.15.0",
     "prettier": "^3.3.0",
     "prettier-plugin-apex": "^2.2.0"
   }

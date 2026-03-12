@@ -12,6 +12,8 @@ on:
       - '.github/workflows/**'
       - 'config/scratch-orgs/**'
       - 'sfdx-project.json'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
@@ -19,6 +21,8 @@ on:
       - '.github/workflows/**'
       - 'config/scratch-orgs/**'
       - 'sfdx-project.json'
+      - 'package.json'
+      - 'package-lock.json'
 
 jobs:
   # ─── Stage 1: Code Quality ─────────────────────────────────────────────────
