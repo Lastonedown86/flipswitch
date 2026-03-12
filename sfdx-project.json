@@ -14,7 +14,6 @@
       "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases"
     }
   ],
-  "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "64.0",
   "packageAliases": {}
