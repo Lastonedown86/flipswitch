@@ -2,7 +2,7 @@ import { LightningElement, api, wire } from 'lwc';
 import getVariantForCurrentUser from '@salesforce/apex/FeatureFlag.getVariantForCurrentUser';
 
 export default class FeatureFlagVariant extends LightningElement {
-    /** The Feature_Flag__mdt DeveloperName to evaluate */
+    /** The FlipSwitch_Flag__mdt DeveloperName to evaluate */
     @api flagKey;
 
     /** Default variant slot to render when no other matches */

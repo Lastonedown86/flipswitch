@@ -20,7 +20,7 @@ public inherited sharing class FeatureFlagBuilder {
     private String scenario;
     private FeatureFlagHandler enabledHandler;
     private FeatureFlagHandler disabledHandler;
-    private List<Feature_Flag_Rule__c> preloadedRules;
+    private List<FlipSwitch_Rule__c> preloadedRules;
 
     public FeatureFlagBuilder(String flagKey) {
         this.flagKey = flagKey;
@@ -84,7 +84,7 @@ public inherited sharing class FeatureFlagBuilder {
 
     /** @description Inject pre-loaded rules (used by FeatureFlagBatchBuilder). */
     @TestVisible
-    FeatureFlagBuilder withPreloadedRules(List<Feature_Flag_Rule__c> rules) {
+    FeatureFlagBuilder withPreloadedRules(List<FlipSwitch_Rule__c> rules) {
         this.preloadedRules = rules;
         return this;
     }
@@ -170,14 +170,14 @@ public inherited sharing class FeatureFlagBuilder {
     }
 
     private void runPlugins(FeatureFlagResult result, FeatureFlagContext ctx) {
-        List<Feature_Flag_Plugin__mdt> pluginConfigs = [
+        List<FlipSwitch_Plugin__mdt> pluginConfigs = [
             SELECT Class_Name__c, Priority__c
-            FROM Feature_Flag_Plugin__mdt
+            FROM FlipSwitch_Plugin__mdt
             WHERE Is_Enabled__c = TRUE
             ORDER BY Priority__c ASC NULLS LAST
         ];
 
-        for (Feature_Flag_Plugin__mdt config : pluginConfigs) {
+        for (FlipSwitch_Plugin__mdt config : pluginConfigs) {
             try {
                 Type pluginType = Type.forName(config.Class_Name__c);
                 if (pluginType != null) {

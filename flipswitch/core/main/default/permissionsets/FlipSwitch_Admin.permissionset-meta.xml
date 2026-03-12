@@ -2,14 +2,14 @@
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Full access to FlipSwitch. Assign to Salesforce admins and release engineers managing feature flags.</description>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Feature Flag Admin</label>
+    <label>FlipSwitch Admin</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
-        <object>Feature_Flag_Rule__c</object>
+        <object>FlipSwitch_Rule__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -18,7 +18,7 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
-        <object>Feature_Flag_Variant__c</object>
+        <object>FlipSwitch_Variant__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -27,7 +27,7 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
-        <object>Feature_Flag_Assignment__c</object>
+        <object>FlipSwitch_Assignment__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -36,7 +36,7 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
-        <object>Feature_Flag_Metric__c</object>
+        <object>FlipSwitch_Metric__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
 </PermissionSet>

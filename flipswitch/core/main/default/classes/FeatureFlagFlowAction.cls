@@ -17,7 +17,7 @@ public inherited sharing class FeatureFlagFlowAction {
      * @description Input wrapper for Flow invocable variables.
      */
     public class FlowInput {
-        @InvocableVariable(label='Flag Key' description='The DeveloperName of the Feature_Flag__mdt record' required=true)
+        @InvocableVariable(label='Flag Key' description='The DeveloperName of the FlipSwitch_Flag__mdt record' required=true)
         public String flagKey;
 
         @InvocableVariable(label='User Id' description='Salesforce User Id to evaluate for. Defaults to running user.')
@@ -67,7 +67,7 @@ public inherited sharing class FeatureFlagFlowAction {
         }
 
         // Single SOQL: load all rules for all referenced flags
-        List<Feature_Flag_Rule__c> allRules =
+        List<FlipSwitch_Rule__c> allRules =
             FeatureFlagEvaluator.loadRulesForFlags(flagKeySet);
 
         for (FlowInput input : inputs) {

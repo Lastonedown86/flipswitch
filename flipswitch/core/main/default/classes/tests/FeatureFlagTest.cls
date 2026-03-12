@@ -2,9 +2,9 @@
 private class FeatureFlagTest {
 
     private static void insertEnableRule() {
-        insert new Feature_Flag_Rule__c(
+        insert new FlipSwitch_Rule__c(
             Name                = 'Enable Running User',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(UserInfo.getUserId()),
             Priority__c         = 10,
@@ -160,7 +160,7 @@ private class FeatureFlagTest {
     @IsTest
     static void testGetAllFlags() {
         Test.startTest();
-        List<Feature_Flag__mdt> flags = FeatureFlag.getAllFlags();
+        List<FlipSwitch_Flag__mdt> flags = FeatureFlag.getAllFlags();
         Test.stopTest();
         System.assert(!flags.isEmpty(), 'getAllFlags should return at least the sample CMDT record');
     }

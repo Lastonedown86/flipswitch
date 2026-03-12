@@ -2,9 +2,9 @@
 private class FeatureFlagBatchBuilderTest {
 
     private static void insertUserRule(String flagKey) {
-        insert new Feature_Flag_Rule__c(
+        insert new FlipSwitch_Rule__c(
             Name                = 'Enable User — ' + flagKey,
-            Feature_Flag_Key__c = flagKey,
+            Flag_Key__c = flagKey,
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(UserInfo.getUserId()),
             Priority__c         = 10,
@@ -59,9 +59,9 @@ private class FeatureFlagBatchBuilderTest {
 
     @IsTest
     static void testSharedContextAppliedToAllFlags() {
-        Feature_Flag_Rule__c segRule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c segRule = new FlipSwitch_Rule__c(
             Name                = 'Segment Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'Segment',
             Rule_Value__c       = '{"env":"staging"}',
             Priority__c         = 10,

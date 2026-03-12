@@ -2,7 +2,7 @@ import { LightningElement, api, wire } from 'lwc';
 import isEnabledForCurrentUser from '@salesforce/apex/FeatureFlag.isEnabledForCurrentUser';
 
 export default class FeatureFlagGate extends LightningElement {
-    /** The Feature_Flag__mdt DeveloperName to evaluate */
+    /** The FlipSwitch_Flag__mdt DeveloperName to evaluate */
     @api flagKey;
 
     _isEnabled = false;

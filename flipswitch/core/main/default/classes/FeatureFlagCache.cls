@@ -16,7 +16,7 @@ public inherited sharing class FeatureFlagCache {
     private static final Integer DEFAULT_TTL_SECONDS = 3600; // 1 hour
 
     static {
-        Feature_Flag_Config__mdt config = getConfig();
+        FlipSwitch_Config__mdt config = getConfig();
         PARTITION_NAME = config != null && String.isNotBlank(config.Cache_Partition_Name__c)
             ? config.Cache_Partition_Name__c
             : 'local.FlipSwitch';
@@ -119,10 +119,10 @@ public inherited sharing class FeatureFlagCache {
         return key.replaceAll('[^a-zA-Z0-9_]', '_').left(50);
     }
 
-    private static Feature_Flag_Config__mdt getConfig() {
-        List<Feature_Flag_Config__mdt> configs = [
+    private static FlipSwitch_Config__mdt getConfig() {
+        List<FlipSwitch_Config__mdt> configs = [
             SELECT Cache_Partition_Name__c
-            FROM Feature_Flag_Config__mdt
+            FROM FlipSwitch_Config__mdt
             WHERE DeveloperName = 'Default'
             LIMIT 1
         ];

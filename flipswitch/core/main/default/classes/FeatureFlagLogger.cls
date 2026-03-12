@@ -6,15 +6,15 @@
  *              reducing Platform Event DML operations from N to 1 per transaction.
  *
  *              Respects:
- *              - Feature_Flag_Settings__c.Is_Logging_Enabled__c per user
- *              - Feature_Flag_Config__mdt.Log_Sampling_Rate__c (0–100%)
+ *              - FlipSwitch_Settings__c.Is_Logging_Enabled__c per user
+ *              - FlipSwitch_Config__mdt.Log_Sampling_Rate__c (0–100%)
  *              - FeatureFlagBuilder.silent() to suppress a specific call
  *              - FeatureFlag.SaveMethod for how events are persisted
  */
 public inherited sharing class FeatureFlagLogger {
 
-    private static final List<Feature_Flag_Evaluation__e> buffer =
-        new List<Feature_Flag_Evaluation__e>();
+    private static final List<FlipSwitch_Evaluation__e> buffer =
+        new List<FlipSwitch_Evaluation__e>();
 
     private static Boolean suspended = false;
     private static String  currentScenario;
@@ -37,7 +37,7 @@ public inherited sharing class FeatureFlagLogger {
             return;
         }
 
-        Feature_Flag_Evaluation__e event = new Feature_Flag_Evaluation__e(
+        FlipSwitch_Evaluation__e event = new FlipSwitch_Evaluation__e(
             Flag_Key__c          = ctx.flagKey,
             User_Id__c           = String.valueOf(ctx.userId),
             Result__c            = result.variant != null ? result.variant
@@ -109,14 +109,14 @@ public inherited sharing class FeatureFlagLogger {
     // ─── Private helpers ──────────────────────────────────────────────────
 
     private static Boolean isLoggingEnabled(FeatureFlagContext ctx) {
-        Feature_Flag_Settings__c settings = Feature_Flag_Settings__c.getInstance(ctx.userId);
+        FlipSwitch_Settings__c settings = FlipSwitch_Settings__c.getInstance(ctx.userId);
         return settings == null || settings.Is_Logging_Enabled__c;
     }
 
     private static Boolean passesSamplingRate() {
-        List<Feature_Flag_Config__mdt> configs = [
+        List<FlipSwitch_Config__mdt> configs = [
             SELECT Log_Sampling_Rate__c
-            FROM Feature_Flag_Config__mdt
+            FROM FlipSwitch_Config__mdt
             WHERE DeveloperName = 'Default'
             LIMIT 1
         ];
@@ -144,9 +144,9 @@ public inherited sharing class FeatureFlagLogger {
      *              outside the originating transaction.
      */
     public class FeatureFlagLoggerQueueable implements Queueable {
-        private final List<Feature_Flag_Evaluation__e> events;
+        private final List<FlipSwitch_Evaluation__e> events;
 
-        public FeatureFlagLoggerQueueable(List<Feature_Flag_Evaluation__e> events) {
+        public FeatureFlagLoggerQueueable(List<FlipSwitch_Evaluation__e> events) {
             this.events = events;
         }
 

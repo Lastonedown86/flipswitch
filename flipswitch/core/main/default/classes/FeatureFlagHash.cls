@@ -14,7 +14,7 @@ public inherited sharing class FeatureFlagHash {
      *              same output, providing sticky assignment without storage.
      *
      * @param userId  The Salesforce user Id
-     * @param flagKey The Feature_Flag__mdt DeveloperName
+     * @param flagKey The FlipSwitch_Flag__mdt DeveloperName
      * @return        Integer in [0, 99]
      */
     public static Integer getHashedPercentile(Id userId, String flagKey) {

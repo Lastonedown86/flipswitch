@@ -4,7 +4,7 @@
  *              Evaluation order (highest to lowest priority):
  *              1. Kill switch — Is_Active__c = false on CMDT
  *              2. Expiration  — Expiration_Date__c < TODAY
- *              3. QA override — Feature_Flag_Settings__c.Override_All_Flags__c
+ *              3. QA override — FlipSwitch_Settings__c.Override_All_Flags__c
  *              4. Kill switch rule — Rule_Type__c = Kill_Switch
  *              5. Targeting rules by Priority__c ASC:
  *                 User → Profile → Permission_Set → Segment → Custom_Field → Percentage
@@ -20,7 +20,7 @@ public inherited sharing class FeatureFlagEvaluator {
      *              Pre-loaded rules (from batch builder) can be passed to
      *              avoid an extra SOQL query.
      *
-     * @param flagKey       The Feature_Flag__mdt DeveloperName
+     * @param flagKey       The FlipSwitch_Flag__mdt DeveloperName
      * @param ctx           Evaluation context (user, attributes, etc.)
      * @param preloadedRules Optional pre-loaded rules (null triggers a fresh query)
      * @return              FeatureFlagResult — never null, never throws
@@ -28,7 +28,7 @@ public inherited sharing class FeatureFlagEvaluator {
     public static FeatureFlagResult evaluate(
         String flagKey,
         FeatureFlagContext ctx,
-        List<Feature_Flag_Rule__c> preloadedRules
+        List<FlipSwitch_Rule__c> preloadedRules
     ) {
         try {
             return doEvaluate(flagKey, ctx, preloadedRules);
@@ -43,10 +43,10 @@ public inherited sharing class FeatureFlagEvaluator {
     private static FeatureFlagResult doEvaluate(
         String flagKey,
         FeatureFlagContext ctx,
-        List<Feature_Flag_Rule__c> preloadedRules
+        List<FlipSwitch_Rule__c> preloadedRules
     ) {
         // 1. Load flag definition from CMDT
-        Feature_Flag__mdt flag = loadFlag(flagKey);
+        FlipSwitch_Flag__mdt flag = loadFlag(flagKey);
         if (flag == null) {
             return FeatureFlagResult.disabled(FeatureFlagResult.REASON_ERROR);
         }
@@ -62,7 +62,7 @@ public inherited sharing class FeatureFlagEvaluator {
         }
 
         // 4. QA override from hierarchy custom settings
-        Feature_Flag_Settings__c settings = Feature_Flag_Settings__c.getInstance(ctx.userId);
+        FlipSwitch_Settings__c settings = FlipSwitch_Settings__c.getInstance(ctx.userId);
         if (settings != null && String.isNotBlank(settings.Override_All_Flags__c)) {
             if (settings.Override_All_Flags__c == 'Enable_All') {
                 return FeatureFlagResult.enabled(flag.Default_Value__c, null, FeatureFlagResult.REASON_QA_OVERRIDE);
@@ -73,19 +73,19 @@ public inherited sharing class FeatureFlagEvaluator {
         }
 
         // 5. Load targeting rules (or use pre-loaded set from batch builder)
-        List<Feature_Flag_Rule__c> rules = preloadedRules != null
+        List<FlipSwitch_Rule__c> rules = preloadedRules != null
             ? filterRulesForFlag(preloadedRules, flagKey)
             : loadRules(flagKey);
 
         // 6. Kill switch rule (checked before other targeting rules)
-        for (Feature_Flag_Rule__c rule : rules) {
+        for (FlipSwitch_Rule__c rule : rules) {
             if (rule.Is_Active__c && rule.Rule_Type__c == 'Kill_Switch' && isRuleScheduleActive(rule)) {
                 return FeatureFlagResult.disabled(FeatureFlagResult.REASON_KILL_SWITCH);
             }
         }
 
         // 7. Evaluate targeting rules in Priority__c order
-        for (Feature_Flag_Rule__c rule : rules) {
+        for (FlipSwitch_Rule__c rule : rules) {
             if (!rule.Is_Active__c || rule.Rule_Type__c == 'Kill_Switch') {
                 continue;
             }
@@ -107,7 +107,7 @@ public inherited sharing class FeatureFlagEvaluator {
     // ─── Rule matching ────────────────────────────────────────────────────
 
     private static Boolean ruleMatches(
-        Feature_Flag_Rule__c rule,
+        FlipSwitch_Rule__c rule,
         FeatureFlagContext ctx,
         String flagKey
     ) {
@@ -210,7 +210,7 @@ public inherited sharing class FeatureFlagEvaluator {
         }
     }
 
-    private static Boolean isRuleScheduleActive(Feature_Flag_Rule__c rule) {
+    private static Boolean isRuleScheduleActive(FlipSwitch_Rule__c rule) {
         Datetime now = Datetime.now();
         if (rule.Start_Date__c != null && now < rule.Start_Date__c) {
             return false;
@@ -223,11 +223,11 @@ public inherited sharing class FeatureFlagEvaluator {
 
     // ─── Data loading ─────────────────────────────────────────────────────
 
-    private static Feature_Flag__mdt loadFlag(String flagKey) {
-        List<Feature_Flag__mdt> flags = [
+    private static FlipSwitch_Flag__mdt loadFlag(String flagKey) {
+        List<FlipSwitch_Flag__mdt> flags = [
             SELECT DeveloperName, Type__c, Default_Value__c, Is_Active__c,
                    Expiration_Date__c, Category__c, Description__c
-            FROM Feature_Flag__mdt
+            FROM FlipSwitch_Flag__mdt
             WHERE DeveloperName = :flagKey
             LIMIT 1
         ];
@@ -237,13 +237,13 @@ public inherited sharing class FeatureFlagEvaluator {
     /**
      * @description Load active rules for a single flag, ordered by Priority__c.
      */
-    public static List<Feature_Flag_Rule__c> loadRules(String flagKey) {
+    public static List<FlipSwitch_Rule__c> loadRules(String flagKey) {
         return [
-            SELECT Feature_Flag_Key__c, Rule_Type__c, Rule_Value__c,
+            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c,
                    Variant_Value__c, Priority__c, Is_Active__c,
                    Start_Date__c, End_Date__c
-            FROM Feature_Flag_Rule__c
-            WHERE Feature_Flag_Key__c = :flagKey
+            FROM FlipSwitch_Rule__c
+            WHERE Flag_Key__c = :flagKey
             ORDER BY Priority__c ASC NULLS LAST
         ];
     }
@@ -252,24 +252,24 @@ public inherited sharing class FeatureFlagEvaluator {
      * @description Load active rules for a set of flags in a single SOQL query.
      *              Used by FeatureFlagBatchBuilder.
      */
-    public static List<Feature_Flag_Rule__c> loadRulesForFlags(Set<String> flagKeys) {
+    public static List<FlipSwitch_Rule__c> loadRulesForFlags(Set<String> flagKeys) {
         return [
-            SELECT Feature_Flag_Key__c, Rule_Type__c, Rule_Value__c,
+            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c,
                    Variant_Value__c, Priority__c, Is_Active__c,
                    Start_Date__c, End_Date__c
-            FROM Feature_Flag_Rule__c
-            WHERE Feature_Flag_Key__c IN :flagKeys
-            ORDER BY Feature_Flag_Key__c, Priority__c ASC NULLS LAST
+            FROM FlipSwitch_Rule__c
+            WHERE Flag_Key__c IN :flagKeys
+            ORDER BY Flag_Key__c, Priority__c ASC NULLS LAST
         ];
     }
 
-    private static List<Feature_Flag_Rule__c> filterRulesForFlag(
-        List<Feature_Flag_Rule__c> allRules,
+    private static List<FlipSwitch_Rule__c> filterRulesForFlag(
+        List<FlipSwitch_Rule__c> allRules,
         String flagKey
     ) {
-        List<Feature_Flag_Rule__c> filtered = new List<Feature_Flag_Rule__c>();
-        for (Feature_Flag_Rule__c rule : allRules) {
-            if (rule.Feature_Flag_Key__c == flagKey) {
+        List<FlipSwitch_Rule__c> filtered = new List<FlipSwitch_Rule__c>();
+        for (FlipSwitch_Rule__c rule : allRules) {
+            if (rule.Flag_Key__c == flagKey) {
                 filtered.add(rule);
             }
         }

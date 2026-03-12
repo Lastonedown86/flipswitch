@@ -30,7 +30,7 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Quick boolean check for the running user.
-     * @param flagKey  Feature_Flag__mdt DeveloperName
+     * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
      * @return         true if the flag is enabled
      */
     public static Boolean isEnabled(String flagKey) {
@@ -39,7 +39,7 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Quick variant check for the running user.
-     * @param flagKey  Feature_Flag__mdt DeveloperName
+     * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
      * @return         Variant key, or 'true'/'false' for boolean flags
      */
     public static String getVariant(String flagKey) {
@@ -50,7 +50,7 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Create a fluent single-flag builder.
-     * @param flagKey  Feature_Flag__mdt DeveloperName
+     * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
      */
     public static FeatureFlagBuilder flag(String flagKey) {
         return new FeatureFlagBuilder(flagKey);
@@ -155,11 +155,11 @@ public inherited sharing class FeatureFlag {
      * @description Get all feature flags for the admin dashboard.
      */
     @AuraEnabled(cacheable=true)
-    public static List<Feature_Flag__mdt> getAllFlags() {
+    public static List<FlipSwitch_Flag__mdt> getAllFlags() {
         return [
             SELECT DeveloperName, Label, Type__c, Default_Value__c,
                    Is_Active__c, Expiration_Date__c, Category__c, Description__c
-            FROM Feature_Flag__mdt
+            FROM FlipSwitch_Flag__mdt
             ORDER BY Category__c, Label
         ];
     }
@@ -170,9 +170,9 @@ public inherited sharing class FeatureFlag {
      */
     @AuraEnabled
     public static void activateKillSwitch(String flagKey) {
-        Feature_Flag_Rule__c killRule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c killRule = new FlipSwitch_Rule__c(
             Name                = 'Kill Switch — ' + flagKey,
-            Feature_Flag_Key__c = flagKey,
+            Flag_Key__c = flagKey,
             Rule_Type__c        = 'Kill_Switch',
             Priority__c         = 1,
             Is_Active__c        = true
@@ -187,9 +187,9 @@ public inherited sharing class FeatureFlag {
      */
     @AuraEnabled
     public static void deactivateKillSwitch(String flagKey) {
-        List<Feature_Flag_Rule__c> killRules = [
-            SELECT Id FROM Feature_Flag_Rule__c
-            WHERE Feature_Flag_Key__c = :flagKey
+        List<FlipSwitch_Rule__c> killRules = [
+            SELECT Id FROM FlipSwitch_Rule__c
+            WHERE Flag_Key__c = :flagKey
               AND Rule_Type__c = 'Kill_Switch'
               AND Is_Active__c = TRUE
         ];

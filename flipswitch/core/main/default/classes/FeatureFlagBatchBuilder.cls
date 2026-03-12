@@ -62,7 +62,7 @@ public inherited sharing class FeatureFlagBatchBuilder {
 
         // Single SOQL: load all rules for all requested flags
         Set<String> flagKeySet = new Set<String>(flagKeys);
-        List<Feature_Flag_Rule__c> allRules = FeatureFlagEvaluator.loadRulesForFlags(flagKeySet);
+        List<FlipSwitch_Rule__c> allRules = FeatureFlagEvaluator.loadRulesForFlags(flagKeySet);
 
         // Build shared context once
         Id userId = targetUserId != null ? targetUserId : UserInfo.getUserId();

@@ -54,7 +54,7 @@ FlipSwitch is an open-source, unlocked-package feature flag framework for Salesf
 |---------|---------------------|
 | Deploying to enable a feature is risky | Define flags in CMDT, enable via admin UI — no deployment needed |
 | Hard to roll out to 5% of users safely | Deterministic SHA-256 hash — same user always gets the same result, no per-user storage |
-| A/B testing requires custom code each time | `FeatureFlag.getVariant()` with weighted `Feature_Flag_Variant__c` records |
+| A/B testing requires custom code each time | `FeatureFlag.getVariant()` with weighted `FlipSwitch_Variant__c` records |
 | Incident response requires a redeployment | One-click kill switch in the admin UI takes effect on the next request |
 | Feature flags litter the codebase forever | `Expiration_Date__c` + a scheduled cleanup job auto-retires stale flags |
 | Managed packages can't depend on your framework | `CallableFeatureFlag` implements `System.Callable` — zero compile-time dependency |
@@ -67,7 +67,7 @@ FlipSwitch is an open-source, unlocked-package feature flag framework for Salesf
 |---------|-------|
 | **Boolean flags** | On/off per user, profile, permission set, or percentage |
 | **Percentage rollouts** | Deterministic `SHA-256(userId + flagKey) % 100` — consistent without storage |
-| **Multi-variant (A/B/n)** | Weighted `Feature_Flag_Variant__c` records, `getVariant()` terminal |
+| **Multi-variant (A/B/n)** | Weighted `FlipSwitch_Variant__c` records, `getVariant()` terminal |
 | **Targeting rules** | User · Profile · Permission Set · Segment · Custom Field · Percentage |
 | **Kill switch** | Runtime rule, no deployment — takes effect on the next request |
 | **Auto-expiration** | Scheduled Apex deactivates rules past their `End_Date__c` |
@@ -116,10 +116,10 @@ https://<your-org>.my.salesforce.com/packaging/installPackage.apexp?p0=<PACKAGE_
 
 ```bash
 # Admin users — full read/write + kill switch
-sf org assign permset --name Feature_Flag_Admin --target-org <alias>
+sf org assign permset --name FlipSwitch_Admin --target-org <alias>
 
 # Application users — read-only, flag evaluation only
-sf org assign permset --name Feature_Flag_User --target-org <alias>
+sf org assign permset --name FlipSwitch_User --target-org <alias>
 ```
 
 Or assign manually via **Setup → Permission Sets**.
@@ -128,7 +128,7 @@ Or assign manually via **Setup → Permission Sets**.
 
 1. Go to **Setup → Platform Cache**
 2. Create a partition named **`FlipSwitch`**
-3. Update `Cache_Partition_Name__c` on the `Feature_Flag_Config.Default` CMDT record to `local.FlipSwitch`
+3. Update `Cache_Partition_Name__c` on the `FlipSwitch_Config.Default` CMDT record to `local.FlipSwitch`
 
 Without a cache partition the framework works correctly but performs a SOQL query on every evaluation.
 
@@ -419,8 +419,8 @@ Full admin dashboard available as a Lightning App Page. Three tabs:
 
 | Tab | Purpose |
 |-----|---------|
-| **Flags** | Datatable of all `Feature_Flag__mdt` records — type, active status, default value, category, expiry |
-| **Add Rule** | Form to create `Feature_Flag_Rule__c` targeting rules without opening Object Manager |
+| **Flags** | Datatable of all `FlipSwitch_Flag__mdt` records — type, active status, default value, category, expiry |
+| **Add Rule** | Form to create `FlipSwitch_Rule__c` targeting rules without opening Object Manager |
 | **Kill Switch** | One-click emergency disable or re-enable for any flag by key |
 
 ---
@@ -433,7 +433,7 @@ FlipSwitch registers an `@InvocableMethod` that appears in Flow Builder under th
 
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
-| `Flag Key` | Text | Yes | `Feature_Flag__mdt` DeveloperName |
+| `Flag Key` | Text | Yes | `FlipSwitch_Flag__mdt` DeveloperName |
 | `User Id` | Text | No | Salesforce User Id — defaults to running user |
 
 **Output variables:**
@@ -457,10 +457,10 @@ The action is **bulkified** — when a record-triggered flow processes 200 recor
 
 ## Flag Definitions (CMDT)
 
-Flags are defined in `Feature_Flag__mdt`. Deploy them via CI/CD alongside the code that checks them so the flag and its implementation always ship together.
+Flags are defined in `FlipSwitch_Flag__mdt`. Deploy them via CI/CD alongside the code that checks them so the flag and its implementation always ship together.
 
 ```xml
-<!-- force-app/main/default/customMetadata/Feature_Flag.NEW_CHECKOUT.md-meta.xml -->
+<!-- force-app/main/default/customMetadata/FlipSwitch_Flag.NEW_CHECKOUT.md-meta.xml -->
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -507,7 +507,7 @@ Flags are defined in `Feature_Flag__mdt`. Deploy them via CI/CD alongside the co
 
 ## Targeting Rules
 
-Targeting rules live in `Feature_Flag_Rule__c` (a Custom Object) so admins can create and modify them without a deployment.
+Targeting rules live in `FlipSwitch_Rule__c` (a Custom Object) so admins can create and modify them without a deployment.
 
 ### Rule types
 
@@ -612,7 +612,7 @@ A kill switch immediately disables a flag for all users with no deployment. Ther
 
 ### CMDT-level
 
-Set `Is_Active__c = false` on the `Feature_Flag__mdt` record and deploy via CI/CD. Suitable for permanent retirements.
+Set `Is_Active__c = false` on the `FlipSwitch_Flag__mdt` record and deploy via CI/CD. Suitable for permanent retirements.
 
 ### Runtime kill switch (instant, no deployment)
 
@@ -626,11 +626,11 @@ FeatureFlag.activateKillSwitch('NEW_CHECKOUT');
 FeatureFlag.deactivateKillSwitch('NEW_CHECKOUT');
 ```
 
-Or create a `Feature_Flag_Rule__c` record manually:
+Or create a `FlipSwitch_Rule__c` record manually:
 
 | Field | Value |
 |-------|-------|
-| `Feature_Flag_Key__c` | `NEW_CHECKOUT` |
+| `Flag_Key__c` | `NEW_CHECKOUT` |
 | `Rule_Type__c` | `Kill_Switch` |
 | `Priority__c` | `1` |
 | `Is_Active__c` | `true` |
@@ -659,9 +659,9 @@ To roll out to 20% of users, create a `Percentage` rule with `Rule_Value__c = 20
 
 ## Multi-Variant Experiments
 
-### 1. Create variant records in `Feature_Flag_Variant__c`
+### 1. Create variant records in `FlipSwitch_Variant__c`
 
-| Name | Feature_Flag_Key__c | Variant_Key__c | Weight__c |
+| Name | Flag_Key__c | Variant_Key__c | Weight__c |
 |------|---------------------|----------------|-----------|
 | Control | HOMEPAGE_EXPERIMENT | control | 50 |
 | Treatment A | HOMEPAGE_EXPERIMENT | treatment_a | 30 |
@@ -702,9 +702,9 @@ switch on variant {
 
 ## Logging & Analytics
 
-Every flag evaluation publishes a `Feature_Flag_Evaluation__e` Platform Event. Events are **buffered in memory** during the transaction and published in a single `EventBus.publish()` call when `FeatureFlag.flushEvaluations()` is called (or at the end of the builder chain).
+Every flag evaluation publishes a `FlipSwitch_Evaluation__e` Platform Event. Events are **buffered in memory** during the transaction and published in a single `EventBus.publish()` call when `FeatureFlag.flushEvaluations()` is called (or at the end of the builder chain).
 
-A subscriber trigger handler aggregates events into `Feature_Flag_Metric__c` records:
+A subscriber trigger handler aggregates events into `FlipSwitch_Metric__c` records:
 
 | Field | Description |
 |-------|-------------|
@@ -726,14 +726,14 @@ FeatureFlag.resumeLogging();
 FeatureFlag.flag('MY_FLAG').silent().isEnabled();
 
 // Disable for a specific user via Hierarchy Custom Setting
-Feature_Flag_Settings__c s = Feature_Flag_Settings__c.getInstance(userId);
+FlipSwitch_Settings__c s = FlipSwitch_Settings__c.getInstance(userId);
 s.Is_Logging_Enabled__c = false;
 upsert s;
 ```
 
 ### Sampling
 
-Set `Log_Sampling_Rate__c` on the `Feature_Flag_Config.Default` CMDT record to a value between 0–100 to log only a percentage of evaluations. Default is `100` (log everything).
+Set `Log_Sampling_Rate__c` on the `FlipSwitch_Config.Default` CMDT record to a value between 0–100 to log only a percentage of evaluations. Default is `100` (log everything).
 
 ### Save methods
 
@@ -756,13 +756,13 @@ FlipSwitch uses two cache tiers when a partition is configured:
 
 If the partition is unavailable or not configured, all cache operations silently no-op and the framework falls back to direct SOQL queries. No configuration is required for the framework to function correctly.
 
-**Setup:** Create a partition named `FlipSwitch` in **Setup → Platform Cache**, then set `Cache_Partition_Name__c` on `Feature_Flag_Config.Default` to `local.FlipSwitch`.
+**Setup:** Create a partition named `FlipSwitch` in **Setup → Platform Cache**, then set `Cache_Partition_Name__c` on `FlipSwitch_Config.Default` to `local.FlipSwitch`.
 
 ---
 
 ## Plugin Framework
 
-Register post-evaluation hooks by implementing `FeatureFlagPlugin` and creating a `Feature_Flag_Plugin__mdt` record:
+Register post-evaluation hooks by implementing `FeatureFlagPlugin` and creating a `FlipSwitch_Plugin__mdt` record:
 
 ```apex
 public class MyAnalyticsPlugin implements FeatureFlagPlugin {
@@ -775,7 +775,7 @@ public class MyAnalyticsPlugin implements FeatureFlagPlugin {
 }
 ```
 
-Register via CMDT (`Feature_Flag_Plugin.My_Analytics_Plugin.md-meta.xml`):
+Register via CMDT (`FlipSwitch_Plugin.My_Analytics_Plugin.md-meta.xml`):
 
 ```xml
 <CustomMetadata ...>
@@ -815,15 +815,15 @@ Plugin errors are silently absorbed — a failing plugin never breaks flag evalu
 ### Storage model
 
 ```
-Feature_Flag__mdt           ← flag definitions — deploy via CI/CD
-Feature_Flag_Config__mdt    ← framework configuration — deploy via CI/CD
-Feature_Flag_Plugin__mdt    ← plugin registry — deploy via CI/CD
-Feature_Flag_Rule__c        ← runtime targeting rules — admin editable
-Feature_Flag_Variant__c     ← variant weight definitions — admin editable
-Feature_Flag_Assignment__c  ← sticky variant overrides — admin editable
-Feature_Flag_Metric__c      ← aggregated analytics — written by event trigger
-Feature_Flag_Settings__c    ← hierarchy custom setting — per user/profile config
-Feature_Flag_Evaluation__e  ← async evaluation log (Platform Event)
+FlipSwitch_Flag__mdt           ← flag definitions — deploy via CI/CD
+FlipSwitch_Config__mdt    ← framework configuration — deploy via CI/CD
+FlipSwitch_Plugin__mdt    ← plugin registry — deploy via CI/CD
+FlipSwitch_Rule__c        ← runtime targeting rules — admin editable
+FlipSwitch_Variant__c     ← variant weight definitions — admin editable
+FlipSwitch_Assignment__c  ← sticky variant overrides — admin editable
+FlipSwitch_Metric__c      ← aggregated analytics — written by event trigger
+FlipSwitch_Settings__c    ← hierarchy custom setting — per user/profile config
+FlipSwitch_Evaluation__e  ← async evaluation log (Platform Event)
 ```
 
 ### Class map
@@ -894,7 +894,7 @@ sf org create scratch \
 sf project deploy start --target-org flipswitch-dev
 
 # Assign permission set
-sf org assign permset --name Feature_Flag_Admin --target-org flipswitch-dev
+sf org assign permset --name FlipSwitch_Admin --target-org flipswitch-dev
 
 # Schedule expiration job
 sf apex run --target-org flipswitch-dev \

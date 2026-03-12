@@ -55,9 +55,9 @@ private class FeatureFlagFlowActionTest {
         Id userId = UserInfo.getUserId();
 
         // Add a rule for this user
-        insert new Feature_Flag_Rule__c(
+        insert new FlipSwitch_Rule__c(
             Name                = 'Flow Action User Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(userId),
             Priority__c         = 10,

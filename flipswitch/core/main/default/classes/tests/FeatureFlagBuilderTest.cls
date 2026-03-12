@@ -3,10 +3,10 @@ private class FeatureFlagBuilderTest {
 
     // ─── Helpers ──────────────────────────────────────────────────────────
 
-    private static Feature_Flag_Rule__c enableForCurrentUser() {
-        Feature_Flag_Rule__c rule = new Feature_Flag_Rule__c(
+    private static FlipSwitch_Rule__c enableForCurrentUser() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
             Name                = 'Enable Test User',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(UserInfo.getUserId()),
             Priority__c         = 10,
@@ -40,9 +40,9 @@ private class FeatureFlagBuilderTest {
 
     @IsTest
     static void testGetVariantReturnsVariantKey() {
-        Feature_Flag_Rule__c rule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
             Name                = 'Variant Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(UserInfo.getUserId()),
             Variant_Value__c    = 'treatment_a',
@@ -87,9 +87,9 @@ private class FeatureFlagBuilderTest {
     @IsTest
     static void testForUserSetsTargetUser() {
         Id currentUser = UserInfo.getUserId();
-        Feature_Flag_Rule__c rule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
             Name                = 'Specific User Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'User',
             Rule_Value__c       = String.valueOf(currentUser),
             Priority__c         = 10,
@@ -110,9 +110,9 @@ private class FeatureFlagBuilderTest {
 
     @IsTest
     static void testWithAttributePassedToSegmentRule() {
-        Feature_Flag_Rule__c rule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
             Name                = 'Segment Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'Segment',
             Rule_Value__c       = '{"region":"EMEA"}',
             Priority__c         = 10,
@@ -135,9 +135,9 @@ private class FeatureFlagBuilderTest {
 
     @IsTest
     static void testWithAttributesBulkAdd() {
-        Feature_Flag_Rule__c rule = new Feature_Flag_Rule__c(
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
             Name                = 'Multi Segment Rule',
-            Feature_Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
+            Flag_Key__c = 'SAMPLE_BOOLEAN_FLAG',
             Rule_Type__c        = 'Segment',
             Rule_Value__c       = '{"region":"US","tier":"Premium"}',
             Priority__c         = 10,

@@ -5,13 +5,13 @@ import getAllFlags from '@salesforce/apex/FeatureFlag.getAllFlags';
 import activateKillSwitch from '@salesforce/apex/FeatureFlag.activateKillSwitch';
 import deactivateKillSwitch from '@salesforce/apex/FeatureFlag.deactivateKillSwitch';
 
-import FEATURE_FLAG_RULE_OBJECT from '@salesforce/schema/Feature_Flag_Rule__c';
-import FEATURE_FLAG_KEY_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Feature_Flag_Key__c';
-import RULE_TYPE_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Rule_Type__c';
-import RULE_VALUE_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Rule_Value__c';
-import VARIANT_VALUE_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Variant_Value__c';
-import PRIORITY_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Priority__c';
-import IS_ACTIVE_FIELD from '@salesforce/schema/Feature_Flag_Rule__c.Is_Active__c';
+import FLIPSWITCH_RULE_OBJECT from '@salesforce/schema/FlipSwitch_Rule__c';
+import FLAG_KEY_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Flag_Key__c';
+import RULE_TYPE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Rule_Type__c';
+import RULE_VALUE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Rule_Value__c';
+import VARIANT_VALUE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Variant_Value__c';
+import PRIORITY_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Priority__c';
+import IS_ACTIVE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Is_Active__c';
 
 export default class FeatureFlagAdmin extends LightningElement {
     @track flags = [];
@@ -91,14 +91,14 @@ export default class FeatureFlagAdmin extends LightningElement {
         }
 
         const fields = {};
-        fields[FEATURE_FLAG_KEY_FIELD.fieldApiName] = this.newRule.flagKey;
+        fields[FLAG_KEY_FIELD.fieldApiName] = this.newRule.flagKey;
         fields[RULE_TYPE_FIELD.fieldApiName] = this.newRule.ruleType;
         fields[RULE_VALUE_FIELD.fieldApiName] = this.newRule.ruleValue;
         fields[VARIANT_VALUE_FIELD.fieldApiName] = this.newRule.variantValue;
         fields[PRIORITY_FIELD.fieldApiName] = parseInt(this.newRule.priority, 10);
         fields[IS_ACTIVE_FIELD.fieldApiName] = true;
 
-        createRecord({ apiName: FEATURE_FLAG_RULE_OBJECT.objectApiName, fields })
+        createRecord({ apiName: FLIPSWITCH_RULE_OBJECT.objectApiName, fields })
             .then(() => {
                 this.saveMessage = 'Rule saved successfully.';
                 this.dispatchEvent(

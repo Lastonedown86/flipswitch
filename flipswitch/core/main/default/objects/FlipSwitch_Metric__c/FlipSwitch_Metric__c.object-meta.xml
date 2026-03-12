@@ -3,7 +3,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Aggregated evaluation analytics per flag. Updated by the Feature_Flag_Evaluation__e trigger handler. Powers reports and dashboards.</description>
+    <description>Aggregated evaluation analytics per flag. Updated by the FlipSwitch_Evaluation__e trigger handler. Powers reports and dashboards.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -59,12 +59,12 @@
         <type>LongTextArea</type>
         <visibleLines>5</visibleLines>
     </fields>
-    <label>Feature Flag Metric</label>
+    <label>FlipSwitch Metric</label>
     <nameField>
         <label>Metric Name</label>
         <type>Text</type>
     </nameField>
-    <pluralLabel>Feature Flag Metrics</pluralLabel>
+    <pluralLabel>FlipSwitch Metrics</pluralLabel>
     <searchLayouts/>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>

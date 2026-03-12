@@ -30,6 +30,6 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
-    <label>Feature Flag Settings</label>
+    <label>FlipSwitch Settings</label>
     <visibility>Public</visibility>
 </CustomObject>

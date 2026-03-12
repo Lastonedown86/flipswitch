@@ -11,7 +11,7 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>Feature Flag Admin</masterLabel>
+    <masterLabel>FlipSwitch Admin</masterLabel>
     <pageTemplate>AppPage_Default</pageTemplate>
     <type>AppPage</type>
 </FlexiPage>

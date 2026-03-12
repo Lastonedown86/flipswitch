@@ -82,30 +82,30 @@ README.md
 ```
 force-app/main/default/
 ├── customMetadata/
-│   ├── Feature_Flag__mdt.object-meta.xml
-│   ├── Feature_Flag_Config__mdt.object-meta.xml
-│   └── Feature_Flag_Plugin__mdt.object-meta.xml
+│   ├── FlipSwitch_Flag__mdt.object-meta.xml
+│   ├── FlipSwitch_Config__mdt.object-meta.xml
+│   └── FlipSwitch_Plugin__mdt.object-meta.xml
 ├── customSettings/
-│   └── Feature_Flag_Settings__c.object-meta.xml
+│   └── FlipSwitch_Settings__c.object-meta.xml
 ├── objects/
-│   ├── Feature_Flag_Rule__c/
-│   │   ├── Feature_Flag_Rule__c.object-meta.xml
-│   │   └── fields/  (Rule_Type__c, Rule_Value__c, Feature_Flag_Key__c, Priority__c, Variant_Value__c, Is_Active__c, Start_Date__c, End_Date__c)
-│   ├── Feature_Flag_Variant__c/
-│   │   └── fields/  (Feature_Flag_Key__c, Variant_Key__c, Weight__c, Payload__c)
-│   ├── Feature_Flag_Assignment__c/
-│   │   └── fields/  (Feature_Flag_Key__c, User_Id__c, Assigned_Variant__c)
-│   │   (unique compound index on Feature_Flag_Key__c + User_Id__c)
-│   └── Feature_Flag_Metric__c/
+│   ├── FlipSwitch_Rule__c/
+│   │   ├── FlipSwitch_Rule__c.object-meta.xml
+│   │   └── fields/  (Rule_Type__c, Rule_Value__c, Flag_Key__c, Priority__c, Variant_Value__c, Is_Active__c, Start_Date__c, End_Date__c)
+│   ├── FlipSwitch_Variant__c/
+│   │   └── fields/  (Flag_Key__c, Variant_Key__c, Weight__c, Payload__c)
+│   ├── FlipSwitch_Assignment__c/
+│   │   └── fields/  (Flag_Key__c, User_Id__c, Assigned_Variant__c)
+│   │   (unique compound index on Flag_Key__c + User_Id__c)
+│   └── FlipSwitch_Metric__c/
 │       └── fields/  (Flag_Key__c, Evaluation_Count__c, Unique_Users__c, Variant_Distribution__c)
 └── platformEventChannelMembers/
-    └── Feature_Flag_Evaluation__e.object-meta.xml
+    └── FlipSwitch_Evaluation__e.object-meta.xml
         (fields: Flag_Key__c, User_Id__c, Result__c, Context__c, Timestamp__c, Evaluation_Reason__c, Scenario__c)
 ```
 
 ### Key Field Details
 
-**`Feature_Flag__mdt`** fields:
+**`FlipSwitch_Flag__mdt`** fields:
 - `Type__c` picklist: `Boolean | Variant | Percentage`
 - `Default_Value__c` Text(255)
 - `Is_Active__c` Checkbox (default true)
@@ -113,15 +113,15 @@ force-app/main/default/
 - `Category__c` Text(100)
 - `Description__c` LongTextArea
 
-**`Feature_Flag_Rule__c`** picklist values for `Rule_Type__c`:
+**`FlipSwitch_Rule__c`** picklist values for `Rule_Type__c`:
 `User | Profile | Permission_Set | Percentage | Custom_Field | Segment | Kill_Switch`
 
-**`Feature_Flag_Settings__c`** (Hierarchy):
+**`FlipSwitch_Settings__c`** (Hierarchy):
 - `Is_Logging_Enabled__c` Checkbox (default true)
 - `Override_All_Flags__c` Picklist: `None | Enable_All | Disable_All`
 - `Default_Save_Method__c` Picklist: `EVENT_BUS | QUEUEABLE | SYNCHRONOUS`
 
-**`Feature_Flag_Config__mdt`** records (framework config):
+**`FlipSwitch_Config__mdt`** records (framework config):
 - `Log_Sampling_Rate__c` Number (default 100 = log everything)
 - `Cache_Partition_Name__c` Text (default "local.FlipSwitch")
 - `Circuit_Breaker_Enabled__c` Checkbox (default true)
@@ -129,8 +129,8 @@ force-app/main/default/
 ### Permission Sets
 ```
 permissionsets/
-├── Feature_Flag_Admin.permissionset-meta.xml   (CRUD on all objects + CMDT)
-└── Feature_Flag_User.permissionset-meta.xml    (Read on CMDT, no object access)
+├── FlipSwitch_Admin.permissionset-meta.xml   (CRUD on all objects + CMDT)
+└── FlipSwitch_User.permissionset-meta.xml    (Read on CMDT, no object access)
 ```
 
 ### Verification
@@ -197,17 +197,17 @@ public class FeatureFlagHash {
 ```
 
 #### `force-app/main/default/classes/FeatureFlagCache.cls`
-- Org-level cache: stores `Feature_Flag__mdt` definitions (key: `flagKey`)
+- Org-level cache: stores `FlipSwitch_Flag__mdt` definitions (key: `flagKey`)
 - Session-level cache: stores per-user evaluation results (key: `userId:flagKey`)
 - `get(String key)`, `put(String key, Object value)`, `remove(String key)`, `clear()`
 - Graceful try/catch: if `Cache.Org.put()` throws (partition not configured), silently skip
-- Cache invalidation: called by `Feature_Flag_Rule__c` trigger on insert/update/delete
+- Cache invalidation: called by `FlipSwitch_Rule__c` trigger on insert/update/delete
 
 #### `force-app/main/default/classes/FeatureFlagLogger.cls`
 NebulaLogger-inspired transaction buffering:
 ```apex
 public class FeatureFlagLogger {
-    private static List<Feature_Flag_Evaluation__e> buffer = new List<>();
+    private static List<FlipSwitch_Evaluation__e> buffer = new List<>();
     private static Boolean suspended = false;
     private static FeatureFlag.SaveMethod saveMethod = FeatureFlag.SaveMethod.EVENT_BUS;
 
@@ -215,17 +215,17 @@ public class FeatureFlagLogger {
     public static void suspend() { suspended = true; }
     public static void resume() { suspended = false; }
     public static void flush() { /* publishes buffer as single EventBus.publish() call */ }
-    // Sampling: read Feature_Flag_Config__mdt.Log_Sampling_Rate__c, skip if random > rate
+    // Sampling: read FlipSwitch_Config__mdt.Log_Sampling_Rate__c, skip if random > rate
 }
 ```
 
 #### `force-app/main/default/classes/FeatureFlagEvaluator.cls`
 Core engine — called by both builders. Evaluation order:
-1. Load `Feature_Flag__mdt` via CMDT query (or cache hit)
+1. Load `FlipSwitch_Flag__mdt` via CMDT query (or cache hit)
 2. Kill switch: `Is_Active__c = false` → return `FeatureFlagResult.disabled()` with reason `KILL_SWITCH`
 3. Expiration: `Expiration_Date__c != null && Expiration_Date__c < Date.today()` → return disabled, reason `EXPIRED`
-4. Check `Feature_Flag_Settings__c.Override_All_Flags__c` (QA override)
-5. Check for `Kill_Switch` rule type in `Feature_Flag_Rule__c`
+4. Check `FlipSwitch_Settings__c.Override_All_Flags__c` (QA override)
+5. Check for `Kill_Switch` rule type in `FlipSwitch_Rule__c`
 6. Evaluate rules by `Priority__c` ASC:
    - `User`: `Rule_Value__c` contains context.userId
    - `Profile`: `Rule_Value__c` contains context.profileId
@@ -270,7 +270,7 @@ public class FeatureFlagBuilder {
 
 #### `force-app/main/default/classes/FeatureFlagBatchBuilder.cls`
 Multi-flag builder returned by `FeatureFlag.flags()`:
-- Single SOQL: loads ALL `Feature_Flag_Rule__c` records for all requested flag keys in one query
+- Single SOQL: loads ALL `FlipSwitch_Rule__c` records for all requested flag keys in one query
 - `forUser()`, `withAttribute()` — shared context for all flags
 - `evaluateAll()` → `Map<String, FeatureFlagResult>` — calls evaluator per flag using pre-loaded rules
 
@@ -328,7 +328,7 @@ public class FeatureFlagFlowAction {
 ```apex
 public class FeatureFlagExpirationJob implements Schedulable {
     public void execute(SchedulableContext sc) {
-        // Query Feature_Flag_Rule__c where End_Date__c <= NOW, deactivate
+        // Query FlipSwitch_Rule__c where End_Date__c <= NOW, deactivate
         // Query expired flags (read from Metadata API or custom config object)
         // Send Custom Notification to flag owner
     }
@@ -467,11 +467,11 @@ lwc/<componentName>/
 
 #### `featureFlagAdmin` — Admin dashboard
 - **Tabs**: Flag List | Flag Detail | Evaluation Logs | Rule Builder
-- **Flag List**: Datatable of all `Feature_Flag__mdt` records + active rule counts
-- **Kill Switch**: One-click button → Apex inserts `Feature_Flag_Rule__c` with `Rule_Type__c = 'Kill_Switch'`
-- **Rule Builder**: Lightning Input fields → saves new `Feature_Flag_Rule__c` record
+- **Flag List**: Datatable of all `FlipSwitch_Flag__mdt` records + active rule counts
+- **Kill Switch**: One-click button → Apex inserts `FlipSwitch_Rule__c` with `Rule_Type__c = 'Kill_Switch'`
+- **Rule Builder**: Lightning Input fields → saves new `FlipSwitch_Rule__c` record
 - **Evaluation Logs**: Datatable of Platform Event log records with flag/date filtering
-- Hosted via `flexipages/Feature_Flag_Admin_App.flexipage-meta.xml` + `tabs/Feature_Flags.tab-meta.xml`
+- Hosted via `flexipages/FlipSwitch_Admin_App.flexipage-meta.xml` + `tabs/FlipSwitch_Flags.tab-meta.xml`
 
 ### LWC Test Pattern (Jest)
 ```js
@@ -520,7 +520,7 @@ describe('featureFlagGate', () => {
 
 ### Auto-Expiration (`FeatureFlagExpirationJob.cls`)
 - Schedule: daily at midnight `'0 0 0 * * ?'`
-- Logic: query `Feature_Flag_Rule__c` where `End_Date__c <= NOW`, set `Is_Active__c = false`
+- Logic: query `FlipSwitch_Rule__c` where `End_Date__c <= NOW`, set `Is_Active__c = false`
 - For CMDT-based flag definitions: document as manual step (CMDT cannot be DML'd at runtime)
 - Notification: `Messaging.sendEmail()` or Custom Notification to flag category owner
 
@@ -528,12 +528,12 @@ describe('featureFlagGate', () => {
 - Already in `FeatureFlagEvaluator.cls` try/catch (implemented in Phase 2)
 - Logs exception via `FeatureFlagLogger` with reason `ERROR`
 - Returns `Default_Value__c` cast to appropriate type — caller never sees an exception
-- Toggled via `Feature_Flag_Config__mdt.Circuit_Breaker_Enabled__c` (disable for debugging)
+- Toggled via `FlipSwitch_Config__mdt.Circuit_Breaker_Enabled__c` (disable for debugging)
 
 ### Evaluation Analytics
-- Trigger on `Feature_Flag_Evaluation__e` platform event
-- Handler upserts `Feature_Flag_Metric__c`: evaluation count, variant distribution JSON, unique user count
-- Standard Salesforce Reports on `Feature_Flag_Metric__c` power experiment analysis dashboards
+- Trigger on `FlipSwitch_Evaluation__e` platform event
+- Handler upserts `FlipSwitch_Metric__c`: evaluation count, variant distribution JSON, unique user count
+- Standard Salesforce Reports on `FlipSwitch_Metric__c` power experiment analysis dashboards
 
 ### Files Added in Phase 5
 ```
@@ -605,7 +605,7 @@ Consumers can pin to a specific version or install the latest.
 
 ### Post-install documentation
 - Platform Cache partition setup (varies by org edition — manual step, not in package)
-- Assign `Feature_Flag_Admin` or `Feature_Flag_User` permission set
+- Assign `FlipSwitch_Admin` or `FlipSwitch_User` permission set
 - Schedule expiration job: `System.schedule('FlipSwitch Expiration', '0 0 0 * * ?', new FeatureFlagExpirationJob())`
 
 ### Verification
@@ -650,7 +650,7 @@ Consumers can pin to a specific version or install the latest.
 `featureFlagGate`, `featureFlagVariant`, `featureFlagService`, `featureFlagAdmin`
 
 ### Triggers (`force-app/main/default/triggers/`)
-`FeatureFlagEvaluationTrigger.trigger` (on `Feature_Flag_Evaluation__e`)
+`FeatureFlagEvaluationTrigger.trigger` (on `FlipSwitch_Evaluation__e`)
 
 ---
 

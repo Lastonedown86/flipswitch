@@ -33,7 +33,7 @@ function setCached(key, value) {
 
 /**
  * @description Check if a flag is enabled for the current user.
- * @param {string} flagKey - Feature_Flag__mdt DeveloperName
+ * @param {string} flagKey - FlipSwitch_Flag__mdt DeveloperName
  * @returns {Promise<boolean>}
  */
 async function isEnabled(flagKey) {
@@ -47,7 +47,7 @@ async function isEnabled(flagKey) {
 
 /**
  * @description Get the variant for a flag for the current user.
- * @param {string} flagKey - Feature_Flag__mdt DeveloperName
+ * @param {string} flagKey - FlipSwitch_Flag__mdt DeveloperName
  * @returns {Promise<string>}
  */
 async function getVariant(flagKey) {
@@ -61,7 +61,7 @@ async function getVariant(flagKey) {
 
 /**
  * @description Batch evaluate multiple flags in a single Apex call.
- * @param {string[]} flagKeys - Array of Feature_Flag__mdt DeveloperNames
+ * @param {string[]} flagKeys - Array of FlipSwitch_Flag__mdt DeveloperNames
  * @returns {Promise<Object>} Map of flagKey → { isEnabled, variant, reason }
  */
 async function evaluateFlags(flagKeys) {

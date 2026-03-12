@@ -10,7 +10,7 @@
     <targetConfigs>
         <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage">
             <property name="flagKey" type="String" label="Flag Key"
-                      description="The DeveloperName of the Feature_Flag__mdt record to evaluate." />
+                      description="The DeveloperName of the FlipSwitch_Flag__mdt record to evaluate." />
             <property name="defaultVariant" type="String" label="Default Variant"
                       default="control"
                       description="Slot name to render when the flag returns no variant (e.g. control)." />

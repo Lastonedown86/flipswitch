@@ -3,58 +3,61 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Stores sticky variant assignments for users. Used when deterministic hashing alone is insufficient (e.g. percentage changes but you want to preserve existing assignments).</description>
+    <description>Defines the variants and their weights for multi-variant feature flags. Weights for a flag must sum to 100.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
-    <enableSearch>false</enableSearch>
+    <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
-        <fullName>Assigned_Variant__c</fullName>
+        <fullName>Flag_Key__c</fullName>
         <externalId>false</externalId>
-        <label>Assigned Variant</label>
+        <label>Flag Key</label>
         <length>255</length>
         <required>true</required>
         <type>Text</type>
         <unique>false</unique>
     </fields>
     <fields>
-        <fullName>Feature_Flag_Key__c</fullName>
+        <fullName>Payload__c</fullName>
+        <description>Optional JSON payload delivered with this variant (e.g. config values, copy, feature toggles).</description>
+        <label>Payload</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Variant_Key__c</fullName>
+        <description>Unique identifier for this variant within the flag (e.g. control, treatment_a, treatment_b).</description>
         <externalId>false</externalId>
-        <label>Feature Flag Key</label>
+        <label>Variant Key</label>
         <length>255</length>
         <required>true</required>
         <type>Text</type>
         <unique>false</unique>
     </fields>
     <fields>
-        <fullName>User_Id__c</fullName>
+        <fullName>Weight__c</fullName>
+        <description>Percentage weight for this variant. All weights for a given flag must sum to 100.</description>
         <externalId>false</externalId>
-        <label>User Id</label>
-        <length>18</length>
+        <label>Weight (%)</label>
+        <precision>5</precision>
         <required>true</required>
-        <type>Text</type>
+        <scale>2</scale>
+        <type>Number</type>
         <unique>false</unique>
     </fields>
-    <label>Feature Flag Assignment</label>
+    <label>FlipSwitch Variant</label>
     <nameField>
-        <displayFormat>FFA-{0000000}</displayFormat>
-        <label>Assignment Number</label>
-        <type>AutoNumber</type>
+        <label>Variant Name</label>
+        <type>Text</type>
     </nameField>
-    <pluralLabel>Feature Flag Assignments</pluralLabel>
+    <pluralLabel>FlipSwitch Variants</pluralLabel>
     <searchLayouts/>
     <sharingModel>ReadWrite</sharingModel>
-    <validationRules>
-        <fullName>Unique_User_Flag_Assignment</fullName>
-        <active>true</active>
-        <description>Prevents duplicate assignments for the same user+flag combination.</description>
-        <errorConditionFormula>/* Enforced via unique index on the compound key — see trigger */ FALSE</errorConditionFormula>
-        <errorMessage>An assignment already exists for this user and flag.</errorMessage>
-    </validationRules>
     <visibility>Public</visibility>
 </CustomObject>

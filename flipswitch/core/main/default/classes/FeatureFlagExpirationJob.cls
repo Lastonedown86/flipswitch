@@ -8,7 +8,7 @@
  *              Or use the helper script: scripts/apex/schedule-expiration-job.apex
  *
  *              Behaviour:
- *              - Deactivates Feature_Flag_Rule__c records where End_Date__c <= NOW
+ *              - Deactivates FlipSwitch_Rule__c records where End_Date__c <= NOW
  *              - Sends email notification to the org's default system admin
  *              - Invalidates the Platform Cache for affected flags
  */
@@ -18,9 +18,9 @@ public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
         Datetime now = Datetime.now();
 
         // Find active rules that have passed their End_Date__c
-        List<Feature_Flag_Rule__c> expiredRules = [
-            SELECT Id, Name, Feature_Flag_Key__c, End_Date__c
-            FROM Feature_Flag_Rule__c
+        List<FlipSwitch_Rule__c> expiredRules = [
+            SELECT Id, Name, Flag_Key__c, End_Date__c
+            FROM FlipSwitch_Rule__c
             WHERE Is_Active__c = TRUE
               AND End_Date__c != NULL
               AND End_Date__c <= :now
@@ -31,9 +31,9 @@ public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
         }
 
         Set<String> affectedFlagKeys = new Set<String>();
-        for (Feature_Flag_Rule__c rule : expiredRules) {
+        for (FlipSwitch_Rule__c rule : expiredRules) {
             rule.Is_Active__c = false;
-            affectedFlagKeys.add(rule.Feature_Flag_Key__c);
+            affectedFlagKeys.add(rule.Flag_Key__c);
         }
 
         update expiredRules;
@@ -47,7 +47,7 @@ public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
         sendExpirationNotification(expiredRules);
     }
 
-    private void sendExpirationNotification(List<Feature_Flag_Rule__c> expiredRules) {
+    private void sendExpirationNotification(List<FlipSwitch_Rule__c> expiredRules) {
         try {
             List<String> adminEmails = getAdminEmails();
             if (adminEmails.isEmpty()) {
@@ -55,8 +55,8 @@ public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
             }
 
             List<String> ruleNames = new List<String>();
-            for (Feature_Flag_Rule__c rule : expiredRules) {
-                ruleNames.add(rule.Name + ' (' + rule.Feature_Flag_Key__c + ')');
+            for (FlipSwitch_Rule__c rule : expiredRules) {
+                ruleNames.add(rule.Name + ' (' + rule.Flag_Key__c + ')');
             }
 
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();

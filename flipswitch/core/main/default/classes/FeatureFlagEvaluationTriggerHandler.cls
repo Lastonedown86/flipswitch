@@ -1,18 +1,18 @@
 /**
- * @description Handler for the Feature_Flag_Evaluation__e platform event trigger.
+ * @description Handler for the FlipSwitch_Evaluation__e platform event trigger.
  *
- *              Aggregates evaluation counts into Feature_Flag_Metric__c records.
+ *              Aggregates evaluation counts into FlipSwitch_Metric__c records.
  *              Uses an upsert on Flag_Key__c (external ID) to update-or-create
  *              the metric for each flag.
  */
 public inherited sharing class FeatureFlagEvaluationTriggerHandler {
 
-    public static void handleEvaluationEvents(List<Feature_Flag_Evaluation__e> events) {
+    public static void handleEvaluationEvents(List<FlipSwitch_Evaluation__e> events) {
         // Accumulate counts per flag key
         Map<String, Integer> evalCounts  = new Map<String, Integer>();
         Map<String, Set<String>> userSets = new Map<String, Set<String>>();
 
-        for (Feature_Flag_Evaluation__e event : events) {
+        for (FlipSwitch_Evaluation__e event : events) {
             if (String.isBlank(event.Flag_Key__c)) continue;
 
             String key = event.Flag_Key__c;
@@ -32,22 +32,22 @@ public inherited sharing class FeatureFlagEvaluationTriggerHandler {
         if (evalCounts.isEmpty()) return;
 
         // Load existing metrics for upsert
-        Map<String, Feature_Flag_Metric__c> existingMetrics = new Map<String, Feature_Flag_Metric__c>();
-        for (Feature_Flag_Metric__c m : [
+        Map<String, FlipSwitch_Metric__c> existingMetrics = new Map<String, FlipSwitch_Metric__c>();
+        for (FlipSwitch_Metric__c m : [
             SELECT Id, Flag_Key__c, Evaluation_Count__c, Unique_Users__c, Last_Evaluated__c
-            FROM Feature_Flag_Metric__c
+            FROM FlipSwitch_Metric__c
             WHERE Flag_Key__c IN :evalCounts.keySet()
         ]) {
             existingMetrics.put(m.Flag_Key__c, m);
         }
 
-        List<Feature_Flag_Metric__c> toUpsert = new List<Feature_Flag_Metric__c>();
+        List<FlipSwitch_Metric__c> toUpsert = new List<FlipSwitch_Metric__c>();
         Datetime now = Datetime.now();
 
         for (String key : evalCounts.keySet()) {
-            Feature_Flag_Metric__c metric = existingMetrics.containsKey(key)
+            FlipSwitch_Metric__c metric = existingMetrics.containsKey(key)
                 ? existingMetrics.get(key)
-                : new Feature_Flag_Metric__c(
+                : new FlipSwitch_Metric__c(
                     Name          = key,
                     Flag_Key__c   = key,
                     Evaluation_Count__c = 0,

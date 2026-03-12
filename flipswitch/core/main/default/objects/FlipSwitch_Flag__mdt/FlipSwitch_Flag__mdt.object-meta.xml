@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Defines feature flags for the FlipSwitch framework. Deploy via CI/CD; use Feature_Flag_Rule__c for runtime targeting rules.</description>
+    <description>Defines feature flags for the FlipSwitch framework. Deploy via CI/CD; use FlipSwitch_Rule__c for runtime targeting rules.</description>
     <fields>
         <fullName>Category__c</fullName>
         <fieldManageability>DeveloperControlled</fieldManageability>
@@ -64,6 +64,6 @@
             </valueSetDefinition>
         </valueSet>
     </fields>
-    <label>Feature Flag</label>
-    <pluralLabel>Feature Flags</pluralLabel>
+    <label>FlipSwitch Flag</label>
+    <pluralLabel>FlipSwitch Flags</pluralLabel>
 </CustomObject>

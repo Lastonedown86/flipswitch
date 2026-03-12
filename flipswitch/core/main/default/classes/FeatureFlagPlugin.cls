@@ -1,6 +1,6 @@
 /**
  * @description Extensibility interface for post-evaluation hooks.
- *              Implement and register via Feature_Flag_Plugin__mdt to run
+ *              Implement and register via FlipSwitch_Plugin__mdt to run
  *              custom logic after every flag evaluation (e.g. external analytics,
  *              audit logging, Slack alerts on kill switch).
  *
