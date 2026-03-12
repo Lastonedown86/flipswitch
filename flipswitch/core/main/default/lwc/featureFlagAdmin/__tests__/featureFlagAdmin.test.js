@@ -1,9 +1,9 @@
 import { createElement } from 'lwc';
 import FeatureFlagAdmin from 'c/featureFlagAdmin';
-import { registerLdsTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
+import { registerApexTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
 import getAllFlags from '@salesforce/apex/FeatureFlag.getAllFlags';
 
-const mockGetAllFlags = registerLdsTestWireAdapter(getAllFlags);
+const mockGetAllFlags = registerApexTestWireAdapter(getAllFlags);
 
 const MOCK_FLAGS = [
     {
@@ -54,12 +54,14 @@ describe('c-feature-flag-admin', () => {
         expect(errorEl.textContent).toContain('Error loading flags');
     });
 
-    it('shows kill switch message when flag key is empty', async () => {
+    it('renders tabset with expected tabs', () => {
         const element = createElement('c-feature-flag-admin', { is: FeatureFlagAdmin });
         document.body.appendChild(element);
 
-        // Trigger kill switch with no key
-        const btn = element.shadowRoot.querySelector('[label="Activate Kill Switch"]');
-        expect(btn).not.toBeNull();
+        const tabset = element.shadowRoot.querySelector('lightning-tabset');
+        expect(tabset).not.toBeNull();
+
+        const tabs = element.shadowRoot.querySelectorAll('lightning-tab');
+        expect(tabs.length).toBe(3);
     });
 });

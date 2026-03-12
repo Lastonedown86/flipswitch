@@ -2,115 +2,79 @@
     <lightning-card title="Feature Flag Admin" icon-name="utility:toggle_panel_right">
         <!-- Tab navigation -->
         <lightning-tabset>
-            <!-- ── Flag List ─────────────────────────────────────────── -->
+            <!-- Flag List -->
             <lightning-tab label="Flags" value="flags">
                 <div class="slds-m-around_medium">
                     <lightning-button
                         label="Refresh"
                         icon-name="utility:refresh"
-                        onclick="
-                            {
-                                handleRefresh;
-                            }
-                        "
+                        onclick={handleRefresh}
                         class="slds-m-bottom_small"
-                    >
-                    </lightning-button>
-                    <template if:true="{flags}">
+                    ></lightning-button>
+                    <template if:true={flags}>
                         <lightning-datatable
                             key-field="DeveloperName"
-                            data="{flags}"
-                            columns="{flagColumns}"
-                            onrowaction="{handleFlagRowAction}"
-                        >
-                        </lightning-datatable>
+                            data={flags}
+                            columns={flagColumns}
+                            onrowaction={handleFlagRowAction}
+                        ></lightning-datatable>
                     </template>
-                    <template if:true="{flagsError}">
+                    <template if:true={flagsError}>
                         <p class="slds-text-color_error">{flagsError}</p>
                     </template>
                 </div>
             </lightning-tab>
 
-            <!-- ── Rule Builder ──────────────────────────────────────── -->
+            <!-- Rule Builder -->
             <lightning-tab label="Add Rule" value="rules">
                 <div class="slds-m-around_medium">
                     <lightning-input
                         label="Flag Key"
-                        value="{newRule.flagKey}"
-                        onchange="
-                            {
-                                handleRuleFieldChange;
-                            }
-                        "
+                        value={newRule.flagKey}
+                        onchange={handleRuleFieldChange}
                         data-field="flagKey"
                         required
-                    >
-                    </lightning-input>
+                    ></lightning-input>
                     <lightning-combobox
                         label="Rule Type"
-                        value="{newRule.ruleType}"
-                        options="{ruleTypeOptions}"
-                        onchange="
-                            {
-                                handleRuleFieldChange;
-                            }
-                        "
+                        value={newRule.ruleType}
+                        options={ruleTypeOptions}
+                        onchange={handleRuleFieldChange}
                         data-field="ruleType"
                         required
-                    >
-                    </lightning-combobox>
+                    ></lightning-combobox>
                     <lightning-input
                         label="Rule Value"
-                        value="{newRule.ruleValue}"
-                        onchange="
-                            {
-                                handleRuleFieldChange;
-                            }
-                        "
+                        value={newRule.ruleValue}
+                        onchange={handleRuleFieldChange}
                         data-field="ruleValue"
-                    >
-                    </lightning-input>
+                    ></lightning-input>
                     <lightning-input
                         label="Priority"
                         type="number"
-                        value="{newRule.priority}"
-                        onchange="
-                            {
-                                handleRuleFieldChange;
-                            }
-                        "
+                        value={newRule.priority}
+                        onchange={handleRuleFieldChange}
                         data-field="priority"
-                    >
-                    </lightning-input>
+                    ></lightning-input>
                     <lightning-input
                         label="Variant Value (multi-variant only)"
-                        value="{newRule.variantValue}"
-                        onchange="
-                            {
-                                handleRuleFieldChange;
-                            }
-                        "
+                        value={newRule.variantValue}
+                        onchange={handleRuleFieldChange}
                         data-field="variantValue"
-                    >
-                    </lightning-input>
+                    ></lightning-input>
                     <lightning-button
                         label="Save Rule"
                         variant="brand"
-                        onclick="
-                            {
-                                handleSaveRule;
-                            }
-                        "
+                        onclick={handleSaveRule}
                         class="slds-m-top_small"
-                    >
-                    </lightning-button>
-                    <template if:true="{saveMessage}">
+                    ></lightning-button>
+                    <template if:true={saveMessage}>
                         <p class="slds-m-top_small">{saveMessage}</p>
                     </template>
                 </div>
             </lightning-tab>
 
-            <!-- ── Kill Switch ───────────────────────────────────────── -->
+            <!-- Kill Switch -->
             <lightning-tab label="Kill Switch" value="killswitch">
                 <div class="slds-m-around_medium">
                     <p class="slds-m-bottom_small">
@@ -119,37 +83,22 @@
                     </p>
                     <lightning-input
                         label="Flag Key to Kill"
-                        value="{killSwitchFlagKey}"
-                        onchange="
-                            {
-                                handleKillSwitchKeyChange;
-                            }
-                        "
-                    >
-                    </lightning-input>
+                        value={killSwitchFlagKey}
+                        onchange={handleKillSwitchKeyChange}
+                    ></lightning-input>
                     <lightning-button
                         label="Activate Kill Switch"
                         variant="destructive"
-                        onclick="
-                            {
-                                handleActivateKillSwitch;
-                            }
-                        "
+                        onclick={handleActivateKillSwitch}
                         class="slds-m-top_small"
-                    >
-                    </lightning-button>
+                    ></lightning-button>
                     <lightning-button
                         label="Deactivate Kill Switch"
                         variant="neutral"
-                        onclick="
-                            {
-                                handleDeactivateKillSwitch;
-                            }
-                        "
+                        onclick={handleDeactivateKillSwitch}
                         class="slds-m-top_small slds-m-left_small"
-                    >
-                    </lightning-button>
-                    <template if:true="{killSwitchMessage}">
+                    ></lightning-button>
+                    <template if:true={killSwitchMessage}>
                         <p class="slds-m-top_small">{killSwitchMessage}</p>
                     </template>
                 </div>

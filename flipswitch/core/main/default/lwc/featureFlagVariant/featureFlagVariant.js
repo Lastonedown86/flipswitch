@@ -24,7 +24,7 @@ export default class FeatureFlagVariant extends LightningElement {
         }
     }
 
-    get currentVariant() {
+    @api get currentVariant() {
         return this._variant || this.defaultVariant;
     }
 }

@@ -21,7 +21,7 @@ export default class FeatureFlagGate extends LightningElement {
         }
     }
 
-    get isEnabled() {
+    @api get isEnabled() {
         return this._isEnabled;
     }
 }

@@ -9,4 +9,5 @@ module.exports = {
             '<rootDir>/flipswitch/core/test/jest-mocks/lightning/platformShowToastEvent',
     },
     testPathPattern: 'flipswitch/',
+    testMatch: ['**/flipswitch/**/__tests__/**/*.test.js'],
 };

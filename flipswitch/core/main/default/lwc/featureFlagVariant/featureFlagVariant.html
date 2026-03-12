@@ -1,8 +1,8 @@
 <template>
-    <template if:true="{isLoading}">
+    <template if:true={isLoading}>
         <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
     </template>
-    <template if:false="{isLoading}">
-        <slot name="{currentVariant}"></slot>
+    <template if:false={isLoading}>
+        <slot></slot>
     </template>
 </template>

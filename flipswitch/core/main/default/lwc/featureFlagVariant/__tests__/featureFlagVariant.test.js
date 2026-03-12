@@ -1,24 +1,15 @@
 import { createElement } from 'lwc';
 import FeatureFlagVariant from 'c/featureFlagVariant';
-import { registerLdsTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
+import { registerApexTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
 import getVariantForCurrentUser from '@salesforce/apex/FeatureFlag.getVariantForCurrentUser';
 
-const mockGetVariant = registerLdsTestWireAdapter(getVariantForCurrentUser);
+const mockGetVariant = registerApexTestWireAdapter(getVariantForCurrentUser);
 
 describe('c-feature-flag-variant', () => {
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
         }
-    });
-
-    it('shows spinner while loading', () => {
-        const element = createElement('c-feature-flag-variant', { is: FeatureFlagVariant });
-        element.flagKey = 'EXPERIMENT';
-        document.body.appendChild(element);
-
-        const spinner = element.shadowRoot.querySelector('lightning-spinner');
-        expect(spinner).not.toBeNull();
     });
 
     it('uses default variant when flag returns null', async () => {

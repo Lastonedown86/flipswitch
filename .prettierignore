@@ -10,5 +10,8 @@ test-coverage/
 test-results/
 coverage/
 
+# LWC HTML templates (unquoted {expression} syntax is not standard HTML)
+**/*.html
+
 # Build output
 *.zip

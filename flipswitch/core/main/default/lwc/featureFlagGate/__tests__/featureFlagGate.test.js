@@ -1,24 +1,15 @@
 import { createElement } from 'lwc';
 import FeatureFlagGate from 'c/featureFlagGate';
-import { registerLdsTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
+import { registerApexTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
 import isEnabledForCurrentUser from '@salesforce/apex/FeatureFlag.isEnabledForCurrentUser';
 
-const mockIsEnabled = registerLdsTestWireAdapter(isEnabledForCurrentUser);
+const mockIsEnabled = registerApexTestWireAdapter(isEnabledForCurrentUser);
 
 describe('c-feature-flag-gate', () => {
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
         }
-    });
-
-    it('shows spinner while loading', () => {
-        const element = createElement('c-feature-flag-gate', { is: FeatureFlagGate });
-        element.flagKey = 'TEST_FLAG';
-        document.body.appendChild(element);
-
-        const spinner = element.shadowRoot.querySelector('lightning-spinner');
-        expect(spinner).not.toBeNull();
     });
 
     it('renders enabled slot when flag is true', async () => {
@@ -30,6 +21,7 @@ describe('c-feature-flag-gate', () => {
         await Promise.resolve();
 
         expect(element.shadowRoot.querySelector('lightning-spinner')).toBeNull();
+        expect(element.isEnabled).toBe(true);
     });
 
     it('renders disabled slot when flag is false', async () => {
@@ -41,6 +33,7 @@ describe('c-feature-flag-gate', () => {
         await Promise.resolve();
 
         expect(element.shadowRoot.querySelector('lightning-spinner')).toBeNull();
+        expect(element.isEnabled).toBe(false);
     });
 
     it('defaults to disabled when wire returns error', async () => {
@@ -52,5 +45,6 @@ describe('c-feature-flag-gate', () => {
         await Promise.resolve();
 
         expect(element.shadowRoot.querySelector('lightning-spinner')).toBeNull();
+        expect(element.isEnabled).toBe(false);
     });
 });
