@@ -3,7 +3,7 @@
   "packageDirectories": [
     {
       "path": "./flipswitch/core",
-      "default": false,
+      "default": true,
       "package": "FlipSwitch",
       "versionName": "Version 1.0.0",
       "versionNumber": "1.0.0.NEXT",
@@ -11,18 +11,7 @@
       "definitionFile": "./config/scratch-orgs/base-scratch-def.json",
       "scopeProfiles": true,
       "postInstallUrl": "https://github.com/Lastonedown86/flipswitch/wiki",
-      "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases",
-      "unpackagedMetadata": {
-        "path": "./flipswitch/extra-tests"
-      }
-    },
-    {
-      "path": "./flipswitch/extra-tests",
-      "default": false
-    },
-    {
-      "path": "./flipswitch/dev",
-      "default": true
+      "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases"
     }
   ],
   "namespace": "",
