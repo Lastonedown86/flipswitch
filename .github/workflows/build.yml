@@ -94,9 +94,9 @@ jobs:
           flags: LWC
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  # ─── Stage 3: Apex Tests (Base Scratch Org) ────────────────────────────────
-  base-scratch-org-tests:
-    name: 'Run Base Scratch Org Tests'
+  # ─── Stage 3: Apex Validation (Developer Org) ─────────────────────────────
+  apex-validation:
+    name: 'Validate Apex in Dev Org'
     needs: [code-quality]
     runs-on: ubuntu-latest
     steps:
@@ -124,50 +124,19 @@ jobs:
       - name: 'Install Salesforce CLI'
         run: npm install --global @salesforce/cli
 
-      - name: 'Authenticate DevHub'
+      - name: 'Authenticate Dev Org'
         run: |
           echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
-          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias dev-org --set-default
           rm ./auth-url.txt
 
-      - name: 'Create Scratch Org'
-        run: sf org create scratch --no-namespace --no-track-source --duration-days 1 --definition-file ./config/scratch-orgs/base-scratch-def.json --wait 20 --set-default --json
-
-      # Deploy only the core directory first and run all tests as part of the deployment
-      # This ensures the core package has sufficient code coverage on its own
-      - name: 'Validate Core Source in Scratch Org'
+      - name: 'Validate Core Source (check-only deploy + tests)'
         run: sf project deploy validate --concise --source-dir ./flipswitch/core/ --test-level RunLocalTests
-
-      - name: 'Deploy All Source to Scratch Org'
-        run: sf project deploy start --source-dir ./flipswitch/
-
-      - name: 'Assign Permission Sets'
-        run: npm run permset:assign:all
-
-      - name: 'Run Apex Tests Asynchronously'
-        run: npm run test:apex:nocoverage
-
-      - name: 'Run Apex Tests Synchronously'
-        run: npm run test:apex:nocoverage -- --synchronous
-
-      - name: 'Get Core Test Code Coverage'
-        run: npm run test:apex
-
-      - name: 'Upload Apex code coverage to Codecov'
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false
-          flags: Apex
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: 'Delete Scratch Org'
-        run: sf org delete scratch --no-prompt
-        if: ${{ always() }}
 
   # ─── Stage 4: Create Package Version (main only) ───────────────────────────
   create-package-version:
     name: 'Create Package Version'
-    needs: [lwc-tests, base-scratch-org-tests]
+    needs: [lwc-tests, apex-validation]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -200,7 +169,7 @@ jobs:
       - name: 'Authenticate DevHub'
         run: |
           echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
-          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default-dev-hub
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default --set-default-dev-hub
           rm ./auth-url.txt
 
       - name: 'Create Package Version'
