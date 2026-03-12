@@ -26,7 +26,6 @@
     </fields>
     <fields>
         <fullName>Feature_Flag_Key__c</fullName>
-        <caseSensitive>true</caseSensitive>
         <description>DeveloperName of the Feature_Flag__mdt record this rule applies to.</description>
         <externalId>false</externalId>
         <label>Feature Flag Key</label>

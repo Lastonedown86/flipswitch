@@ -39,8 +39,4 @@
         <object>Feature_Flag_Metric__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>CustomizeApplication</name>
-    </userPermissions>
 </PermissionSet>

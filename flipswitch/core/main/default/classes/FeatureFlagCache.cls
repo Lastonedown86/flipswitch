@@ -101,7 +101,12 @@ public inherited sharing class FeatureFlagCache {
     public static void invalidateAll() {
         try {
             Cache.OrgPartition orgPartition = Cache.Org.getPartition(PARTITION_NAME);
-            orgPartition.remove(new FeatureFlagCacheRemovalListener());
+            Set<String> keys = orgPartition.getKeys();
+            for (String key : keys) {
+                if (key.startsWith(ORG_PARTITION_KEY_PREFIX)) {
+                    orgPartition.remove(key);
+                }
+            }
         } catch (Exception e) {
             // Silently skip
         }
@@ -124,13 +129,4 @@ public inherited sharing class FeatureFlagCache {
         return configs.isEmpty() ? null : configs[0];
     }
 
-    /**
-     * @description Removal listener that removes all FlipSwitch cache entries
-     *              when cache invalidation is triggered.
-     */
-    public class FeatureFlagCacheRemovalListener implements Cache.CacheBuilder {
-        public Object doLoad(String key) {
-            return null; // Not used for removal
-        }
-    }
 }

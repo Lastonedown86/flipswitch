@@ -24,7 +24,7 @@ public inherited sharing class FeatureFlag {
 
     // Transaction-scoped scenario tag — applies to all evaluations in this transaction
     @TestVisible
-    static String currentScenario;
+    public static String currentScenario;
 
     // ─── Static convenience API ───────────────────────────────────────────
 

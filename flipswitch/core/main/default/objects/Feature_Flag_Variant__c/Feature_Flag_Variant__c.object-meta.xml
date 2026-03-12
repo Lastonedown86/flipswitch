@@ -15,7 +15,6 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
         <fullName>Feature_Flag_Key__c</fullName>
-        <caseSensitive>true</caseSensitive>
         <externalId>false</externalId>
         <label>Feature Flag Key</label>
         <length>255</length>

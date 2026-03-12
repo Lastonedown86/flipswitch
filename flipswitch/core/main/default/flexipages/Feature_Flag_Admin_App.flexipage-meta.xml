@@ -3,13 +3,7 @@
     <description>FlipSwitch — Feature Flag Admin Dashboard</description>
     <flexiPageRegions>
         <componentInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>flagKey</name>
-                    <value></value>
-                </componentInstanceProperties>
-                <componentName>c:featureFlagAdmin</componentName>
-            </componentInstance>
+            <componentName>c:featureFlagAdmin</componentName>
         </componentInstances>
         <name>main</name>
         <type>Region</type>
