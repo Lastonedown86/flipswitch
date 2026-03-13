@@ -1,0 +1,151 @@
+/* ── Search bar ───────────────────────────────────────────────────────────── */
+.dashboard-search {
+    min-width: 220px;
+}
+
+/* ── Filter pills ─────────────────────────────────────────────────────────── */
+.filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-bottom: 0.5rem;
+}
+
+.status-pill {
+    cursor: pointer;
+    border-radius: 1rem;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.75rem;
+    background: #e0e5ee;
+    color: #3e3e3c;
+    border: 1px solid transparent;
+    transition: background 0.15s, color 0.15s;
+}
+
+.status-pill:hover {
+    background: #c9d2e0;
+}
+
+.status-pill_active {
+    background: #0176d3;
+    color: white;
+    border-color: #0176d3;
+}
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.flag-table {
+    table-layout: fixed;
+}
+
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable-header:hover {
+    background: #f3f2f2;
+}
+
+/* ── Flag name cell ───────────────────────────────────────────────────────── */
+.flag-name-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.flag-name-link {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.flag-key {
+    font-family: monospace;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Type cell ────────────────────────────────────────────────────────────── */
+.type-cell {
+    display: flex;
+    align-items: center;
+}
+
+/* ── Status badges ────────────────────────────────────────────────────────── */
+.status-badge {
+    display: inline-block;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge_active      { background: #cdefc4; color: #2e7d32; }
+.status-badge_disabled    { background: #e0e5ee; color: #706e6b; }
+.status-badge_warning     { background: #fde8c7; color: #b05604; }
+.status-badge_expired     { background: #fddde5; color: #c23934; }
+.status-badge_killswitch  { background: #c23934; color: white; }
+
+/* ── Rollout bar ──────────────────────────────────────────────────────────── */
+.rollout-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.rollout-bar {
+    flex: 1;
+    height: 6px;
+    background: #e0e5ee;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rollout-bar__fill {
+    height: 100%;
+    background: #0176d3;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.rollout-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0176d3;
+    min-width: 2.5rem;
+}
+
+/* ── Variant chips ────────────────────────────────────────────────────────── */
+.variant-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.variant-chip {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #0176d3;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Expiry text ──────────────────────────────────────────────────────────── */
+.expiry-text         { font-size: 0.75rem; }
+.expiry-text_orange  { color: #b05604; font-weight: 600; }
+.expiry-text_red     { color: #c23934; font-weight: 600; }
+
+/* ── Row states ───────────────────────────────────────────────────────────── */
+.row-killswitched {
+    background: #fef0ef !important;
+}
+
+.row-selected {
+    background: #e8f0fe !important;
+}

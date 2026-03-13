@@ -262,14 +262,92 @@ FeatureFlag.flag('NEW_CHECKOUT')
 - Batch multiple flag evaluations into single Apex call
 - Client-side evaluation cache (session storage or in-memory)
 
-### 4. `featureFlagAdmin` — Admin management LWC app
-- **Flag Dashboard**: List all flags with status (active, expired, kill-switched)
-- **Flag Detail**: View/edit targeting rules, variants, weights
-- **Rule Builder**: UI for creating targeting rules (user picker, profile selector, percentage slider)
-- **Evaluation Logs**: View recent evaluations with filtering
-- **Kill Switch**: One-click emergency disable button
-- **Bulk Operations**: Enable/disable multiple flags
-- Hosted in a Lightning App Page or custom tab
+### 4. `featureFlagAdmin` — Admin management LWC app (shell)
+Decomposed into 5 focused child components. Hosted on a Lightning App Page / Tab (desktop only).
+
+#### Shell (`featureFlagAdmin`)
+- `lightning-tabset` with 4 tabs: Dashboard / Flag Detail / Eval Logs / Analytics
+- **Sticky kill-switch alert banner** — red banner when any flag is kill-switched; click navigates to affected flags
+- **Org health summary strip** — 4 KPI tiles: Active Flags / Expiring This Week / Kill-Switched / Circuit Breaker Trips
+- Cross-tab state: `selectedFlagKey` propagated to Detail / Logs / Analytics tabs
+- `errorCallback` surfaces child errors as toast messages
+
+#### Dashboard (`featureFlagDashboard`)
+- Searchable flag list (name, key, description)
+- **Status badges**: Active (green) / Disabled (gray) / Expiring Soon (yellow) / Expired (red) / Kill Switch (dark red)
+- **Type icons**: Boolean toggle / Percentage pie / Variant beaker
+- **Rollout progress bar** for Percentage flags
+- **Variant chip list** for Variant flags
+- **Expiration countdown** (days remaining, color-coded urgency)
+- Category filter pills + status filter pills
+- Column sorting (name, status, expiration)
+- Row-level kill-switch toggle button (no navigation required)
+- Row double-click or preview icon navigates to Flag Detail tab
+- **Bulk actions**: Enable Selected / Disable Selected with checkbox selection
+- Public `filterByStatus(status)` method called by shell banner
+- `isExposed: false` — internal child component
+
+#### Flag Detail (`featureFlagDetail`)
+- Flag metadata panel: key, type, default value, category, expiration countdown
+- **Flag key copy-to-clipboard** button
+- **Kill-switch toggle** button (contextual label + variant)
+- **Usage snippet generator** panel — Apex and LWC tabs, code populated from flag metadata
+- Delegates rule + variant management to `featureFlagRuleBuilder`
+- **Simulation / preview panel**: input User ID + JSON attributes → calls `previewEvaluation()` Apex → shows isEnabled, variant, reason, payload with color-coded reason badge
+
+#### Rule Builder (`featureFlagRuleBuilder`)
+- **Drag-to-reorder** rules using HTML5 Drag and Drop API (native, no library)
+  - `dragstart` / `dragenter` / `dragleave` / `dragover` / `drop` / `dragend` handlers
+  - Array splice on drop, sequential priority re-assignment
+  - "Save Rule Order" / "Discard" strip appears only after a drag
+  - Calls `reorderRules()` bulk DML on save
+- **Rule rows**: drag handle, priority badge, rule type badge, scheduled badge, variant chip, value preview, active toggle, edit/delete actions
+- **Rule modal**: context-aware inputs by type (User ID text / Profile text / Percentage slider / Segment tags / Custom Field expression); scheduled date pickers; variant assignment picker for Variant flags; active toggle
+- **Inline active toggle** saves immediately via `saveRule()`
+- **Variant weight visualizer** (Variant flags only):
+  - Segmented color bar showing weight distribution
+  - Total weight counter with red/green coloring, over/under warning
+  - Inline variant rows with key + weight inputs + save/delete per row
+  - Validates total = 100%
+- `isExposed: false` — internal child component
+
+#### Eval Logs (`featureFlagEvalLogs`)
+- **Real-time EMP API subscription** to `/event/FlipSwitch_Evaluation__e` (replay -1, new events only)
+- **Live streaming indicator** with animated pulse dot
+- Events prepended (newest first), capped at 500 in-memory entries
+- Filter bar: flag key search, reason combobox, date-from / date-to
+- **Reason badges** color-coded: RULE_MATCH (blue) / DEFAULT (gray) / KILL_SWITCH (dark red) / EXPIRED (orange) / CACHE_HIT (purple) / CIRCUIT_BREAKER (red)
+- **Export to CSV** button (client-side Blob download of filtered rows)
+- Sampling rate notice (informational)
+- `isExposed: false` — internal child component
+
+#### Analytics (`featureFlagAnalytics`)
+- Date range picker (default last 30 days) controls all charts simultaneously
+- Wired to `getMetrics()` Apex — data source: `FlipSwitch_Metric__c`
+- **4 KPI tiles**: Total Evaluations / Unique Users / Circuit Breaker Trips / Variant Count
+- **Variant distribution donut** — pure inline SVG (no external library); `stroke-dasharray` segments; center total label; color legend with count + %
+- **Unique users per variant** — horizontal bar chart (CSS `width` transitions)
+- **Daily evaluation volume sparkline** — CSS flex bar chart with date axis labels
+- All charts use 10-color SEGMENT_COLORS palette
+- `isExposed: false` — internal child component
+
+#### Apex Controller (`FeatureFlagAdminController`)
+Key `@AuraEnabled` methods (all `with sharing`):
+| Method | Cacheable | Purpose |
+|---|---|---|
+| `getFlags(category, status)` | ✓ | Dashboard list with enriched status |
+| `getOrgHealth()` | ✓ | Shell KPI strip counts |
+| `getFlagDetail(flagKey)` | ✓ | Full flag + rules + variants |
+| `saveRule(rule)` | — | Upsert targeting rule |
+| `deleteRule(ruleId)` | — | Delete targeting rule |
+| `reorderRules(rules)` | — | Bulk priority update after drag |
+| `toggleKillSwitch(flagKey, active)` | — | Create / delete kill-switch rule |
+| `bulkUpdateFlags(flagKeys, action)` | — | Bulk enable/disable |
+| `saveVariant(variant)` | — | Upsert variant definition |
+| `deleteVariant(variantId)` | — | Delete variant |
+| `previewEvaluation(flagKey, userId, attrsJson)` | — | Simulation preview (silent, no cache) |
+| `getMetrics(flagKey, startDate, endDate)` | ✓ | Aggregated analytics from FlipSwitch_Metric__c |
+| `getCategories()` | ✓ | Deduplicated category list for filter pills |
 
 ---
 

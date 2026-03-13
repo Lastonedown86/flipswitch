@@ -1,0 +1,157 @@
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.detail-layout {
+    align-items: flex-start;
+}
+
+/* ── Detail fields ────────────────────────────────────────────────────────── */
+.detail-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #e0e5ee;
+}
+
+.detail-field--stacked {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.detail-field__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    min-width: 7rem;
+}
+
+.detail-field__value {
+    font-size: 0.875rem;
+    color: #3e3e3c;
+}
+
+.detail-field__value--mono {
+    font-family: monospace;
+    background: #f3f2f2;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+/* ── Status badges (shared with dashboard) ────────────────────────────────── */
+.status-badge {
+    display: inline-block;
+    border-radius: 0.875rem;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge_active      { background: #cdefc4; color: #2e7d32; }
+.status-badge_disabled    { background: #e0e5ee; color: #706e6b; }
+.status-badge_warning     { background: #fde8c7; color: #b05604; }
+.status-badge_expired     { background: #fddde5; color: #c23934; }
+.status-badge_killswitch  { background: #c23934; color: white; }
+
+/* ── Expiry ───────────────────────────────────────────────────────────────── */
+.expiry-text         { font-size: 0.875rem; }
+.expiry-text_orange  { color: #b05604; font-weight: 600; }
+.expiry-text_red     { color: #c23934; font-weight: 600; }
+
+/* ── Snippet panel ────────────────────────────────────────────────────────── */
+.snippet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.snippet-code {
+    background: #1b1f23;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    overflow: auto;
+    max-height: 160px;
+}
+
+.snippet-code code {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.75rem;
+    color: #e1e4e8;
+    white-space: pre;
+}
+
+/* ── Preview panel ────────────────────────────────────────────────────────── */
+.preview-result {
+    background: #f8f9fa;
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+}
+
+.preview-result__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+}
+
+.preview-result__row--stacked {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.preview-result__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #706e6b;
+    text-transform: uppercase;
+    min-width: 6rem;
+}
+
+.preview-enabled        { font-weight: 700; font-size: 0.875rem; }
+.preview-enabled_yes    { color: #04844b; }
+.preview-enabled_no     { color: #c23934; }
+
+.preview-payload {
+    background: #1b1f23;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.25rem;
+    width: 100%;
+    overflow: auto;
+}
+
+.preview-payload code {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: #e1e4e8;
+}
+
+/* ── Reason badges ────────────────────────────────────────────────────────── */
+.reason-badge {
+    display: inline-block;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.reason-badge_rule       { background: #e8f0fe; color: #0176d3; }
+.reason-badge_default    { background: #e0e5ee; color: #3e3e3c; }
+.reason-badge_killswitch { background: #c23934; color: white; }
+.reason-badge_expired    { background: #fde8c7; color: #b05604; }
+.reason-badge_cache      { background: #ece7f2; color: #5a1ba9; }
+.reason-badge_error      { background: #fddde5; color: #c23934; }
+
+/* ── Variant chip (shared) ────────────────────────────────────────────────── */
+.variant-chip {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #0176d3;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+}

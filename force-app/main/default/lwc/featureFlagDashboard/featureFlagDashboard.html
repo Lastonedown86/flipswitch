@@ -1,0 +1,256 @@
+<template>
+    <lightning-card title="Feature Flags" icon-name="utility:layers">
+
+        <!-- Toolbar: search + bulk actions -->
+        <div slot="actions" class="slds-grid slds-gutters_xx-small">
+            <div class="slds-col">
+                <lightning-input
+                    type="search"
+                    label="Search flags"
+                    variant="label-hidden"
+                    placeholder="Search by name or key…"
+                    value={searchTerm}
+                    onchange={handleSearchChange}
+                    class="dashboard-search">
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-no-flex">
+                <lightning-button-group>
+                    <lightning-button
+                        label="Enable Selected"
+                        icon-name="utility:check"
+                        disabled={noneSelected}
+                        onclick={handleBulkEnable}>
+                    </lightning-button>
+                    <lightning-button
+                        label="Disable Selected"
+                        icon-name="utility:ban"
+                        variant="destructive-text"
+                        disabled={noneSelected}
+                        onclick={handleBulkDisable}>
+                    </lightning-button>
+                </lightning-button-group>
+            </div>
+        </div>
+
+        <!-- Category filter pills -->
+        <div class="slds-m-horizontal_medium slds-m-top_x-small filter-pills">
+            <lightning-badge
+                label="All"
+                class={allPillClass}
+                onclick={handleClearCategoryFilter}>
+            </lightning-badge>
+            <template for:each={categories} for:item="cat">
+                <lightning-badge
+                    key={cat}
+                    label={cat}
+                    class={cat.pillClass}
+                    data-category={cat}
+                    onclick={handleCategoryFilter}>
+                </lightning-badge>
+            </template>
+        </div>
+
+        <!-- Status filter pills -->
+        <div class="slds-m-horizontal_medium slds-m-top_x-small filter-pills">
+            <template for:each={statusFilters} for:item="sf">
+                <lightning-badge
+                    key={sf.value}
+                    label={sf.label}
+                    class={sf.pillClass}
+                    data-status={sf.value}
+                    onclick={handleStatusFilter}>
+                </lightning-badge>
+            </template>
+        </div>
+
+        <!-- Loading spinner -->
+        <template lwc:if={isLoading}>
+            <div class="slds-m-around_medium">
+                <lightning-spinner alternative-text="Loading flags" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error state -->
+        <template lwc:elseif={hasError}>
+            <div class="slds-m-around_medium slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <p>{errorMessage}</p>
+            </div>
+        </template>
+
+        <!-- Empty state -->
+        <template lwc:elseif={isEmpty}>
+            <div class="slds-illustration slds-illustration_small slds-m-around_large">
+                <lightning-icon icon-name="utility:layers" size="large"></lightning-icon>
+                <div class="slds-illustration__body slds-m-top_medium">
+                    <h3 class="slds-text-heading_medium">No Flags Found</h3>
+                    <p class="slds-text-body_regular slds-m-top_x-small">
+                        No flags match your current filters.
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <!-- Flag rows -->
+        <template lwc:else>
+            <div class="slds-m-around_small">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout flag-table" role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width:2rem">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Select all"
+                                    variant="label-hidden"
+                                    checked={allSelected}
+                                    onchange={handleSelectAll}>
+                                </lightning-input>
+                            </th>
+                            <th scope="col" data-sort="label" onclick={handleSort} class="sortable-header">
+                                <span>Flag</span>
+                                <template lwc:if={sortByLabel}>
+                                    <lightning-icon icon-name={sortIconLabel} size="xx-small"></lightning-icon>
+                                </template>
+                            </th>
+                            <th scope="col" style="width:8rem">Type</th>
+                            <th scope="col" style="width:7rem" data-sort="status" onclick={handleSort} class="sortable-header">
+                                <span>Status</span>
+                            </th>
+                            <th scope="col" style="width:12rem">Rollout / Variants</th>
+                            <th scope="col" style="width:8rem" data-sort="expiration" onclick={handleSort} class="sortable-header">
+                                <span>Expiration</span>
+                                <template lwc:if={sortByExpiration}>
+                                    <lightning-icon icon-name={sortIconExpiration} size="xx-small"></lightning-icon>
+                                </template>
+                            </th>
+                            <th scope="col" style="width:6rem">Rules</th>
+                            <th scope="col" style="width:7rem">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={displayedFlags} for:item="flag">
+                            <tr key={flag.developerName}
+                                class={flag.rowClass}
+                                data-key={flag.developerName}
+                                ondblclick={handleRowDoubleClick}>
+
+                                <!-- Checkbox -->
+                                <td>
+                                    <lightning-input
+                                        type="checkbox"
+                                        label="Select flag"
+                                        variant="label-hidden"
+                                        data-key={flag.developerName}
+                                        checked={flag.isSelected}
+                                        onchange={handleRowSelect}>
+                                    </lightning-input>
+                                </td>
+
+                                <!-- Flag name + key -->
+                                <td>
+                                    <div class="flag-name-cell">
+                                        <a onclick={handleViewFlag}
+                                           data-key={flag.developerName}
+                                           class="slds-text-link flag-name-link">
+                                            {flag.label}
+                                        </a>
+                                        <span class="flag-key slds-text-body_small slds-text-color_weak">
+                                            {flag.developerName}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Type -->
+                                <td>
+                                    <div class="type-cell">
+                                        <lightning-icon
+                                            icon-name={flag.typeIcon}
+                                            size="x-small"
+                                            class="slds-m-right_xx-small">
+                                        </lightning-icon>
+                                        <span>{flag.type}</span>
+                                    </div>
+                                </td>
+
+                                <!-- Status badge -->
+                                <td>
+                                    <span class={flag.statusBadgeClass}>{flag.statusLabel}</span>
+                                </td>
+
+                                <!-- Rollout / variants -->
+                                <td>
+                                    <template lwc:if={flag.isPercentage}>
+                                        <div class="rollout-bar-wrap">
+                                            <div class="rollout-bar">
+                                                <div
+                                                    class="rollout-bar__fill"
+                                                    style={flag.rolloutBarStyle}>
+                                                </div>
+                                            </div>
+                                            <span class="rollout-label">{flag.rolloutPercent}%</span>
+                                        </div>
+                                    </template>
+                                    <template lwc:elseif={flag.hasVariants}>
+                                        <div class="variant-chips">
+                                            <template for:each={flag.variantKeys} for:item="vk">
+                                                <span key={vk} class="variant-chip">{vk}</span>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template lwc:else>
+                                        <span class="slds-text-color_weak">—</span>
+                                    </template>
+                                </td>
+
+                                <!-- Expiration -->
+                                <td>
+                                    <template lwc:if={flag.expirationDate}>
+                                        <span class={flag.expirationClass}>{flag.expirationLabel}</span>
+                                    </template>
+                                    <template lwc:else>
+                                        <span class="slds-text-color_weak">Never</span>
+                                    </template>
+                                </td>
+
+                                <!-- Rule count -->
+                                <td>
+                                    <span class="slds-badge">{flag.activeRuleCount}</span>
+                                </td>
+
+                                <!-- Actions -->
+                                <td>
+                                    <div class="slds-grid slds-gutters_xx-small">
+                                        <lightning-button-icon
+                                            icon-name="utility:preview"
+                                            alternative-text="View details"
+                                            size="small"
+                                            data-key={flag.developerName}
+                                            onclick={handleViewFlag}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon
+                                            icon-name={flag.killSwitchIcon}
+                                            alternative-text={flag.killSwitchAlt}
+                                            size="small"
+                                            variant={flag.killSwitchVariant}
+                                            data-key={flag.developerName}
+                                            data-kill-switched={flag.isKillSwitched}
+                                            onclick={handleKillSwitchToggle}
+                                            title={flag.killSwitchAlt}>
+                                        </lightning-button-icon>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <!-- Footer: row count -->
+        <div slot="footer" class="slds-text-body_small slds-text-color_weak">
+            Showing {displayedCount} of {totalCount} flags
+        </div>
+
+    </lightning-card>
+</template>

@@ -16,5 +16,8 @@
   ],
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "64.0",
-  "packageAliases": {}
+  "packageAliases": {
+    "FlipSwitch": "0HodM0000001hyzSAA",
+    "FlipSwitch@1.0.0-1": "04tdM000000OzvBQAS"
+  }
 }

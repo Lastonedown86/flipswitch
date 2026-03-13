@@ -1,0 +1,203 @@
+<template>
+    <template lwc:if={isLoading}>
+        <div class="slds-m-around_large">
+            <lightning-spinner alternative-text="Loading flag detail" size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <template lwc:elseif={hasError}>
+        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-around_medium" role="alert">
+            <p>{errorMessage}</p>
+        </div>
+    </template>
+
+    <template lwc:elseif={flagDetail}>
+        <div class="detail-layout slds-grid slds-gutters">
+
+            <!-- ── Left column: Flag metadata ─────────────────────────────── -->
+            <div class="slds-col slds-size_1-of-3">
+                <lightning-card title={flagDetail.summary.label} icon-name="utility:toggle">
+
+                    <div slot="actions">
+                        <!-- Copy flag key -->
+                        <lightning-button-icon
+                            icon-name="utility:copy"
+                            alternative-text="Copy flag key"
+                            title="Copy flag key to clipboard"
+                            onclick={handleCopyKey}>
+                        </lightning-button-icon>
+                        <!-- Kill switch toggle -->
+                        <lightning-button
+                            label={killSwitchLabel}
+                            variant={killSwitchVariant}
+                            icon-name={killSwitchIcon}
+                            onclick={handleKillSwitchToggle}
+                            class="slds-m-left_x-small">
+                        </lightning-button>
+                    </div>
+
+                    <div class="slds-m-around_medium">
+
+                        <!-- Status badge -->
+                        <div class="slds-m-bottom_small">
+                            <span class={statusBadgeClass}>{statusLabel}</span>
+                        </div>
+
+                        <!-- Key (monospace + copy hint) -->
+                        <div class="detail-field">
+                            <span class="detail-field__label">Flag Key</span>
+                            <code class="detail-field__value detail-field__value--mono">
+                                {flagDetail.summary.developerName}
+                            </code>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Type</span>
+                            <span class="detail-field__value">{flagDetail.summary.type}</span>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Default Value</span>
+                            <span class="detail-field__value">{flagDetail.summary.defaultValue}</span>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Category</span>
+                            <span class="detail-field__value">{categoryDisplay}</span>
+                        </div>
+
+                        <template lwc:if={flagDetail.summary.expirationDate}>
+                            <div class="detail-field">
+                                <span class="detail-field__label">Expiration</span>
+                                <span class={expirationClass}>{expirationLabel}</span>
+                            </div>
+                        </template>
+
+                        <template lwc:if={flagDetail.summary.description}>
+                            <div class="detail-field detail-field--stacked">
+                                <span class="detail-field__label">Description</span>
+                                <p class="detail-field__value">{flagDetail.summary.description}</p>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <!-- Code snippet panel -->
+                    <div class="slds-m-horizontal_medium slds-m-bottom_medium">
+                        <div class="snippet-header">
+                            <span class="slds-text-heading_small">Usage Snippets</span>
+                            <lightning-button-group>
+                                <lightning-button
+                                    label="Apex"
+                                    variant={apexSnippetVariant}
+                                    data-snippet="apex"
+                                    onclick={handleSnippetTab}>
+                                </lightning-button>
+                                <lightning-button
+                                    label="LWC"
+                                    variant={lwcSnippetVariant}
+                                    data-snippet="lwc"
+                                    onclick={handleSnippetTab}>
+                                </lightning-button>
+                            </lightning-button-group>
+                        </div>
+                        <div class="snippet-code">
+                            <pre><code>{activeSnippet}</code></pre>
+                        </div>
+                    </div>
+
+                </lightning-card>
+            </div>
+
+            <!-- ── Right column: Rules, variants, preview ─────────────────── -->
+            <div class="slds-col slds-size_2-of-3 slds-grid slds-wrap slds-gutters">
+
+                <!-- Rules -->
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_medium">
+                    <c-feature-flag-rule-builder
+                        flag-key={flagDetail.summary.flagKey}
+                        flag-type={flagDetail.summary.type}
+                        rules={flagDetail.rules}
+                        variants={flagDetail.variants}
+                        onruleschanged={handleRulesChanged}
+                        onvariantschanged={handleVariantsChanged}>
+                    </c-feature-flag-rule-builder>
+                </div>
+
+                <!-- Simulation / preview panel -->
+                <div class="slds-col slds-size_1-of-1">
+                    <lightning-card title="Simulate Evaluation" icon-name="utility:preview">
+                        <div class="slds-m-around_medium">
+                            <div class="slds-grid slds-gutters slds-m-bottom_small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="text"
+                                        label="User ID (optional)"
+                                        placeholder="Defaults to current user"
+                                        value={previewUserId}
+                                        onchange={handlePreviewUserChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="textarea"
+                                        label="Context Attributes (JSON)"
+                                        placeholder='{"region":"US","tier":"Enterprise"}'
+                                        value={previewAttrsJson}
+                                        onchange={handlePreviewAttrsChange}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                            <lightning-button
+                                label="Run Preview"
+                                variant="brand"
+                                icon-name="utility:play"
+                                onclick={handleRunPreview}
+                                disabled={isPreviewLoading}>
+                            </lightning-button>
+
+                            <template lwc:if={isPreviewLoading}>
+                                <lightning-spinner
+                                    alternative-text="Running preview"
+                                    size="small"
+                                    class="slds-m-left_medium">
+                                </lightning-spinner>
+                            </template>
+
+                            <template lwc:if={previewResult}>
+                                <div class="preview-result slds-m-top_small">
+                                    <div class="preview-result__row">
+                                        <span class="preview-result__label">isEnabled</span>
+                                        <lightning-icon
+                                            icon-name={previewEnabledIcon}
+                                            size="x-small"
+                                            class={previewEnabledClass}>
+                                        </lightning-icon>
+                                        <span class={previewEnabledClass}>{previewEnabledLabel}</span>
+                                    </div>
+                                    <template lwc:if={previewResult.variant}>
+                                        <div class="preview-result__row">
+                                            <span class="preview-result__label">Variant</span>
+                                            <span class="variant-chip">{previewResult.variant}</span>
+                                        </div>
+                                    </template>
+                                    <div class="preview-result__row">
+                                        <span class="preview-result__label">Reason</span>
+                                        <span class={previewReasonClass}>{previewResult.reason}</span>
+                                    </div>
+                                    <template lwc:if={previewResult.payload}>
+                                        <div class="preview-result__row preview-result__row--stacked">
+                                            <span class="preview-result__label">Payload</span>
+                                            <pre class="preview-payload"><code>{previewResult.payload}</code></pre>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </div>
+
+            </div>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,524 @@
+import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import saveRule    from '@salesforce/apex/FeatureFlagAdminController.saveRule';
+import deleteRule  from '@salesforce/apex/FeatureFlagAdminController.deleteRule';
+import reorderRules from '@salesforce/apex/FeatureFlagAdminController.reorderRules';
+import saveVariant  from '@salesforce/apex/FeatureFlagAdminController.saveVariant';
+import deleteVariant from '@salesforce/apex/FeatureFlagAdminController.deleteVariant';
+
+const RULE_TYPE_OPTIONS = [
+    { label: 'User',           value: 'User' },
+    { label: 'Profile',        value: 'Profile' },
+    { label: 'Permission Set', value: 'Permission_Set' },
+    { label: 'Segment',        value: 'Segment' },
+    { label: 'Custom Field',   value: 'Custom_Field' },
+    { label: 'Percentage',     value: 'Percentage' },
+    { label: 'Kill Switch',    value: 'Kill_Switch' },
+];
+
+const RULE_VALUE_HINTS = {
+    User:           { label: 'User ID(s)',           placeholder: 'Semicolon-separated Salesforce User IDs' },
+    Profile:        { label: 'Profile Name(s)',      placeholder: 'e.g. System Administrator;Sales User' },
+    Permission_Set: { label: 'Permission Set Name(s)', placeholder: 'e.g. FlipSwitch_Admin' },
+    Segment:        { label: 'Segment Tag(s)',        placeholder: 'e.g. beta_testers;early_adopters' },
+    Custom_Field:   { label: 'Field=Value Expression', placeholder: 'e.g. Account.Industry=Technology' },
+    Percentage:     { label: 'Rollout %',            placeholder: '0–100' },
+    Kill_Switch:    { label: 'Kill Switch',           placeholder: 'No value needed' },
+};
+
+const SEGMENT_COLORS = [
+    '#0176d3', '#6366f1', '#22c55e', '#f59e0b',
+    '#ec4899', '#14b8a6', '#f97316', '#8b5cf6',
+];
+
+/**
+ * @description Rule builder component with drag-to-reorder, inline active toggles,
+ *              an add/edit modal with context-aware inputs, and a variant weight
+ *              visualizer for multi-variant flags.
+ */
+export default class FeatureFlagRuleBuilder extends LightningElement {
+
+    /** @api */
+    @api flagKey;
+
+    /** @api */
+    @api flagType;
+
+    /** @api Passed from parent — raw rule list */
+    @api
+    get rules() {
+        return this._rules;
+    }
+    set rules(value) {
+        this._rules = value ?? [];
+        this.localRules = this._buildLocalRules(this._rules);
+        this.reorderDirty = false;
+    }
+
+    /** @api Passed from parent — raw variant list */
+    @api
+    get variants() {
+        return this._variants;
+    }
+    set variants(value) {
+        this._variants = value ?? [];
+        this.localVariants = this._buildLocalVariants(this._variants);
+    }
+
+    // ─── State ───────────────────────────────────────────────────────────────
+
+    @track localRules    = [];
+    @track localVariants = [];
+
+    isLoading     = false;
+    reorderDirty  = false;
+
+    showRuleModal = false;
+    editRule      = {};
+    isEditingExisting = false;
+
+    // Drag state (not reactive — managed via DOM classes)
+    _dragSourceId;
+    _dragOverId;
+
+    _rules    = [];
+    _variants = [];
+
+    // ─── Getters ─────────────────────────────────────────────────────────────
+
+    get isVariantFlag() {
+        return this.flagType === 'Variant';
+    }
+
+    get noRules() {
+        return !this.isLoading && this.localRules.length === 0;
+    }
+
+    get ruleTypeOptions() {
+        return RULE_TYPE_OPTIONS;
+    }
+
+    get ruleModalTitle() {
+        return this.isEditingExisting ? 'Edit Rule' : 'Add Rule';
+    }
+
+    get isPercentageRuleType() {
+        return this.editRule?.ruleType === 'Percentage';
+    }
+
+    get ruleValueLabel() {
+        return RULE_VALUE_HINTS[this.editRule?.ruleType]?.label ?? 'Value';
+    }
+
+    get ruleValuePlaceholder() {
+        return RULE_VALUE_HINTS[this.editRule?.ruleType]?.placeholder ?? '';
+    }
+
+    get variantOptions() {
+        return this.localVariants.map(v => ({
+            label: v.variantKey || '(unnamed)',
+            value: v.variantKey || '',
+        }));
+    }
+
+    // ── Variant weight visualizer ────────────────────────────────────────────
+
+    get totalWeight() {
+        return this.localVariants.reduce((sum, v) => sum + (Number(v.weight) || 0), 0);
+    }
+
+    get totalWeightStyle() {
+        return this.totalWeight !== 100 ? 'color:#c23934;font-weight:600' : 'color:#04844b;font-weight:600';
+    }
+
+    get totalWeightWarning() {
+        if (this.totalWeight === 100) return '✓';
+        return this.totalWeight < 100 ? `(${100 - this.totalWeight}% unassigned)` : `(${this.totalWeight - 100}% over)`;
+    }
+
+    get variantSegments() {
+        return this.localVariants.map((v, idx) => ({
+            key:     v.variantKey || `variant_${idx}`,
+            style:   `width:${v.weight || 0}%;background:${SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}`,
+            tooltip: `${v.variantKey}: ${v.weight ?? 0}%`,
+        }));
+    }
+
+    // ─── Local data builders ─────────────────────────────────────────────────
+
+    _buildLocalRules(rules) {
+        return rules.map((r, idx) => this._enrichRule(r, idx));
+    }
+
+    _enrichRule(r, idx) {
+        const now    = new Date();
+        const start  = r.Start_Date__c ? new Date(r.Start_Date__c) : null;
+        const end    = r.End_Date__c   ? new Date(r.End_Date__c)   : null;
+        const isScheduled = !!(start || end);
+
+        let scheduleSummary = '';
+        if (start && end) {
+            scheduleSummary = `${start.toLocaleDateString()} – ${end.toLocaleDateString()}`;
+        } else if (start) {
+            scheduleSummary = `From ${start.toLocaleDateString()}`;
+        } else if (end) {
+            scheduleSummary = `Until ${end.toLocaleDateString()}`;
+        }
+
+        // Truncate long rule values
+        const rawValue = r.Rule_Value__c ?? '';
+        const valueSummary = rawValue.length > 60
+            ? rawValue.substring(0, 57) + '…' : rawValue;
+
+        const isActive  = r.Is_Active__c ?? true;
+        const ruleType  = r.Rule_Type__c ?? '';
+        const priority  = r.Priority__c  ?? idx + 1;
+
+        return {
+            id:             r.Id,
+            ruleType,
+            ruleValue:      r.Rule_Value__c,
+            variantValue:   r.Variant_Value__c,
+            priority,
+            isActive,
+            startDate:      r.Start_Date__c,
+            endDate:        r.End_Date__c,
+            isScheduled,
+            scheduleSummary,
+            valueSummary,
+            hasVariantValue: !!r.Variant_Value__c,
+            liClass:        `rule-item${isActive ? '' : ' rule-item--inactive'}`,
+        };
+    }
+
+    _buildLocalVariants(variants) {
+        return variants.map(v => ({
+            id:         v.Id,
+            variantKey: v.Variant_Key__c,
+            weight:     v.Weight__c,
+            payload:    v.Payload__c,
+        }));
+    }
+
+    // ─── Drag-to-reorder ─────────────────────────────────────────────────────
+
+    handleDragStart(event) {
+        this._dragSourceId = event.currentTarget.dataset.id;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', this._dragSourceId);
+        event.currentTarget.classList.add('rule-item--dragging');
+    }
+
+    handleDragEnter(event) {
+        event.preventDefault();
+        const targetId = event.currentTarget.dataset.id;
+        if (targetId !== this._dragSourceId) {
+            this._dragOverId = targetId;
+            event.currentTarget.classList.add('rule-item--drag-over');
+        }
+    }
+
+    handleDragLeave(event) {
+        event.currentTarget.classList.remove('rule-item--drag-over');
+    }
+
+    handleDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }
+
+    handleDrop(event) {
+        event.preventDefault();
+        const targetEl = event.target.closest('li[data-id]');
+        if (!targetEl) return;
+        const targetId = targetEl.dataset.id;
+        if (!this._dragSourceId || targetId === this._dragSourceId) return;
+
+        const fromIdx = this.localRules.findIndex(r => r.id === this._dragSourceId);
+        const toIdx   = this.localRules.findIndex(r => r.id === targetId);
+        if (fromIdx === -1 || toIdx === -1) return;
+
+        // Reorder the array
+        const reordered = [...this.localRules];
+        const [moved]   = reordered.splice(fromIdx, 1);
+        reordered.splice(toIdx, 0, moved);
+
+        // Reassign sequential priorities
+        this.localRules  = reordered.map((r, idx) => ({ ...r, priority: idx + 1 }));
+        this.reorderDirty = true;
+
+        // Clean up drag-over highlight
+        targetEl.classList.remove('rule-item--drag-over');
+    }
+
+    handleDragEnd(event) {
+        event.currentTarget.classList.remove('rule-item--dragging');
+        this._dragSourceId = null;
+        this._dragOverId   = null;
+    }
+
+    async handleSaveReorder() {
+        this.isLoading = true;
+        try {
+            const payload = this.localRules.map(r => ({
+                Id:          r.id,
+                Priority__c: r.priority,
+            }));
+            await reorderRules({ rules: payload });
+            this.reorderDirty = false;
+            this.dispatchEvent(new CustomEvent('ruleschanged'));
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Success',
+                message: 'Rule order saved.',
+                variant: 'success'
+            }));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not save rule order',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    handleDiscardReorder() {
+        this.localRules   = this._buildLocalRules(this._rules);
+        this.reorderDirty = false;
+    }
+
+    // ─── Rule CRUD ────────────────────────────────────────────────────────────
+
+    handleAddRule() {
+        this.isEditingExisting = false;
+        this.editRule = {
+            ruleType:     'User',
+            ruleValue:    '',
+            variantValue: '',
+            priority:     this.localRules.length + 1,
+            isActive:     true,
+            startDate:    null,
+            endDate:      null,
+        };
+        this.showRuleModal = true;
+    }
+
+    handleEditRule(event) {
+        const id   = event.currentTarget.dataset.id;
+        const rule = this.localRules.find(r => r.id === id);
+        if (!rule) return;
+        this.isEditingExisting = true;
+        this.editRule = { ...rule };
+        this.showRuleModal = true;
+    }
+
+    handleCloseRuleModal() {
+        this.showRuleModal = false;
+        this.editRule = {};
+    }
+
+    handleEditRuleTypeChange(event) {
+        this.editRule = { ...this.editRule, ruleType: event.detail.value };
+    }
+
+    handleEditFieldChange(event) {
+        const field = event.currentTarget.dataset.field;
+        this.editRule = { ...this.editRule, [field]: event.target.value };
+    }
+
+    handleEditToggleChange(event) {
+        const field = event.currentTarget.dataset.field;
+        this.editRule = { ...this.editRule, [field]: event.target.checked };
+    }
+
+    async handleSaveRule() {
+        if (!this.editRule.ruleType) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Validation Error',
+                message: 'Rule Type is required.',
+                variant: 'error'
+            }));
+            return;
+        }
+
+        const record = {
+            Flag_Key__c:      this.flagKey,
+            Rule_Type__c:     this.editRule.ruleType,
+            Rule_Value__c:    this.editRule.ruleValue,
+            Variant_Value__c: this.editRule.variantValue || null,
+            Priority__c:      this.editRule.priority,
+            Is_Active__c:     this.editRule.isActive,
+            Start_Date__c:    this.editRule.startDate || null,
+            End_Date__c:      this.editRule.endDate   || null,
+        };
+
+        if (this.isEditingExisting && this.editRule.id) {
+            record.Id = this.editRule.id;
+        }
+
+        this.isLoading = true;
+        try {
+            await saveRule({ rule: record });
+            this.showRuleModal = false;
+            this.editRule = {};
+            this.dispatchEvent(new CustomEvent('ruleschanged'));
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Success',
+                message: 'Rule saved.',
+                variant: 'success'
+            }));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not save rule',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async handleDeleteRule(event) {
+        const id = event.currentTarget.dataset.id;
+        if (!id) return;
+        this.isLoading = true;
+        try {
+            await deleteRule({ ruleId: id });
+            this.dispatchEvent(new CustomEvent('ruleschanged'));
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Deleted',
+                message: 'Rule removed.',
+                variant: 'success'
+            }));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not delete rule',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async handleRuleActiveToggle(event) {
+        const id        = event.currentTarget.dataset.id;
+        const isActive  = event.target.checked;
+        const rule      = this.localRules.find(r => r.id === id);
+        if (!rule) return;
+
+        const record = {
+            Id:          id,
+            Is_Active__c: isActive,
+            Flag_Key__c:  this.flagKey,
+            Rule_Type__c: rule.ruleType,
+        };
+
+        this.isLoading = true;
+        try {
+            await saveRule({ rule: record });
+            this.dispatchEvent(new CustomEvent('ruleschanged'));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not update rule',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    // ─── Variant CRUD ─────────────────────────────────────────────────────────
+
+    handleAddVariant() {
+        this.localVariants = [
+            ...this.localVariants,
+            { id: `new_${Date.now()}`, variantKey: '', weight: 0, payload: '' }
+        ];
+    }
+
+    handleVariantFieldChange(event) {
+        const id    = event.currentTarget.dataset.id;
+        const field = event.currentTarget.dataset.field;
+        const value = event.target.value;
+        this.localVariants = this.localVariants.map(v =>
+            v.id === id ? { ...v, [field]: field === 'weight' ? Number(value) : value } : v
+        );
+    }
+
+    async handleSaveVariant(event) {
+        const id      = event.currentTarget.dataset.id;
+        const local   = this.localVariants.find(v => v.id === id);
+        if (!local) return;
+
+        const record = {
+            Flag_Key__c:    this.flagKey,
+            Variant_Key__c: local.variantKey,
+            Weight__c:      local.weight,
+            Payload__c:     local.payload || null,
+        };
+
+        const isNew = id.startsWith('new_');
+        if (!isNew) {
+            record.Id = id;
+        }
+
+        this.isLoading = true;
+        try {
+            const saved = await saveVariant({ variant: record });
+            // Replace temp id with real Id if new
+            if (isNew) {
+                this.localVariants = this.localVariants.map(v =>
+                    v.id === id ? { ...v, id: saved.Id } : v
+                );
+            }
+            this.dispatchEvent(new CustomEvent('variantschanged'));
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Saved',
+                message: `Variant "${local.variantKey}" saved.`,
+                variant: 'success'
+            }));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not save variant',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async handleDeleteVariant(event) {
+        const id    = event.currentTarget.dataset.id;
+        const isNew = id.startsWith('new_');
+
+        if (isNew) {
+            // Just remove from local array
+            this.localVariants = this.localVariants.filter(v => v.id !== id);
+            return;
+        }
+
+        this.isLoading = true;
+        try {
+            await deleteVariant({ variantId: id });
+            this.localVariants = this.localVariants.filter(v => v.id !== id);
+            this.dispatchEvent(new CustomEvent('variantschanged'));
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Deleted',
+                message: 'Variant removed.',
+                variant: 'success'
+            }));
+        } catch (err) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: err?.body?.message ?? 'Could not delete variant',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+}
