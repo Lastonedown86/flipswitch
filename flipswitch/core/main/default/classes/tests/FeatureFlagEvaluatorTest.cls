@@ -29,13 +29,12 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c killRule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'Kill_Switch', null, 1
         );
-        insert killRule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, null
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ killRule }
         );
         Test.stopTest();
 
@@ -48,21 +47,18 @@ private class FeatureFlagEvaluatorTest {
     @IsTest
     static void testExpiredFlagReturnsDisabled() {
         // We cannot modify CMDT in test context, so test expiration via a
-        // custom rule with End_Date__c in the past
+        // custom rule with End_Date__c in the past — constructed in memory
         FlipSwitch_Rule__c expiredRule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'User',
             String.valueOf(UserInfo.getUserId()), 10
         );
         expiredRule.End_Date__c = Datetime.now().addMinutes(-1);
-        insert expiredRule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        // Load rules manually to confirm expired rule is not matched
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, rules
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ expiredRule }
         );
         Test.stopTest();
 
@@ -80,14 +76,12 @@ private class FeatureFlagEvaluatorTest {
             'SAMPLE_BOOLEAN_FLAG', 'User', userId, 10
         );
         rule.Variant_Value__c = 'treatment';
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, rules
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
         );
         Test.stopTest();
 
@@ -101,14 +95,12 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c rule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'User', '005000000000001AAA', 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, rules
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
         );
         Test.stopTest();
 
@@ -123,14 +115,12 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c rule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'Profile', String.valueOf(profileId), 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, rules
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
         );
         Test.stopTest();
 
@@ -145,12 +135,11 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c rule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'Percentage', '50', 10
         );
-        insert rule;
 
         Id userId = UserInfo.getUserId();
         FeatureFlagContext ctx = FeatureFlagContext.forUser(userId);
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
+        List<FlipSwitch_Rule__c> rules = new List<FlipSwitch_Rule__c>{ rule };
 
         Test.startTest();
         FeatureFlagResult first = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
@@ -167,13 +156,13 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c rule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'Percentage', '100', 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
-        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
         Test.stopTest();
 
         System.assertEquals(true, result.isEnabled,
@@ -185,13 +174,13 @@ private class FeatureFlagEvaluatorTest {
         FlipSwitch_Rule__c rule = makeRule(
             'SAMPLE_BOOLEAN_FLAG', 'Percentage', '0', 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
-        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
         Test.stopTest();
 
         System.assertEquals(false, result.isEnabled,
@@ -208,15 +197,15 @@ private class FeatureFlagEvaluatorTest {
             'SAMPLE_BOOLEAN_FLAG', 'Segment',
             '{"region":"US","tier":"Enterprise"}', 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withAttribute('region', 'US')
            .withAttribute('tier', 'Enterprise')
            .withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
-        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
         Test.stopTest();
 
         System.assertEquals(true, result.isEnabled);
@@ -229,14 +218,14 @@ private class FeatureFlagEvaluatorTest {
             'SAMPLE_BOOLEAN_FLAG', 'Segment',
             '{"region":"US","tier":"Enterprise"}', 10
         );
-        insert rule;
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withAttribute('region', 'US') // tier missing
            .withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
-        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
         Test.stopTest();
 
         System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
@@ -261,12 +250,12 @@ private class FeatureFlagEvaluatorTest {
         );
         lowPriority.Variant_Value__c = 'low_priority';
 
-        insert new List<FlipSwitch_Rule__c>{ lowPriority, highPriority };
+        // Pass in priority order (ASC) as the evaluator would return from SOQL
+        List<FlipSwitch_Rule__c> rules = new List<FlipSwitch_Rule__c>{ highPriority, lowPriority };
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
-        List<FlipSwitch_Rule__c> rules = FeatureFlagEvaluator.loadRules('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, rules);
         Test.stopTest();
 

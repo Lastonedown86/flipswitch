@@ -103,4 +103,25 @@ private class FeatureFlagEvaluationTriggerHandlerTest {
         Test.stopTest();
         System.assertEquals(false, exceptionThrown, 'Empty list should not throw');
     }
+
+    @IsTest
+    static void testTriggerFiresHandler() {
+        // Publish a platform event to cover the trigger itself
+        FlipSwitch_Evaluation__e evt = new FlipSwitch_Evaluation__e(
+            Flag_Key__c          = 'TRIGGER_COVERAGE_TEST',
+            User_Id__c           = UserInfo.getUserId(),
+            Result__c            = 'true',
+            Evaluation_Reason__c = FeatureFlagResult.REASON_DEFAULT,
+            Timestamp__c         = Datetime.now()
+        );
+        Test.startTest();
+        EventBus.publish(evt);
+        Test.stopTest();
+        // Trigger fires asynchronously after Test.stopTest(); verify metric created
+        List<FlipSwitch_Metric__c> metrics = [
+            SELECT Evaluation_Count__c FROM FlipSwitch_Metric__c
+            WHERE Flag_Key__c = 'TRIGGER_COVERAGE_TEST'
+        ];
+        System.assertEquals(1, metrics.size(), 'Trigger should have fired and created a metric');
+    }
 }

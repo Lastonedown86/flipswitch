@@ -13,7 +13,7 @@
  */
 public inherited sharing class FeatureFlagLogger {
 
-    private static final List<FlipSwitch_Evaluation__e> buffer =
+    private static final List<FlipSwitch_Evaluation__e> BUFFER =
         new List<FlipSwitch_Evaluation__e>();
 
     private static Boolean suspended = false;
@@ -51,7 +51,7 @@ public inherited sharing class FeatureFlagLogger {
         if (saveMethod == FeatureFlag.SaveMethod.SYNCHRONOUS) {
             EventBus.publish(event);
         } else {
-            buffer.add(event);
+            BUFFER.add(event);
         }
     }
 
@@ -60,15 +60,15 @@ public inherited sharing class FeatureFlagLogger {
      *              Called automatically by FeatureFlag.flushEvaluations().
      */
     public static void flush() {
-        if (buffer.isEmpty()) {
+        if (BUFFER.isEmpty()) {
             return;
         }
         if (saveMethod == FeatureFlag.SaveMethod.QUEUEABLE) {
-            System.enqueueJob(new FeatureFlagLoggerQueueable(buffer.clone()));
+            System.enqueueJob(new FeatureFlagLoggerQueueable(BUFFER.clone()));
         } else {
-            EventBus.publish(buffer);
+            EventBus.publish(BUFFER);
         }
-        buffer.clear();
+        BUFFER.clear();
     }
 
     /** @description Stop buffering evaluations (performance-sensitive code path). */
@@ -94,7 +94,7 @@ public inherited sharing class FeatureFlagLogger {
     /** @description Reset transaction state (useful in tests). */
     @TestVisible
     private static void reset() {
-        buffer.clear();
+        BUFFER.clear();
         suspended = false;
         currentScenario = null;
         saveMethod = FeatureFlag.SaveMethod.EVENT_BUS;
@@ -103,17 +103,24 @@ public inherited sharing class FeatureFlagLogger {
     /** @description Returns the number of events currently buffered (for tests). */
     @TestVisible
     private static Integer getBufferSize() {
-        return buffer.size();
+        return BUFFER.size();
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────
 
     private static Boolean isLoggingEnabled(FeatureFlagContext ctx) {
         FlipSwitch_Settings__c settings = FlipSwitch_Settings__c.getInstance(ctx.userId);
-        return settings == null || settings.Is_Logging_Enabled__c;
+        // Hierarchy Custom Settings: getInstance() always returns non-null.
+        // If no record was explicitly created (Id is null), default to enabled.
+        if (settings == null || settings.Id == null) {
+            return true;
+        }
+        return settings.Is_Logging_Enabled__c;
     }
 
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     private static Boolean passesSamplingRate() {
+        // CMDT is always readable — no CRUD check needed
         List<FlipSwitch_Config__mdt> configs = [
             SELECT Log_Sampling_Rate__c
             FROM FlipSwitch_Config__mdt
@@ -124,8 +131,12 @@ public inherited sharing class FeatureFlagLogger {
             return true;
         }
         Integer rate = Integer.valueOf(configs[0].Log_Sampling_Rate__c);
-        if (rate >= 100) return true;
-        if (rate <= 0)   return false;
+        if (rate >= 100) {
+            return true;
+        }
+        if (rate <= 0) {
+            return false;
+        }
         return (Math.random() * 100) < rate;
     }
 

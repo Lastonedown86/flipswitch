@@ -1,0 +1,14 @@
+{
+  "Metadata": {
+    "description": "Test",
+    "masterLabel": "Test Page",
+    "template": { "name": "flexipage:defaultAppFullWidthHeaderPage" },
+    "type": "AppPage",
+    "flexiPageRegions": [{
+      "itemInstances": [{ "componentInstance": { "componentName": "flexipage:blankSpace", "identifier": "blankSpace1" } }],
+      "name": "main",
+      "type": "Region"
+    }]
+  },
+  "FullName": "Test_Page_Probe"
+}

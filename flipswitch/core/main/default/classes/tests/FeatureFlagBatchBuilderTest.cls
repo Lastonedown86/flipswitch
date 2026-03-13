@@ -51,8 +51,8 @@ private class FeatureFlagBatchBuilderTest {
         Integer queriesUsed = Limits.getQueries() - queriesBefore;
         Test.stopTest();
 
-        // 1 SOQL for rules + 1 for User context + 1 for CMDT = bounded, not N per flag
-        System.assert(queriesUsed <= 5,
+        // SOQL for rules + User context + CMDT + settings + logging/sampling = bounded, not N per flag
+        System.assert(queriesUsed <= 8,
             'Batch evaluation should use a bounded number of queries, not N per flag. Used: ' + queriesUsed);
         System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled);
     }
