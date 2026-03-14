@@ -423,6 +423,79 @@ private class FeatureFlagEvaluatorTest {
         System.assertEquals(mockAccountId, ctx.accountId, 'accountId should be set from withAccount()');
     }
 
+    // ─── Account rule matching ────────────────────────────────────────────
+
+    @IsTest
+    static void evaluator_accountRule_matchesUserUnderTargetAccount() {
+        Account acc = new Account(Name = 'Acme Corp');
+        insert acc;
+
+        FlipSwitch_Rule__c rule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Account', String.valueOf(acc.Id), 1
+        );
+        rule.Variant_Value__c = 'true';
+
+        Test.startTest();
+        FeatureFlagContext ctx = makeCtx();
+        ctx.accountId = acc.Id;
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled, 'User under target account should get true');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
+    }
+
+    @IsTest
+    static void evaluator_accountRule_skipsNonMatchingAccount() {
+        Account target = new Account(Name = 'Target Corp');
+        insert target;
+        Account other = new Account(Name = 'Other Corp');
+        insert other;
+
+        FlipSwitch_Rule__c rule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Account', String.valueOf(target.Id), 1
+        );
+        rule.Variant_Value__c = 'true';
+
+        Test.startTest();
+        FeatureFlagContext ctx = makeCtx();
+        ctx.accountId = other.Id;
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'User under different account should fall through to DEFAULT');
+    }
+
+    @IsTest
+    static void evaluator_accountSegmentRule_matchesOnField() {
+        Account acc = new Account(Name = 'Tech Corp', Industry = 'Technology');
+        insert acc;
+
+        FlipSwitch_Rule__c rule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Account_Segment', 'Industry:Technology', 1
+        );
+        rule.Variant_Value__c = 'true';
+
+        Test.startTest();
+        FeatureFlagContext ctx = makeCtx();
+        ctx.accountId = acc.Id;
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled, 'Account with matching Industry field should get true');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
+    }
+
     @IsTest
     static void context_accountRecord_cachedAfterFirstLookup() {
         // Arrange: create a test Account
