@@ -117,7 +117,7 @@
     </fields>
     <fields>
         <fullName>Rule_Value__c</fullName>
-        <description>The value to match. For User/Profile/Permission_Set: semicolon-delimited IDs or names. For Percentage: integer 0-100. For Segment: JSON key-value pairs. For Kill_Switch: leave blank.</description>
+        <description>The value to match. For User/Profile/Permission_Set: semicolon-delimited IDs or names. For Percentage: integer 0-100. For Segment: JSON key-value pairs. For Kill_Switch: leave blank. For Account: semicolon-separated Account IDs (e.g., 001xx000000xxxAAA;001xx000000yyyBBB). For Account_Segment: FieldApiName:Value format (e.g., Industry:Technology). For Territory: semicolon-separated Territory2 IDs.</description>
         <label>Rule Value</label>
         <length>32768</length>
         <type>LongTextArea</type>
