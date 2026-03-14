@@ -564,4 +564,105 @@ private class FeatureFlagEvaluatorTest {
         System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
             'User in a different territory should fall through to DEFAULT');
     }
+
+    // ─── Inventory flag type ──────────────────────────────────────────────
+
+    @IsTest
+    static void inventoryFlag_withoutAllowDml_throwsFeatureFlagException() {
+        // Context without dmlAllowed — evaluateInventoryDirect should throw
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.dmlAllowed = false;
+
+        Boolean exceptionThrown = false;
+        String  exceptionMessage = '';
+
+        Test.startTest();
+        try {
+            FeatureFlagEvaluator.evaluateInventoryDirect('INV_TEST_FLAG', false, ctx);
+        } catch (FeatureFlagException e) {
+            exceptionThrown  = true;
+            exceptionMessage = e.getMessage();
+        }
+        Test.stopTest();
+
+        System.assertEquals(true, exceptionThrown,
+            'Inventory flag without allowDml should throw FeatureFlagException');
+        System.assert(exceptionMessage.contains('allowDml'),
+            'Exception message should mention allowDml; got: ' + exceptionMessage);
+    }
+
+    @IsTest
+    static void inventoryFlag_withAllowDml_createsClaimAndReturnsTrue() {
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.dmlAllowed = true;
+
+        Test.startTest();
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluateInventoryDirect(
+            'INV_CLAIM_FLAG', false, ctx
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled,
+            'First evaluation of open Inventory flag should return true');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason,
+            'Reason should be RULE_MATCH after successful claim');
+
+        // Verify the claim record was inserted
+        List<FlipSwitch_Inventory_Claim__c> claims = [
+            SELECT Id, Flag_Key__c, User_Id__c
+            FROM FlipSwitch_Inventory_Claim__c
+            WHERE Flag_Key__c = 'INV_CLAIM_FLAG'
+              AND User_Id__c  = :String.valueOf(UserInfo.getUserId())
+        ];
+        System.assertEquals(1, claims.size(),
+            'Exactly one claim record should be created for the user');
+    }
+
+    @IsTest
+    static void inventoryFlag_evaluatedTwice_isIdempotent() {
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.dmlAllowed = true;
+
+        Test.startTest();
+        // First evaluation — inserts claim
+        FeatureFlagResult first = FeatureFlagEvaluator.evaluateInventoryDirect(
+            'INV_IDEMPOTENT_FLAG', false, ctx
+        );
+        // Second evaluation — finds existing claim (cache or SOQL), no duplicate insert
+        FeatureFlagResult second = FeatureFlagEvaluator.evaluateInventoryDirect(
+            'INV_IDEMPOTENT_FLAG', false, ctx
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, first.isEnabled,
+            'First evaluation should return true');
+        System.assertEquals(true, second.isEnabled,
+            'Second evaluation should also return true (idempotent)');
+
+        // Only one claim record should exist
+        List<FlipSwitch_Inventory_Claim__c> claims = [
+            SELECT Id FROM FlipSwitch_Inventory_Claim__c
+            WHERE Flag_Key__c = 'INV_IDEMPOTENT_FLAG'
+              AND User_Id__c  = :String.valueOf(UserInfo.getUserId())
+        ];
+        System.assertEquals(1, claims.size(),
+            'No duplicate claim records should be created on repeated evaluation');
+    }
+
+    @IsTest
+    static void inventoryFlag_whenClosed_returnsFalse() {
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.dmlAllowed = true;
+
+        Test.startTest();
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluateInventoryDirect(
+            'INV_CLOSED_FLAG', true, ctx
+        );
+        Test.stopTest();
+
+        System.assertEquals(false, result.isEnabled,
+            'Closed Inventory flag should return false when user has no prior claim');
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Reason should be DEFAULT for a closed flag with no existing claim');
+    }
 }

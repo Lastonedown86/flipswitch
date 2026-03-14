@@ -8,6 +8,7 @@
  *              Gracefully degrades to a no-op if the Platform Cache partition
  *              is not configured — the framework still works, just slower.
  */
+@SuppressWarnings('PMD.ApexCRUDViolation')
 public inherited sharing class FeatureFlagCache {
 
     private static final String PARTITION_NAME;
@@ -26,42 +27,50 @@ public inherited sharing class FeatureFlagCache {
 
     /**
      * @description Store a flag definition in the org-level cache.
+     * @param flagKey     The flag DeveloperName
+     * @param value       The value to cache
      */
     public static void putFlag(String flagKey, Object value) {
         putFlag(flagKey, value, DEFAULT_TTL_SECONDS);
     }
 
+    /**
+     * @description Store a flag definition in the org-level cache with custom TTL.
+     * @param flagKey     The flag DeveloperName
+     * @param value       The value to cache
+     * @param ttlSeconds  Time-to-live in seconds
+     */
     public static void putFlag(String flagKey, Object value, Integer ttlSeconds) {
         try {
             Cache.OrgPartition partition = Cache.Org.getPartition(PARTITION_NAME);
             partition.put(ORG_PARTITION_KEY_PREFIX + sanitizeKey(flagKey), value, ttlSeconds);
-        } catch (Exception e) {
-            // Cache partition not configured or unavailable — silently skip
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: cache partition not configured
         }
     }
 
     /**
      * @description Retrieve a flag definition from the org-level cache.
+     * @param flagKey  The flag DeveloperName
      * @return  The cached value, or null on miss or error
      */
     public static Object getFlag(String flagKey) {
         try {
             Cache.OrgPartition partition = Cache.Org.getPartition(PARTITION_NAME);
             return partition.get(ORG_PARTITION_KEY_PREFIX + sanitizeKey(flagKey));
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: graceful degradation
             return null;
         }
     }
 
     /**
      * @description Remove a specific flag from the org-level cache.
+     * @param flagKey  The flag DeveloperName to remove
      */
     public static void removeFlag(String flagKey) {
         try {
             Cache.OrgPartition partition = Cache.Org.getPartition(PARTITION_NAME);
             partition.remove(ORG_PARTITION_KEY_PREFIX + sanitizeKey(flagKey));
-        } catch (Exception e) {
-            // Silently skip
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: silently degrade
         }
     }
 
@@ -70,19 +79,23 @@ public inherited sharing class FeatureFlagCache {
     /**
      * @description Store a per-user evaluation result in the session cache.
      *              Key is userId:flagKey.
+     * @param userId  The user Id string
+     * @param flagKey The flag DeveloperName
+     * @param result  The evaluation result to cache
      */
     public static void putEvaluation(String userId, String flagKey, FeatureFlagResult result) {
         try {
             Cache.SessionPartition partition = Cache.Session.getPartition(PARTITION_NAME);
             String cacheKey = SESSION_PARTITION_KEY_PREFIX + sanitizeKey(userId + '_' + flagKey);
             partition.put(cacheKey, result, DEFAULT_TTL_SECONDS);
-        } catch (Exception e) {
-            // Silently skip
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: silently degrade
         }
     }
 
     /**
      * @description Retrieve a cached evaluation result for userId + flagKey.
+     * @param userId  The user Id string
+     * @param flagKey The flag DeveloperName
      * @return  FeatureFlagResult, or null on miss
      */
     public static FeatureFlagResult getEvaluation(String userId, String flagKey) {
@@ -90,7 +103,7 @@ public inherited sharing class FeatureFlagCache {
             Cache.SessionPartition partition = Cache.Session.getPartition(PARTITION_NAME);
             String cacheKey = SESSION_PARTITION_KEY_PREFIX + sanitizeKey(userId + '_' + flagKey);
             return (FeatureFlagResult) partition.get(cacheKey);
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: graceful degradation
             return null;
         }
     }
@@ -107,8 +120,7 @@ public inherited sharing class FeatureFlagCache {
                     orgPartition.remove(key);
                 }
             }
-        } catch (Exception e) {
-            // Silently skip
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: silently degrade
         }
     }
 

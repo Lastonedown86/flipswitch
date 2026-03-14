@@ -243,6 +243,7 @@ public inherited sharing class FeatureFlagBuilder {
         } else if (String.isNotBlank(FeatureFlag.currentScenario)) {
             ctx.withScenario(FeatureFlag.currentScenario);
         }
+        ctx.dmlAllowed = this.dmlAllowed;
         return ctx;
     }
 

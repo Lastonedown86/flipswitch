@@ -63,7 +63,12 @@ public inherited sharing class FeatureFlagEvaluator {
             return FeatureFlagResult.disabled(FeatureFlagResult.REASON_EXPIRED);
         }
 
-        // 4. QA override → rules → default
+        // 4. Inventory flag — evaluateInventory enforces the DML guard
+        if (flag.Type__c == 'Inventory') {
+            return evaluateInventory(flag, ctx);
+        }
+
+        // 5. QA override → rules → default
         return evaluateWithRules(flagKey, ctx, preloadedRules, flag.Default_Value__c);
     }
 
@@ -340,7 +345,7 @@ public inherited sharing class FeatureFlagEvaluator {
     private static FlipSwitch_Flag__mdt loadFlag(String flagKey) {
         List<FlipSwitch_Flag__mdt> flags = [
             SELECT DeveloperName, Type__c, Default_Value__c, Is_Active__c,
-                   Expiration_Date__c, Category__c, Description__c
+                   Expiration_Date__c, Category__c, Description__c, Is_Closed__c
             FROM FlipSwitch_Flag__mdt
             WHERE DeveloperName = :flagKey
             LIMIT 1
@@ -392,5 +397,102 @@ public inherited sharing class FeatureFlagEvaluator {
             }
         }
         return filtered;
+    }
+
+    // ─── Inventory flag evaluation ────────────────────────────────────────
+
+    /**
+     * @description Evaluate an Inventory-type flag. Checks for an existing claim
+     *              record for the user, or inserts one if the flag is still open.
+     *              Results are cached in the session partition to avoid redundant DML/SOQL.
+     * @param flag   The CMDT flag definition
+     * @param ctx    Evaluation context (must have dmlAllowed = true)
+     * @return       FeatureFlagResult — true if the user holds a claim, false if closed
+     */
+    private static FeatureFlagResult evaluateInventory(FlipSwitch_Flag__mdt flag, FeatureFlagContext ctx) {
+        // DML guard — callers must opt in via .allowDml() on the builder
+        if (ctx.dmlAllowed != true) {
+            throw new FeatureFlagException(
+                'Inventory flags require .allowDml() to be called on the builder. ' +
+                'Ensure the calling context permits DML.'
+            );
+        }
+
+        String flagKey = flag.DeveloperName;
+        String userId  = String.valueOf(ctx.userId);
+
+        // Check session cache first (keyed by a compound inventory cache key)
+        String inventoryCacheKey = 'inv__' + flagKey;
+        FeatureFlagResult cached = FeatureFlagCache.getEvaluation(userId, inventoryCacheKey);
+        if (cached != null) {
+            return FeatureFlagResult.enabled(null, null, FeatureFlagResult.REASON_CACHE_HIT);
+        }
+
+        // Check for existing claim record
+        List<FlipSwitch_Inventory_Claim__c> existing = [
+            SELECT Id FROM FlipSwitch_Inventory_Claim__c
+            WHERE Flag_Key__c = :flagKey AND User_Id__c = :userId
+            LIMIT 1
+        ];
+        if (!existing.isEmpty()) {
+            FeatureFlagResult hit = FeatureFlagResult.enabled(null, null, FeatureFlagResult.REASON_RULE_MATCH);
+            FeatureFlagCache.putEvaluation(userId, inventoryCacheKey, hit);
+            return hit;
+        }
+
+        // Flag is closed — no new claims allowed
+        if (flag.Is_Closed__c == true) {
+            return FeatureFlagResult.disabled(FeatureFlagResult.REASON_DEFAULT);
+        }
+
+        // Optimistic insert — Claim_Key__c has a unique constraint to handle races
+        String claimKey = (flagKey + '_' + userId).left(255);
+        try {
+            FlipSwitch_Inventory_Claim__c claim = new FlipSwitch_Inventory_Claim__c(
+                Flag_Key__c  = flagKey,
+                User_Id__c   = userId,
+                Claim_Key__c = claimKey,
+                Claimed_At__c = System.now()
+            );
+            insert claim;
+            FeatureFlagResult claimed = FeatureFlagResult.enabled(null, null, FeatureFlagResult.REASON_RULE_MATCH);
+            FeatureFlagCache.putEvaluation(userId, inventoryCacheKey, claimed);
+            return claimed;
+        } catch (DmlException e) {
+            if (e.getDmlType(0) == StatusCode.DUPLICATE_VALUE) {
+                // Race condition — another process inserted first; user still holds a claim
+                FeatureFlagResult raceClaim = FeatureFlagResult.enabled(null, null, FeatureFlagResult.REASON_RULE_MATCH);
+                FeatureFlagCache.putEvaluation(userId, inventoryCacheKey, raceClaim);
+                return raceClaim;
+            }
+            // Other DML error — circuit breaker: return safe default
+            String defaultVal = flag.Default_Value__c;
+            return FeatureFlagResult.fromDefault(defaultVal != null ? defaultVal : 'false');
+        }
+    }
+
+    /**
+     * @description Test-visible entry point for Inventory evaluation.
+     *              Accepts explicit parameters to bypass CMDT loading (since CMDT
+     *              records cannot be inserted in test context).
+     * @param flagKey    The flag key
+     * @param isClosed   Whether the inventory is closed to new claims
+     * @param ctx        Evaluation context (dmlAllowed must be true for non-exception path)
+     * @return           FeatureFlagResult from inventory evaluation
+     */
+    @TestVisible
+    private static FeatureFlagResult evaluateInventoryDirect(
+        String flagKey,
+        Boolean isClosed,
+        FeatureFlagContext ctx
+    ) {
+        FlipSwitch_Flag__mdt mockFlag = new FlipSwitch_Flag__mdt(
+            DeveloperName   = flagKey,
+            Type__c         = 'Inventory',
+            Is_Active__c    = true,
+            Is_Closed__c    = isClosed,
+            Default_Value__c = 'false'
+        );
+        return evaluateInventory(mockFlag, ctx);
     }
 }

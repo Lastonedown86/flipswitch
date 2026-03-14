@@ -21,6 +21,8 @@ public inherited sharing class FeatureFlagContext {
     public String scenario       { get; private set; }
     /** @description The flag key being evaluated. */
     public String flagKey        { get; private set; }
+    /** @description Whether DML is permitted during this evaluation (required for Inventory flags). */
+    public Boolean dmlAllowed    { get; set; }
 
     /** @description Account Id for account-level targeting rules. */
     public Id accountId { get; set; }
