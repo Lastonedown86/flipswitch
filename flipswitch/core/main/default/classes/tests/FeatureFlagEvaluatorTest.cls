@@ -3,6 +3,7 @@ private class FeatureFlagEvaluatorTest {
 
     // ─── Test data helpers ────────────────────────────────────────────────
 
+    @SuppressWarnings('PMD.ExcessiveParameterList')
     private static FlipSwitch_Rule__c makeRule(
         String flagKey, String ruleType, String ruleValue, Integer priority
     ) {
@@ -20,26 +21,27 @@ private class FeatureFlagEvaluatorTest {
         return FeatureFlagContext.forRunningUser();
     }
 
-    // ─── Kill switch — CMDT Is_Active__c = false ─────────────────────────
+    // ─── Emergency disable — CMDT Is_Active__c = false ──────────────────
 
     @IsTest
-    static void testKillSwitchDisabledFlagReturnsDisabled() {
+    static void testEmergencyDisableDisabledFlagReturnsDisabled() {
         // The SAMPLE_BOOLEAN_FLAG CMDT record has Is_Active__c = true.
-        // We test the kill switch rule path instead (runtime kill switch).
-        FlipSwitch_Rule__c killRule = makeRule(
-            'SAMPLE_BOOLEAN_FLAG', 'Kill_Switch', null, 1
+        // We test the emergency disable rule path instead (runtime emergency disable).
+        FlipSwitch_Rule__c disableRule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Emergency_Disable', null, 1
         );
 
         Test.startTest();
         FeatureFlagContext ctx = makeCtx();
         ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
         FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
-            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ killRule }
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ disableRule }
         );
         Test.stopTest();
 
-        System.assertEquals(false, result.isEnabled, 'Kill switch rule should disable flag');
-        System.assertEquals(FeatureFlagResult.REASON_KILL_SWITCH, result.reason);
+        System.assertEquals(false, result.isEnabled, 'Emergency disable rule should disable flag');
+        System.assertEquals(FeatureFlagResult.REASON_EMERGENCY_DISABLE, result.reason,
+            'Reason should be EMERGENCY_DISABLE');
     }
 
     // ─── Expiration ───────────────────────────────────────────────────────
@@ -85,15 +87,17 @@ private class FeatureFlagEvaluatorTest {
         );
         Test.stopTest();
 
-        System.assertEquals(true, result.isEnabled);
-        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
-        System.assertEquals('treatment', result.variant);
+        System.assertEquals(true, result.isEnabled, 'User rule match should enable flag');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
+        System.assertEquals('treatment', result.variant, 'Variant should be treatment');
     }
 
     @IsTest
     static void testUserRuleNoMatchReturnsDefault() {
+        // Use a non-matching user Id that differs from the running user
+        String nonMatchingUserId = String.valueOf(UserInfo.getUserId()).substring(0, 15) + 'ZZZ';
         FlipSwitch_Rule__c rule = makeRule(
-            'SAMPLE_BOOLEAN_FLAG', 'User', '005000000000001AAA', 10
+            'SAMPLE_BOOLEAN_FLAG', 'User', nonMatchingUserId, 10
         );
 
         Test.startTest();
@@ -104,7 +108,8 @@ private class FeatureFlagEvaluatorTest {
         );
         Test.stopTest();
 
-        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason);
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Non-matching user rule should fall through to DEFAULT');
     }
 
     // ─── Profile rule matching ─────────────────────────────────────────────
@@ -124,11 +129,11 @@ private class FeatureFlagEvaluatorTest {
         );
         Test.stopTest();
 
-        System.assertEquals(true, result.isEnabled);
-        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
+        System.assertEquals(true, result.isEnabled, 'Profile rule should enable flag');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
     }
 
-    // ─── Percentage rule ──────────────────────────────────────────────────
+    // ─── Percentage rollout ───────────────────────────────────────────────
 
     @IsTest
     static void testPercentageRuleConsistency() {
@@ -208,8 +213,8 @@ private class FeatureFlagEvaluatorTest {
         );
         Test.stopTest();
 
-        System.assertEquals(true, result.isEnabled);
-        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
+        System.assertEquals(true, result.isEnabled, 'Segment rule should enable flag');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
     }
 
     @IsTest
@@ -276,7 +281,8 @@ private class FeatureFlagEvaluatorTest {
         );
         Test.stopTest();
 
-        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason);
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'No rules should fall through to DEFAULT');
     }
 
     // ─── Circuit breaker ──────────────────────────────────────────────────
@@ -313,7 +319,8 @@ private class FeatureFlagEvaluatorTest {
         Test.stopTest();
 
         System.assertEquals(true, result.isEnabled, 'Enable_All override should force all flags on');
-        System.assertEquals(FeatureFlagResult.REASON_QA_OVERRIDE, result.reason);
+        System.assertEquals(FeatureFlagResult.REASON_QA_OVERRIDE, result.reason,
+            'Reason should be QA_OVERRIDE');
     }
 
     @IsTest
@@ -332,7 +339,8 @@ private class FeatureFlagEvaluatorTest {
         Test.stopTest();
 
         System.assertEquals(false, result.isEnabled, 'Disable_All override should force all flags off');
-        System.assertEquals(FeatureFlagResult.REASON_QA_OVERRIDE, result.reason);
+        System.assertEquals(FeatureFlagResult.REASON_QA_OVERRIDE, result.reason,
+            'Reason should be QA_OVERRIDE');
     }
 
     // ─── Batch rule loading ───────────────────────────────────────────────
@@ -351,5 +359,87 @@ private class FeatureFlagEvaluatorTest {
         for (FlipSwitch_Rule__c rule : rules) {
             System.assertEquals('SAMPLE_BOOLEAN_FLAG', rule.Flag_Key__c);
         }
+    }
+
+    // ─── Code-defined flag (registry integration) ─────────────────────────
+
+    @IsTest
+    static void testUnknownFlagReturnsNotConfigured() {
+        Test.startTest();
+        FeatureFlagContext ctx = makeCtx();
+        ctx.withFlagKey('TOTALLY_NEW_CODE_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'TOTALLY_NEW_CODE_FLAG', ctx, null
+        );
+        Test.stopTest();
+
+        System.assertEquals(false, result.isEnabled, 'Unknown flag should be disabled');
+        System.assertEquals(
+            FeatureFlagResult.REASON_NOT_CONFIGURED,
+            result.reason,
+            'Unknown flag should return NOT_CONFIGURED reason'
+        );
+
+        // Should have auto-registered
+        List<FlipSwitch_Flag_Registry__c> regs = [
+            SELECT Flag_Key__c FROM FlipSwitch_Flag_Registry__c
+            WHERE  Flag_Key__c = 'TOTALLY_NEW_CODE_FLAG'
+        ];
+        System.assertEquals(1, regs.size(), 'Evaluator should auto-register unknown flags');
+    }
+
+    @IsTest
+    static void testRegistryFlagActiveEvaluatesNormally() {
+        // Pre-insert an active registry flag
+        insert new FlipSwitch_Flag_Registry__c(
+            Name             = 'ACTIVE_REG',
+            Flag_Key__c      = 'ACTIVE_REG_FLAG',
+            Type__c          = 'Boolean',
+            Default_Value__c = 'true',
+            Is_Active__c     = true,
+            Source__c         = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        Test.startTest();
+        FeatureFlagContext ctx = makeCtx();
+        ctx.withFlagKey('ACTIVE_REG_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'ACTIVE_REG_FLAG', ctx, null
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled, 'Active registry flag with default=true should be enabled');
+    }
+
+    // ─── Account context properties ───────────────────────────────────────
+
+    @IsTest
+    static void context_withAccount_setsAccountId() {
+        Id mockAccountId = '001000000000001AAA';
+        FeatureFlagBuilder builder = FeatureFlag.flag('TEST_FLAG').withAccount(mockAccountId);
+        // Access internal context via test-visible getter
+        FeatureFlagContext ctx = builder.getContext();
+        System.assertEquals(mockAccountId, ctx.accountId, 'accountId should be set from withAccount()');
+    }
+
+    @IsTest
+    static void context_accountRecord_cachedAfterFirstLookup() {
+        // Arrange: create a test Account
+        Account acc = new Account(Name = 'Test Org');
+        insert acc;
+
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.accountId = acc.Id;
+
+        // Act: access accountRecord twice
+        SObject r1 = ctx.accountRecord;
+        Integer queriesAfterFirst = Limits.getQueries();
+        SObject r2 = ctx.accountRecord;
+        Integer queriesAfterSecond = Limits.getQueries();
+
+        // Assert: only one SOQL used
+        System.assertEquals(queriesAfterFirst, queriesAfterSecond, 'Account record should be cached after first access');
+        System.assertEquals(acc.Id, (Id) r1.get('Id'), 'Should return correct account');
     }
 }
