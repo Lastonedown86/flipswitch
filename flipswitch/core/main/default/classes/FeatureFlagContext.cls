@@ -41,6 +41,17 @@ public inherited sharing class FeatureFlagContext {
 
     // Territory targeting (lazy-loaded, cached)
     private List<String> cachedTerritoryIds;
+
+    /**
+     * @description Inject territory IDs directly for test scenarios where
+     *              UserTerritory2Association cannot be inserted.
+     * @param ids  List of Territory2 Id strings to treat as the user's territories
+     */
+    @TestVisible
+    private void setTerritoryIds(List<String> ids) {
+        this.cachedTerritoryIds = ids;
+    }
+
     /** @description Territory2 Ids for the context user. Lazy-loaded and cached. Empty when Territory Management is not enabled. */
     public List<String> territoryIds {
         get {

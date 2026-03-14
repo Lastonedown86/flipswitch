@@ -515,4 +515,53 @@ private class FeatureFlagEvaluatorTest {
         System.assertEquals(queriesAfterFirst, queriesAfterSecond, 'Account record should be cached after first access');
         System.assertEquals(acc.Id, (Id) r1.get('Id'), 'Should return correct account');
     }
+
+    // ─── Territory rule matching ──────────────────────────────────────────
+
+    @IsTest
+    static void evaluator_territoryRule_matchesUserInTargetTerritory() {
+        String territoryId = '0MV000000000001AAA';
+
+        FlipSwitch_Rule__c rule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Territory', territoryId, 1
+        );
+        rule.Variant_Value__c = 'true';
+
+        Test.startTest();
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.setTerritoryIds(new List<String>{ territoryId });
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled,
+            'User in target territory should get true');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason,
+            'Reason should be RULE_MATCH');
+    }
+
+    @IsTest
+    static void evaluator_territoryRule_skipsNonMatchingTerritory() {
+        String targetTerritoryId = '0MV000000000001AAA';
+        String userTerritoryId   = '0MV000000000002AAA';
+
+        FlipSwitch_Rule__c rule = makeRule(
+            'SAMPLE_BOOLEAN_FLAG', 'Territory', targetTerritoryId, 1
+        );
+        rule.Variant_Value__c = 'true';
+
+        Test.startTest();
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.setTerritoryIds(new List<String>{ userTerritoryId });
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule }
+        );
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'User in a different territory should fall through to DEFAULT');
+    }
 }
