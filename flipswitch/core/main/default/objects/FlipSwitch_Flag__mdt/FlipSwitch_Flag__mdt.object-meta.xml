@@ -37,6 +37,22 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Capacity__c</fullName>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Inventory Capacity</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <required>false</required>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Is_Closed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Is Closed</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>Type__c</fullName>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>Type</label>
@@ -60,6 +76,11 @@
                     <fullName>Percentage</fullName>
                     <default>false</default>
                     <label>Percentage</label>
+                </value>
+                <value>
+                    <fullName>Inventory</fullName>
+                    <default>false</default>
+                    <label>Inventory</label>
                 </value>
             </valueSetDefinition>
         </valueSet>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Runtime registry for code-defined feature flags. Auto-populated when Apex code evaluates a flag key that has no FlipSwitch_Flag__mdt definition. Enables the admin dashboard to discover flags created in code without requiring a metadata deployment.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableLicensing>false</enableLicensing>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Category__c</fullName>
+        <description>Grouping label for the admin dashboard (e.g. Checkout, UI, Backend).</description>
+        <externalId>false</externalId>
+        <label>Category</label>
+        <length>100</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Default_Value__c</fullName>
+        <defaultValue>&apos;false&apos;</defaultValue>
+        <description>Default return value when no targeting rules match. For Boolean flags: true/false. For Variant flags: the default variant key. For Percentage flags: the rollout percentage (0-100).</description>
+        <externalId>false</externalId>
+        <label>Default Value</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <description>Purpose of the flag and its owner. Populated by FeatureFlag.define().description().</description>
+        <label>Description</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Expiration_Date__c</fullName>
+        <description>Auto-disable the flag after this date. Null means the flag never expires.</description>
+        <label>Expiration Date</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>First_Seen_Class__c</fullName>
+        <description>Apex class or context where this flag was first evaluated. Helps trace where a flag originated in code.</description>
+        <externalId>false</externalId>
+        <label>First Seen Class</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>First_Seen_Date__c</fullName>
+        <description>Timestamp when the flag was first auto-registered. Set once on insert, never overwritten.</description>
+        <label>First Seen Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Flag_Key__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <description>Unique flag identifier matching the DeveloperName convention in FlipSwitch_Flag__mdt. Used as External ID for upsert-based concurrent-safe registration.</description>
+        <externalId>true</externalId>
+        <label>Flag Key</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Is_Active__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Whether the flag is active. Code-defined flags default to disabled (false) for production safety. Admins can enable via the dashboard.</description>
+        <label>Is Active</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Is_Promoted__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>True when a FlipSwitch_Flag__mdt record with the same DeveloperName has been deployed. The CMDT definition takes precedence; this record is kept for First_Seen_Date__c history.</description>
+        <label>Is Promoted</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Last_Evaluated_Date__c</fullName>
+        <description>Timestamp of the most recent evaluation of this flag. Updated periodically (not every evaluation) to track active usage.</description>
+        <label>Last Evaluated Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Source__c</fullName>
+        <description>How this flag was registered. Code = auto-registered from Apex evaluation. Manual = created directly via admin UI or API.</description>
+        <label>Source</label>
+        <required>false</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Code</fullName>
+                    <default>true</default>
+                    <label>Code</label>
+                </value>
+                <value>
+                    <fullName>Manual</fullName>
+                    <default>false</default>
+                    <label>Manual</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <description>Flag type. Boolean = on/off toggle. Variant = multi-variant experiment. Percentage = gradual rollout.</description>
+        <label>Type</label>
+        <required>false</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Boolean</fullName>
+                    <default>true</default>
+                    <label>Boolean</label>
+                </value>
+                <value>
+                    <fullName>Variant</fullName>
+                    <default>false</default>
+                    <label>Variant</label>
+                </value>
+                <value>
+                    <fullName>Percentage</fullName>
+                    <default>false</default>
+                    <label>Percentage</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <label>FlipSwitch Flag Registry</label>
+    <nameField>
+        <label>Registry Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>FlipSwitch Flag Registry</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>
