@@ -54,7 +54,7 @@
     </fields>
     <fields>
         <fullName>Rule_Type__c</fullName>
-        <description>How the rule is matched. User/Profile/Permission_Set = exact match. Percentage = deterministic hash. Kill_Switch = immediately disables.</description>
+        <description>How the rule is matched. User/Profile/Permission_Set = exact match. Percentage = deterministic hash. Kill_Switch = immediately disables. Emergency_Disable = runtime emergency disable created by admin UI.</description>
         <label>Rule Type</label>
         <required>true</required>
         <type>Picklist</type>
@@ -112,12 +112,17 @@
                     <default>false</default>
                     <label>Territory</label>
                 </value>
+                <value>
+                    <fullName>Emergency_Disable</fullName>
+                    <default>false</default>
+                    <label>Emergency Disable</label>
+                </value>
             </valueSetDefinition>
         </valueSet>
     </fields>
     <fields>
         <fullName>Rule_Value__c</fullName>
-        <description>The value to match. For User/Profile/Permission_Set: semicolon-delimited IDs or names. For Percentage: integer 0-100. For Segment: JSON key-value pairs. For Kill_Switch: leave blank. For Account: semicolon-separated Account IDs (e.g., 001xx000000xxxAAA;001xx000000yyyBBB). For Account_Segment: FieldApiName:Value format (e.g., Industry:Technology). For Territory: semicolon-separated Territory2 IDs.</description>
+        <description>The value to match. For User/Profile/Permission_Set: semicolon-delimited IDs or names. For Percentage: integer 0-100. For Segment: JSON key-value pairs. For Kill_Switch: leave blank. For Emergency_Disable: leave blank. For Account: semicolon-separated Account IDs (e.g., 001xx000000xxxAAA;001xx000000yyyBBB). For Account_Segment: FieldApiName:Value format (e.g., Industry:Technology). For Territory: semicolon-separated Territory2 IDs.</description>
         <label>Rule Value</label>
         <length>32768</length>
         <type>LongTextArea</type>
@@ -139,6 +144,19 @@
         <required>false</required>
         <type>Text</type>
         <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Match_Type__c</fullName>
+        <label>Match Type</label>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value><fullName>ANY</fullName><default>true</default><label>ANY (OR)</label></value>
+                <value><fullName>ALL</fullName><default>false</default><label>ALL (AND)</label></value>
+            </valueSetDefinition>
+        </valueSet>
     </fields>
     <label>FlipSwitch Rule</label>
     <nameField>

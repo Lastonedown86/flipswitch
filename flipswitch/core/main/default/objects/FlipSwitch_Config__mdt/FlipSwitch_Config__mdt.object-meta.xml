@@ -25,6 +25,21 @@
         <scale>0</scale>
         <type>Number</type>
     </fields>
+    <fields>
+        <fullName>Compound_Rules_Enabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Compound Rules Enabled</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Stale_Flag_Threshold_Days__c</fullName>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Stale Flag Threshold Days</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
     <label>FlipSwitch Config</label>
     <pluralLabel>FlipSwitch Configs</pluralLabel>
 </CustomObject>
