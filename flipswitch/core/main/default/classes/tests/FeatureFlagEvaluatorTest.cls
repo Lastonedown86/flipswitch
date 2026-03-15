@@ -565,6 +565,167 @@ private class FeatureFlagEvaluatorTest {
             'User in a different territory should fall through to DEFAULT');
     }
 
+    // ─── Compound AND/OR rule evaluation ─────────────────────────────────
+
+    @IsTest
+    static void evaluator_compoundAllRule_requiresBothConditions() {
+        // Build: Profile rule (ALL) + Profile condition (matches) + PermSet condition (no match)
+        // User has the right profile but NOT the required permission set → should NOT match
+
+        Profile standardProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        User testUser = new User(
+            FirstName          = 'Compound',
+            LastName           = 'TestUser',
+            Email              = 'compound_test_' + System.currentTimeMillis() + '@example.com',
+            Username           = 'compound_test_' + System.currentTimeMillis() + '@example.com',
+            Alias              = 'cmpd',
+            ProfileId          = standardProfile.Id,
+            TimeZoneSidKey     = 'America/Los_Angeles',
+            LocaleSidKey       = 'en_US',
+            EmailEncodingKey   = 'UTF-8',
+            LanguageLocaleKey  = 'en_US'
+        );
+        insert testUser;
+
+        // Pre-register flag as active so the evaluator reaches rule evaluation
+        // (without this, the auto-registered flag has Is_Active__c = false → NOT_CONFIGURED)
+        insert new FlipSwitch_Flag_Registry__c(
+            Name             = 'COMPOUND_TEST',
+            Flag_Key__c      = 'COMPOUND_TEST',
+            Type__c          = 'Boolean',
+            Default_Value__c = 'false',
+            Is_Active__c     = true,
+            Source__c        = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Name           = 'Compound ALL Rule',
+            Flag_Key__c    = 'COMPOUND_TEST',
+            Rule_Type__c   = 'User',
+            Match_Type__c  = 'ALL',
+            Priority__c    = 1,
+            Is_Active__c   = true,
+            Variant_Value__c = 'true'
+        );
+        insert rule;
+
+        insert new List<FlipSwitch_Rule_Condition__c>{
+            new FlipSwitch_Rule_Condition__c(
+                Rule__c          = rule.Id,
+                Condition_Type__c  = 'Profile',
+                Condition_Value__c = String.valueOf(standardProfile.Id),
+                Sort_Order__c    = 1
+            ),
+            new FlipSwitch_Rule_Condition__c(
+                Rule__c          = rule.Id,
+                Condition_Type__c  = 'Permission_Set',
+                Condition_Value__c = 'NonExistent_Beta_Access_PS',
+                Sort_Order__c    = 2
+            )
+        };
+
+        // Run as testUser: correct profile but NOT the permission set → rule must NOT match
+        FeatureFlagResult result;
+        System.runAs(testUser) {
+            Test.startTest();
+            FeatureFlagContext ctx = new FeatureFlagContext(testUser.Id);
+            ctx.withFlagKey('COMPOUND_TEST');
+            // Pass null preloadedRules so evaluator loads from DB (conditions query fires)
+            result = FeatureFlagEvaluator.evaluate('COMPOUND_TEST', ctx, null);
+            Test.stopTest();
+        }
+
+        System.assertNotEquals(null, result, 'Result should not be null');
+        System.assertEquals(false, result.isEnabled,
+            'ALL rule requires both conditions — missing PermSet means the rule must not match');
+    }
+
+    @IsTest
+    static void evaluator_compoundAnyRule_matchesEitherCondition() {
+        // ANY rule with one matching condition (Profile) → should match
+
+        // Pre-register the flag as active so the evaluator proceeds to rule evaluation
+        insert new FlipSwitch_Flag_Registry__c(
+            Name             = 'COMPOUND_ANY_TEST',
+            Flag_Key__c      = 'COMPOUND_ANY_TEST',
+            Type__c          = 'Boolean',
+            Default_Value__c = 'false',
+            Is_Active__c     = true,
+            Source__c        = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Name             = 'Compound ANY Rule',
+            Flag_Key__c      = 'COMPOUND_ANY_TEST',
+            Rule_Type__c     = 'User',
+            Match_Type__c    = 'ANY',
+            Priority__c      = 1,
+            Is_Active__c     = true,
+            Variant_Value__c = 'true'
+        );
+        insert rule;
+
+        // Profile condition that matches the running user
+        insert new FlipSwitch_Rule_Condition__c(
+            Rule__c            = rule.Id,
+            Condition_Type__c  = 'Profile',
+            Condition_Value__c = String.valueOf(UserInfo.getProfileId()),
+            Sort_Order__c      = 1
+        );
+
+        Test.startTest();
+        // Use forUser() to populate profileId via SOQL (new FeatureFlagContext(id) leaves profileId null)
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('COMPOUND_ANY_TEST');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('COMPOUND_ANY_TEST', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled,
+            'ANY rule should match when the profile condition matches');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason,
+            'Reason should be RULE_MATCH');
+    }
+
+    @IsTest
+    static void evaluator_legacyRuleWithNoConditions_stillWorks() {
+        // A Rule__c with no child conditions must use the existing single-dimension evaluation
+
+        // Pre-register the flag as active so the evaluator proceeds to rule evaluation
+        insert new FlipSwitch_Flag_Registry__c(
+            Name             = 'LEGACY_RULE_TEST',
+            Flag_Key__c      = 'LEGACY_RULE_TEST',
+            Type__c          = 'Boolean',
+            Default_Value__c = 'false',
+            Is_Active__c     = true,
+            Source__c        = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Name             = 'Legacy Rule',
+            Flag_Key__c      = 'LEGACY_RULE_TEST',
+            Rule_Type__c     = 'User',
+            Rule_Value__c    = UserInfo.getUserId(),
+            Priority__c      = 1,
+            Is_Active__c     = true,
+            Variant_Value__c = 'true'
+        );
+        insert rule;
+
+        Test.startTest();
+        FeatureFlagContext ctx = new FeatureFlagContext(UserInfo.getUserId());
+        ctx.withFlagKey('LEGACY_RULE_TEST');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('LEGACY_RULE_TEST', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled,
+            'Legacy single-condition rule (no child conditions) should still work');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason,
+            'Reason should be RULE_MATCH');
+    }
+
     // ─── Inventory flag type ──────────────────────────────────────────────
 
     @IsTest

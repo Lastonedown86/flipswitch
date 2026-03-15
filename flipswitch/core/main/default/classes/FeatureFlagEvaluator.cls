@@ -322,6 +322,15 @@ public inherited sharing class FeatureFlagEvaluator {
             }
         }
 
+        // Collect rule Ids that have a database identity (inserted records) for condition loading
+        List<Id> ruleIds = new List<Id>();
+        for (FlipSwitch_Rule__c rule : rules) {
+            if (rule.Id != null) {
+                ruleIds.add(rule.Id);
+            }
+        }
+        Map<Id, List<FlipSwitch_Rule_Condition__c>> conditionsByRule = loadConditionsForRules(ruleIds);
+
         for (FlipSwitch_Rule__c rule : rules) {
             if (!rule.Is_Active__c || rule.Rule_Type__c == 'Emergency_Disable') {
                 continue;
@@ -329,7 +338,9 @@ public inherited sharing class FeatureFlagEvaluator {
             if (!isRuleScheduleActive(rule)) {
                 continue;
             }
-            if (ruleMatches(rule, ctx, flagKey)) {
+            List<FlipSwitch_Rule_Condition__c> conditions =
+                (rule.Id != null) ? conditionsByRule.get(rule.Id) : null;
+            if (evaluateRuleWithConditions(rule, conditions, ctx, flagKey)) {
                 String variant = String.isNotBlank(rule.Variant_Value__c)
                     ? rule.Variant_Value__c
                     : defaultValue;
@@ -338,6 +349,48 @@ public inherited sharing class FeatureFlagEvaluator {
         }
 
         return FeatureFlagResult.fromDefault(defaultValue);
+    }
+
+    /**
+     * @description Evaluate a rule against the context, using child conditions when present.
+     *              Falls back to single-dimension ruleMatches() for backwards compatibility
+     *              when no conditions exist.
+     *
+     * @param rule        The FlipSwitch_Rule__c being evaluated
+     * @param conditions  Child FlipSwitch_Rule_Condition__c records (may be null/empty)
+     * @param ctx         Evaluation context
+     * @param flagKey     The flag key (used for percentage hashing)
+     * @return            True if the rule matches the context
+     */
+    private static Boolean evaluateRuleWithConditions(
+        FlipSwitch_Rule__c rule,
+        List<FlipSwitch_Rule_Condition__c> conditions,
+        FeatureFlagContext ctx,
+        String flagKey
+    ) {
+        // No conditions — use existing single-dimension evaluation (backwards compatible)
+        if (conditions == null || conditions.isEmpty()) {
+            return ruleMatches(rule, ctx, flagKey);
+        }
+
+        Boolean matchAll = rule.Match_Type__c == 'ALL';
+        for (FlipSwitch_Rule_Condition__c cond : conditions) {
+            // Synthesize a temporary rule from the condition's type and value
+            // so we can reuse the existing ruleMatches() logic per condition dimension
+            FlipSwitch_Rule__c synthetic = new FlipSwitch_Rule__c(
+                Rule_Type__c  = cond.Condition_Type__c,
+                Rule_Value__c = cond.Condition_Value__c
+            );
+            Boolean condMatch = ruleMatches(synthetic, ctx, flagKey);
+            if (matchAll && !condMatch) {
+                return false; // AND short-circuit: first failure means no match
+            }
+            if (!matchAll && condMatch) {
+                return true;  // OR short-circuit: first success means match
+            }
+        }
+        // ALL: survived every condition → true; ANY: no condition matched → false
+        return matchAll;
     }
 
     // ─── Data loading ─────────────────────────────────────────────────────
@@ -360,7 +413,7 @@ public inherited sharing class FeatureFlagEvaluator {
      */
     public static List<FlipSwitch_Rule__c> loadRules(String flagKey) {
         return [
-            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c,
+            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c, Match_Type__c,
                    Variant_Value__c, Priority__c, Is_Active__c,
                    Start_Date__c, End_Date__c
             FROM FlipSwitch_Rule__c
@@ -377,13 +430,42 @@ public inherited sharing class FeatureFlagEvaluator {
      */
     public static List<FlipSwitch_Rule__c> loadRulesForFlags(Set<String> flagKeys) {
         return [
-            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c,
+            SELECT Flag_Key__c, Rule_Type__c, Rule_Value__c, Match_Type__c,
                    Variant_Value__c, Priority__c, Is_Active__c,
                    Start_Date__c, End_Date__c
             FROM FlipSwitch_Rule__c
             WHERE Flag_Key__c IN :flagKeys
             ORDER BY Flag_Key__c, Priority__c ASC NULLS LAST
         ];
+    }
+
+    /**
+     * @description Load compound conditions for a set of rule IDs, grouped by rule.
+     * @param ruleIds  List of FlipSwitch_Rule__c Ids
+     * @return         Map of rule Id to its ordered list of conditions
+     */
+    @TestVisible
+    private static Map<Id, List<FlipSwitch_Rule_Condition__c>> loadConditionsForRules(
+        List<Id> ruleIds
+    ) {
+        Map<Id, List<FlipSwitch_Rule_Condition__c>> conditionsByRule =
+            new Map<Id, List<FlipSwitch_Rule_Condition__c>>();
+        if (ruleIds == null || ruleIds.isEmpty()) {
+            return conditionsByRule;
+        }
+        List<FlipSwitch_Rule_Condition__c> allConditions = [
+            SELECT Id, Rule__c, Condition_Type__c, Condition_Value__c, Sort_Order__c
+            FROM FlipSwitch_Rule_Condition__c
+            WHERE Rule__c IN :ruleIds
+            ORDER BY Sort_Order__c ASC NULLS LAST
+        ];
+        for (FlipSwitch_Rule_Condition__c cond : allConditions) {
+            if (!conditionsByRule.containsKey(cond.Rule__c)) {
+                conditionsByRule.put(cond.Rule__c, new List<FlipSwitch_Rule_Condition__c>());
+            }
+            conditionsByRule.get(cond.Rule__c).add(cond);
+        }
+        return conditionsByRule;
     }
 
     private static List<FlipSwitch_Rule__c> filterRulesForFlag(
