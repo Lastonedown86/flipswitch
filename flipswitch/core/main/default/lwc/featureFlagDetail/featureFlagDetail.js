@@ -17,11 +17,16 @@ const REASON_CLASSES = {
     EXPIRED: 'reason-badge reason-badge_expired',
     CACHE_HIT: 'reason-badge reason-badge_cache',
     CIRCUIT_BREAKER: 'reason-badge reason-badge_error',
-    NOT_CONFIGURED: 'reason-badge reason-badge_default',
+    NOT_CONFIGURED: 'reason-badge reason-badge_default'
 };
 
 const EVAL_STEPS = [
-    { key: 'emergencydisable', label: 'Emergency Disable', icon: 'utility:ban', desc: 'Is_Active__c = false or Emergency_Disable rule' },
+    {
+        key: 'emergencydisable',
+        label: 'Emergency Disable',
+        icon: 'utility:ban',
+        desc: 'Is_Active__c = false or Emergency_Disable rule'
+    },
     { key: 'expiration', label: 'Expiration', icon: 'utility:clock', desc: 'Expiration_Date__c < TODAY' },
     { key: 'user', label: 'User Rule', icon: 'utility:user', desc: 'Exact user ID match' },
     { key: 'profile', label: 'Profile Rule', icon: 'utility:identity', desc: 'Profile-based targeting' },
@@ -29,7 +34,7 @@ const EVAL_STEPS = [
     { key: 'segment', label: 'Segment Rule', icon: 'utility:groups', desc: 'Custom segment membership' },
     { key: 'custom', label: 'Custom Field', icon: 'utility:database', desc: 'Custom field value match' },
     { key: 'percentage', label: 'Percentage', icon: 'utility:chart', desc: 'SHA-256 hash-based rollout' },
-    { key: 'default', label: 'Default Value', icon: 'utility:fallback', desc: 'Falls through to Default_Value__c' },
+    { key: 'default', label: 'Default Value', icon: 'utility:fallback', desc: 'Falls through to Default_Value__c' }
 ];
 
 const MAX_HISTORY = 5;
@@ -41,7 +46,6 @@ const MAX_HISTORY = 5;
  *              and provides an interactive evaluation preview panel with history.
  */
 export default class FeatureFlagDetail extends LightningElement {
-
     /** @api Public — set by featureFlagAdmin shell */
     @api flagKey;
 
@@ -154,37 +158,48 @@ export default class FeatureFlagDetail extends LightningElement {
 
     get metricsCBClass() {
         return (this.metrics?.circuitBreakerTrips ?? 0) > 0
-            ? 'mini-kpi__value mini-kpi__value_warning' : 'mini-kpi__value';
+            ? 'mini-kpi__value mini-kpi__value_warning'
+            : 'mini-kpi__value';
     }
 
     get activeRuleCount() {
         const rules = this.flagDetail?.rules;
         if (!rules) return '0';
-        return rules.filter(r => r.Is_Active__c).length.toString();
+        return rules.filter((r) => r.Is_Active__c).length.toString();
     }
 
     // ── Evaluation flow getters ─────────────────────────────────────────────
 
     get evalSteps() {
         const rules = this.flagDetail?.rules ?? [];
-        const activeTypes = new Set(rules.filter(r => r.Is_Active__c).map(r => r.Rule_Type__c));
+        const activeTypes = new Set(rules.filter((r) => r.Is_Active__c).map((r) => r.Rule_Type__c));
         return EVAL_STEPS.map((step, idx) => ({
             ...step,
             index: idx + 1,
-            isActive: step.key === 'emergencydisable' || step.key === 'expiration'
-                || step.key === 'default' || activeTypes.has(this._evalStepToRuleType(step.key)),
-            cssClass: 'eval-step' + (
-                (step.key === 'emergencydisable' || step.key === 'expiration'
-                    || step.key === 'default' || activeTypes.has(this._evalStepToRuleType(step.key)))
-                    ? ' eval-step_active' : ' eval-step_inactive'
-            ),
+            isActive:
+                step.key === 'emergencydisable' ||
+                step.key === 'expiration' ||
+                step.key === 'default' ||
+                activeTypes.has(this._evalStepToRuleType(step.key)),
+            cssClass:
+                'eval-step' +
+                (step.key === 'emergencydisable' ||
+                step.key === 'expiration' ||
+                step.key === 'default' ||
+                activeTypes.has(this._evalStepToRuleType(step.key))
+                    ? ' eval-step_active'
+                    : ' eval-step_inactive')
         }));
     }
 
     _evalStepToRuleType(key) {
         const map = {
-            user: 'User', profile: 'Profile', permset: 'Permission_Set',
-            segment: 'Segment', custom: 'Custom_Field', percentage: 'Percentage',
+            user: 'User',
+            profile: 'Profile',
+            permset: 'Permission_Set',
+            segment: 'Segment',
+            custom: 'Custom_Field',
+            percentage: 'Percentage'
         };
         return map[key] ?? key;
     }
@@ -197,17 +212,18 @@ export default class FeatureFlagDetail extends LightningElement {
         const exp = this.flagDetail?.summary?.expirationDate;
         if (!exp) return '';
         const days = Math.round((new Date(exp) - new Date()) / (1000 * 60 * 60 * 24));
-        return days < 0 ? `Expired ${Math.abs(days)}d ago`
-            : days === 0 ? 'Expires today'
-                : `Expires in ${days} day${days === 1 ? '' : 's'}`;
+        return days < 0
+            ? `Expired ${Math.abs(days)}d ago`
+            : days === 0
+              ? 'Expires today'
+              : `Expires in ${days} day${days === 1 ? '' : 's'}`;
     }
 
     get expirationClass() {
         const exp = this.flagDetail?.summary?.expirationDate;
         if (!exp) return '';
         const days = Math.round((new Date(exp) - new Date()) / (1000 * 60 * 60 * 24));
-        return days <= 0 ? 'expiry-text expiry-text_red'
-            : days <= 7 ? 'expiry-text expiry-text_orange' : 'expiry-text';
+        return days <= 0 ? 'expiry-text expiry-text_red' : days <= 7 ? 'expiry-text expiry-text_orange' : 'expiry-text';
     }
 
     get isEmergencyDisabled() {
@@ -233,9 +249,7 @@ export default class FeatureFlagDetail extends LightningElement {
     }
 
     get sourceBadgeClass() {
-        return this.sourceLabel === 'Code'
-            ? 'source-badge source-badge_code'
-            : 'source-badge source-badge_deployed';
+        return this.sourceLabel === 'Code' ? 'source-badge source-badge_code' : 'source-badge source-badge_deployed';
     }
 
     get isCodeSource() {
@@ -320,7 +334,7 @@ export default class FeatureFlagDetail extends LightningElement {
             key: `sim-${idx}`,
             enabledClass: h.isEnabled ? 'preview-enabled_yes' : 'preview-enabled_no',
             enabledLabel: h.isEnabled ? 'true' : 'false',
-            reasonClass: REASON_CLASSES[h.reason] ?? 'reason-badge',
+            reasonClass: REASON_CLASSES[h.reason] ?? 'reason-badge'
         }));
     }
 
@@ -334,11 +348,13 @@ export default class FeatureFlagDetail extends LightningElement {
         const snippet = this.activeSnippet;
         if (!snippet) return;
         navigator.clipboard.writeText(snippet).then(() => {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Copied',
-                message: 'Code snippet copied to clipboard',
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Copied',
+                    message: 'Code snippet copied to clipboard',
+                    variant: 'success'
+                })
+            );
         });
     }
 
@@ -346,11 +362,13 @@ export default class FeatureFlagDetail extends LightningElement {
         const key = this.flagDetail?.summary?.developerName;
         if (!key) return;
         navigator.clipboard.writeText(key).then(() => {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Copied',
-                message: `Flag key "${key}" copied to clipboard`,
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Copied',
+                    message: `Flag key "${key}" copied to clipboard`,
+                    variant: 'success'
+                })
+            );
         });
     }
 
@@ -375,20 +393,26 @@ export default class FeatureFlagDetail extends LightningElement {
         try {
             await toggleEmergencyDisable({ flagKey, active: activate });
             await refreshApex(this._wiredDetail);
-            this.dispatchEvent(new CustomEvent('emergencydisabletoggled', {
-                detail: { flagKey, active: activate }
-            }));
-            this.dispatchEvent(new ShowToastEvent({
-                title: activate ? 'Emergency Disable Activated' : 'Emergency Disable Removed',
-                message: `Flag "${flagKey}" is now ${activate ? 'emergency-disabled' : 'restored'}.`,
-                variant: activate ? 'warning' : 'success'
-            }));
+            this.dispatchEvent(
+                new CustomEvent('emergencydisabletoggled', {
+                    detail: { flagKey, active: activate }
+                })
+            );
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: activate ? 'Emergency Disable Activated' : 'Emergency Disable Removed',
+                    message: `Flag "${flagKey}" is now ${activate ? 'emergency-disabled' : 'restored'}.`,
+                    variant: activate ? 'warning' : 'success'
+                })
+            );
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: err?.body?.message ?? 'Could not toggle emergency disable',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: err?.body?.message ?? 'Could not toggle emergency disable',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isLoading = false;
         }
@@ -399,10 +423,10 @@ export default class FeatureFlagDetail extends LightningElement {
         if (!flagKey) return;
 
         let attrsJsonString = null;
-        const validAttrs = this.previewAttrs.filter(a => a.key && a.key.trim().length > 0);
+        const validAttrs = this.previewAttrs.filter((a) => a.key && a.key.trim().length > 0);
         if (validAttrs.length > 0) {
             const attrsObj = {};
-            validAttrs.forEach(a => {
+            validAttrs.forEach((a) => {
                 attrsObj[a.key.trim()] = a.value;
             });
             attrsJsonString = JSON.stringify(attrsObj);
@@ -414,7 +438,7 @@ export default class FeatureFlagDetail extends LightningElement {
             const result = await previewEvaluation({
                 flagKey,
                 userId: this.previewUserId || null,
-                attrsJson: attrsJsonString || null,
+                attrsJson: attrsJsonString || null
             });
             this.previewResult = result;
             // Store in simulation history
@@ -424,15 +448,17 @@ export default class FeatureFlagDetail extends LightningElement {
                 attrs: attrsJsonString || '—',
                 isEnabled: result.isEnabled,
                 variant: result.variant || null,
-                reason: result.reason,
+                reason: result.reason
             };
             this.simulationHistory = [entry, ...this.simulationHistory].slice(0, MAX_HISTORY);
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Preview Error',
-                message: err?.body?.message ?? 'Could not run preview',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Preview Error',
+                    message: err?.body?.message ?? 'Could not run preview',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isPreviewLoading = false;
         }
@@ -448,7 +474,7 @@ export default class FeatureFlagDetail extends LightningElement {
 
     handleRemoveAttr(event) {
         const id = event.currentTarget.dataset.id;
-        this.previewAttrs = this.previewAttrs.filter(a => a.id !== id);
+        this.previewAttrs = this.previewAttrs.filter((a) => a.id !== id);
         if (this.previewAttrs.length === 0) {
             this.handleAddAttr();
         }
@@ -456,13 +482,13 @@ export default class FeatureFlagDetail extends LightningElement {
 
     handleAttrKeyChange(event) {
         const id = event.currentTarget.dataset.id;
-        const attr = this.previewAttrs.find(a => a.id === id);
+        const attr = this.previewAttrs.find((a) => a.id === id);
         if (attr) attr.key = event.target.value;
     }
 
     handleAttrValueChange(event) {
         const id = event.currentTarget.dataset.id;
-        const attr = this.previewAttrs.find(a => a.id === id);
+        const attr = this.previewAttrs.find((a) => a.id === id);
         if (attr) attr.value = event.target.value;
     }
 
@@ -483,15 +509,19 @@ export default class FeatureFlagDetail extends LightningElement {
     }
 
     handleViewLogs() {
-        this.dispatchEvent(new CustomEvent('navigatetologs', {
-            detail: { flagKey: this.flagDetail?.summary?.developerName }
-        }));
+        this.dispatchEvent(
+            new CustomEvent('navigatetologs', {
+                detail: { flagKey: this.flagDetail?.summary?.developerName }
+            })
+        );
     }
 
     handleViewAnalytics() {
-        this.dispatchEvent(new CustomEvent('navigatetoanalytics', {
-            detail: { flagKey: this.flagDetail?.summary?.developerName }
-        }));
+        this.dispatchEvent(
+            new CustomEvent('navigatetoanalytics', {
+                detail: { flagKey: this.flagDetail?.summary?.developerName }
+            })
+        );
     }
 
     async handlePromoteFlag() {
@@ -501,17 +531,21 @@ export default class FeatureFlagDetail extends LightningElement {
         try {
             await promoteRegistryFlag({ flagKey });
             await refreshApex(this._wiredDetail);
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Flag Promoted',
-                message: `"${flagKey}" has been marked for promotion to CMDT.`,
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Flag Promoted',
+                    message: `"${flagKey}" has been marked for promotion to CMDT.`,
+                    variant: 'success'
+                })
+            );
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: err?.body?.message ?? 'Could not promote flag',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: err?.body?.message ?? 'Could not promote flag',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isLoading = false;
         }
@@ -545,7 +579,7 @@ export default class FeatureFlagDetail extends LightningElement {
                     category: s.category,
                     expirationDate: s.expirationDate,
                     isActive: s.isActive,
-                    source: this.flagDetail.source,
+                    source: this.flagDetail.source
                 });
             }
         }, 0);
@@ -562,24 +596,30 @@ export default class FeatureFlagDetail extends LightningElement {
             const result = await updateFlagDefinition({ input });
             this.showEditModal = false;
             await refreshApex(this._wiredDetail);
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Flag Updated',
-                message: result.isAsync
-                    ? `CMDT deployment queued for "${input.flagKey}". Changes will appear after deployment.`
-                    : `Flag "${input.flagKey}" updated successfully.`,
-                variant: 'success'
-            }));
-            this.dispatchEvent(new CustomEvent('flagupdated', {
-                detail: { flagKey: input.flagKey }
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Flag Updated',
+                    message: result.isAsync
+                        ? `CMDT deployment queued for "${input.flagKey}". Changes will appear after deployment.`
+                        : `Flag "${input.flagKey}" updated successfully.`,
+                    variant: 'success'
+                })
+            );
+            this.dispatchEvent(
+                new CustomEvent('flagupdated', {
+                    detail: { flagKey: input.flagKey }
+                })
+            );
         } catch (err) {
             const modal = this.template.querySelector('c-feature-flag-form-modal');
             if (modal) modal.resetSaving();
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error Updating Flag',
-                message: err?.body?.message ?? 'Could not update flag',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error Updating Flag',
+                    message: err?.body?.message ?? 'Could not update flag',
+                    variant: 'error'
+                })
+            );
         }
     }
 
@@ -599,22 +639,29 @@ export default class FeatureFlagDetail extends LightningElement {
         try {
             await deleteFlagApex({ flagKey, source });
             this.showDeleteConfirm = false;
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Flag Deleted',
-                message: source === 'Deployed'
-                    ? `Flag "${flagKey}" marked for removal. Children deleted.`
-                    : `Flag "${flagKey}" and all associated data deleted.`,
-                variant: 'success'
-            }));
-            this.dispatchEvent(new CustomEvent('flagdeleted', {
-                detail: { flagKey }
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Flag Deleted',
+                    message:
+                        source === 'Deployed'
+                            ? `Flag "${flagKey}" marked for removal. Children deleted.`
+                            : `Flag "${flagKey}" and all associated data deleted.`,
+                    variant: 'success'
+                })
+            );
+            this.dispatchEvent(
+                new CustomEvent('flagdeleted', {
+                    detail: { flagKey }
+                })
+            );
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error Deleting Flag',
-                message: err?.body?.message ?? 'Could not delete flag',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error Deleting Flag',
+                    message: err?.body?.message ?? 'Could not delete flag',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isDeleting = false;
         }

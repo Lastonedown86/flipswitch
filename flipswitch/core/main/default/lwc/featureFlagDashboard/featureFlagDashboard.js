@@ -14,19 +14,19 @@ const STATUS_FILTERS = [
     { value: 'disabled', label: 'Disabled', pillClass: 'status-pill' },
     { value: 'expiring', label: 'Expiring Soon', pillClass: 'status-pill' },
     { value: 'expired', label: 'Expired', pillClass: 'status-pill' },
-    { value: 'emergencydisabled', label: 'Emergency Disabled', pillClass: 'status-pill' },
+    { value: 'emergencydisabled', label: 'Emergency Disabled', pillClass: 'status-pill' }
 ];
 
 const SOURCE_FILTERS = [
     { value: 'all', label: 'All Sources', pillClass: 'status-pill' },
     { value: 'Deployed', label: 'Deployed', pillClass: 'status-pill' },
-    { value: 'Code', label: 'Code', pillClass: 'status-pill' },
+    { value: 'Code', label: 'Code', pillClass: 'status-pill' }
 ];
 
 const TYPE_ICONS = {
     Boolean: 'utility:toggle',
     Percentage: 'utility:pie_chart',
-    Variant: 'utility:variation2',
+    Variant: 'utility:variation2'
 };
 
 /**
@@ -35,7 +35,6 @@ const TYPE_ICONS = {
  *              Exposes a public filterByStatus() method for the shell banner.
  */
 export default class FeatureFlagDashboard extends LightningElement {
-
     // ─── State ───────────────────────────────────────────────────────────────
 
     searchTerm = '';
@@ -82,10 +81,9 @@ export default class FeatureFlagDashboard extends LightningElement {
     }
 
     get categories() {
-        return (this._wiredCategories?.data ?? []).map(cat => ({
+        return (this._wiredCategories?.data ?? []).map((cat) => ({
             value: cat,
-            pillClass: this.selectedCategory === cat
-                ? 'status-pill status-pill_active' : 'status-pill'
+            pillClass: this.selectedCategory === cat ? 'status-pill status-pill_active' : 'status-pill'
         }));
     }
 
@@ -101,16 +99,17 @@ export default class FeatureFlagDashboard extends LightningElement {
         // Client-side search
         if (this.searchTerm) {
             const q = this.searchTerm.toLowerCase();
-            flags = flags.filter(f =>
-                (f.label ?? '').toLowerCase().includes(q) ||
-                (f.developerName ?? '').toLowerCase().includes(q) ||
-                (f.description ?? '').toLowerCase().includes(q)
+            flags = flags.filter(
+                (f) =>
+                    (f.label ?? '').toLowerCase().includes(q) ||
+                    (f.developerName ?? '').toLowerCase().includes(q) ||
+                    (f.description ?? '').toLowerCase().includes(q)
             );
         }
 
         // Source filter
         if (this.selectedSource && this.selectedSource !== 'all') {
-            flags = flags.filter(f => f.source === this.selectedSource);
+            flags = flags.filter((f) => f.source === this.selectedSource);
         }
 
         // Sort
@@ -131,7 +130,7 @@ export default class FeatureFlagDashboard extends LightningElement {
         });
 
         // Enrich each flag with display properties
-        return flags.map(f => this._enrich(f));
+        return flags.map((f) => this._enrich(f));
     }
 
     get displayedCount() {
@@ -147,8 +146,9 @@ export default class FeatureFlagDashboard extends LightningElement {
     }
 
     get allSelected() {
-        return this.displayedFlags.length > 0 &&
-            this.displayedFlags.every(f => this.selectedKeys.has(f.developerName));
+        return (
+            this.displayedFlags.length > 0 && this.displayedFlags.every((f) => this.selectedKeys.has(f.developerName))
+        );
     }
 
     get noneSelected() {
@@ -156,30 +156,31 @@ export default class FeatureFlagDashboard extends LightningElement {
     }
 
     get statusFilters() {
-        return STATUS_FILTERS.map(sf => ({
+        return STATUS_FILTERS.map((sf) => ({
             ...sf,
-            pillClass: this.selectedStatus === sf.value
-                ? 'status-pill status-pill_active' : 'status-pill'
+            pillClass: this.selectedStatus === sf.value ? 'status-pill status-pill_active' : 'status-pill'
         }));
     }
 
     get hasActiveFilters() {
-        return !!(this.searchTerm || this.selectedCategory || this.selectedStatus !== 'all' || this.selectedSource !== 'all');
+        return !!(
+            this.searchTerm ||
+            this.selectedCategory ||
+            this.selectedStatus !== 'all' ||
+            this.selectedSource !== 'all'
+        );
     }
 
     get allPillClass() {
-        return !this.selectedCategory
-            ? 'status-pill status-pill_active' : 'status-pill';
+        return !this.selectedCategory ? 'status-pill status-pill_active' : 'status-pill';
     }
 
     get enablePillClass() {
-        return this.noneSelected
-            ? 'action-pill action-pill_enable' : 'action-pill action-pill_enable';
+        return this.noneSelected ? 'action-pill action-pill_enable' : 'action-pill action-pill_enable';
     }
 
     get disablePillClass() {
-        return this.noneSelected
-            ? 'action-pill action-pill_disable' : 'action-pill action-pill_disable';
+        return this.noneSelected ? 'action-pill action-pill_disable' : 'action-pill action-pill_disable';
     }
 
     get sortByLabel() {
@@ -199,10 +200,9 @@ export default class FeatureFlagDashboard extends LightningElement {
     }
 
     get sourceFilters() {
-        return SOURCE_FILTERS.map(sf => ({
+        return SOURCE_FILTERS.map((sf) => ({
             ...sf,
-            pillClass: this.selectedSource === sf.value
-                ? 'status-pill status-pill_active' : 'status-pill'
+            pillClass: this.selectedSource === sf.value ? 'status-pill status-pill_active' : 'status-pill'
         }));
     }
 
@@ -237,15 +237,15 @@ export default class FeatureFlagDashboard extends LightningElement {
         // Expiration display
         let expirationLabel, expirationClass;
         if (f.expirationDate) {
-            const days = Math.round(
-                (new Date(f.expirationDate) - new Date()) / (1000 * 60 * 60 * 24)
-            );
-            expirationLabel = days < 0
-                ? `Expired ${Math.abs(days)}d ago`
-                : days === 0 ? 'Expires today'
-                    : `${days}d left`;
-            expirationClass = days <= 0 ? 'expiry-text expiry-text_red'
-                : days <= 7 ? 'expiry-text expiry-text_orange' : 'expiry-text';
+            const days = Math.round((new Date(f.expirationDate) - new Date()) / (1000 * 60 * 60 * 24));
+            expirationLabel =
+                days < 0 ? `Expired ${Math.abs(days)}d ago` : days === 0 ? 'Expires today' : `${days}d left`;
+            expirationClass =
+                days <= 0
+                    ? 'expiry-text expiry-text_red'
+                    : days <= 7
+                      ? 'expiry-text expiry-text_orange'
+                      : 'expiry-text';
         }
 
         // Emergency-disable button appearance
@@ -256,10 +256,11 @@ export default class FeatureFlagDashboard extends LightningElement {
         // Row highlight
         const rowClass = f.isEmergencyDisabled
             ? 'slds-hint-parent row-emergencydisabled'
-            : isSelected ? 'slds-hint-parent row-selected' : 'slds-hint-parent';
+            : isSelected
+              ? 'slds-hint-parent row-selected'
+              : 'slds-hint-parent';
 
-        const rolloutBarStyle = f.rolloutPercent != null
-            ? `width:${f.rolloutPercent}%` : 'width:0%';
+        const rolloutBarStyle = f.rolloutPercent != null ? `width:${f.rolloutPercent}%` : 'width:0%';
 
         return {
             ...f,
@@ -277,10 +278,9 @@ export default class FeatureFlagDashboard extends LightningElement {
             typeIcon: TYPE_ICONS[f.type] ?? 'utility:toggle',
             isPercentage: f.type === 'Percentage',
             hasVariants: f.type === 'Variant' && f.variantKeys?.length > 0,
-            sourceBadgeClass: f.source === 'Code'
-                ? 'source-badge source-badge_code'
-                : 'source-badge source-badge_deployed',
-            isCodeSource: f.source === 'Code',
+            sourceBadgeClass:
+                f.source === 'Code' ? 'source-badge source-badge_code' : 'source-badge source-badge_deployed',
+            isCodeSource: f.source === 'Code'
         };
     }
 
@@ -325,7 +325,7 @@ export default class FeatureFlagDashboard extends LightningElement {
 
     handleSelectAll(event) {
         if (event.detail.checked) {
-            this.displayedFlags.forEach(f => this.selectedKeys.add(f.developerName));
+            this.displayedFlags.forEach((f) => this.selectedKeys.add(f.developerName));
         } else {
             this.selectedKeys = new Set();
         }
@@ -368,20 +368,26 @@ export default class FeatureFlagDashboard extends LightningElement {
         try {
             await toggleEmergencyDisable({ flagKey, active: makeActive });
             await refreshApex(this._wiredFlags);
-            this.dispatchEvent(new CustomEvent('emergencydisabletoggled', {
-                detail: { flagKey, active: makeActive }
-            }));
-            this.dispatchEvent(new ShowToastEvent({
-                title: makeActive ? 'Emergency Disable Activated' : 'Emergency Disable Removed',
-                message: `Flag "${flagKey}" is now ${makeActive ? 'emergency-disabled' : 'restored'}.`,
-                variant: makeActive ? 'warning' : 'success'
-            }));
+            this.dispatchEvent(
+                new CustomEvent('emergencydisabletoggled', {
+                    detail: { flagKey, active: makeActive }
+                })
+            );
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: makeActive ? 'Emergency Disable Activated' : 'Emergency Disable Removed',
+                    message: `Flag "${flagKey}" is now ${makeActive ? 'emergency-disabled' : 'restored'}.`,
+                    variant: makeActive ? 'warning' : 'success'
+                })
+            );
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: err?.body?.message ?? 'Could not toggle emergency disable',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: err?.body?.message ?? 'Could not toggle emergency disable',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isLoading = false;
         }
@@ -403,18 +409,22 @@ export default class FeatureFlagDashboard extends LightningElement {
             await bulkUpdateFlags({ flagKeys, action });
             await refreshApex(this._wiredFlags);
             this.selectedKeys = new Set();
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Success',
-                message: `${flagKeys.length} flag(s) ${action}d.`,
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: `${flagKeys.length} flag(s) ${action}d.`,
+                    variant: 'success'
+                })
+            );
             this.dispatchEvent(new CustomEvent('emergencydisabletoggled'));
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: err?.body?.message ?? `Could not ${action} flags`,
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: err?.body?.message ?? `Could not ${action} flags`,
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isLoading = false;
         }
@@ -441,53 +451,68 @@ export default class FeatureFlagDashboard extends LightningElement {
             this.showCreateModal = false;
             await refreshApex(this._wiredFlags);
             await refreshApex(this._wiredCategories);
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Flag Created',
-                message: result.isAsync
-                    ? `CMDT deployment queued for "${input.flagKey}". It will appear after deployment completes.`
-                    : `Flag "${input.flagKey}" created successfully.`,
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Flag Created',
+                    message: result.isAsync
+                        ? `CMDT deployment queued for "${input.flagKey}". It will appear after deployment completes.`
+                        : `Flag "${input.flagKey}" created successfully.`,
+                    variant: 'success'
+                })
+            );
             this.dispatchEvent(new CustomEvent('flagcreated', { detail: { flagKey: input.flagKey } }));
         } catch (err) {
             const modal = this.template.querySelector('c-feature-flag-form-modal');
             if (modal) modal.resetSaving();
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error Creating Flag',
-                message: err?.body?.message ?? 'Could not create flag',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error Creating Flag',
+                    message: err?.body?.message ?? 'Could not create flag',
+                    variant: 'error'
+                })
+            );
         }
     }
 
     async handleBulkDelete() {
         if (this.selectedKeys.size === 0) return;
         const flagKeys = Array.from(this.selectedKeys);
-        // eslint-disable-next-line no-alert, no-restricted-globals
-        if (!confirm(`Delete ${flagKeys.length} flag(s) and all associated rules, variants, and assignments? This cannot be undone.`)) {
+        /* eslint-disable no-alert, no-restricted-globals */
+        if (
+            !confirm(
+                `Delete ${flagKeys.length} flag(s) and all associated rules, variants, and assignments? This cannot be undone.`
+            )
+        ) {
             return;
         }
+        /* eslint-enable no-alert, no-restricted-globals */
         this.isLoading = true;
         try {
-            await Promise.all(flagKeys.map(key => {
-                const flag = this.rawFlags.find(f => f.developerName === key);
-                const source = flag?.source ?? 'Code';
-                return deleteFlag({ flagKey: key, source });
-            }));
+            await Promise.all(
+                flagKeys.map((key) => {
+                    const flag = this.rawFlags.find((f) => f.developerName === key);
+                    const source = flag?.source ?? 'Code';
+                    return deleteFlag({ flagKey: key, source });
+                })
+            );
             await refreshApex(this._wiredFlags);
             this.selectedKeys = new Set();
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Flags Deleted',
-                message: `${flagKeys.length} flag(s) and associated data deleted.`,
-                variant: 'success'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Flags Deleted',
+                    message: `${flagKeys.length} flag(s) and associated data deleted.`,
+                    variant: 'success'
+                })
+            );
             this.dispatchEvent(new CustomEvent('flagdeleted'));
         } catch (err) {
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: err?.body?.message ?? 'Could not delete flags',
-                variant: 'error'
-            }));
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: err?.body?.message ?? 'Could not delete flags',
+                    variant: 'error'
+                })
+            );
         } finally {
             this.isLoading = false;
         }

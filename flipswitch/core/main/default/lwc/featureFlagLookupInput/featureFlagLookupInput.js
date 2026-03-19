@@ -12,7 +12,6 @@ const DEBOUNCE_MS = 300;
  *              whenever the selection changes.
  */
 export default class FeatureFlagLookupInput extends LightningElement {
-
     /** @api Display label above the input */
     @api label = '';
 
@@ -102,9 +101,10 @@ export default class FeatureFlagLookupInput extends LightningElement {
             source = this.searchResults;
         } else {
             const term = (this.searchTerm || '').toLowerCase();
-            source = this._options.filter(opt =>
-                opt.label.toLowerCase().includes(term) ||
-                (opt.sublabel && opt.sublabel.toLowerCase().includes(term))
+            source = this._options.filter(
+                (opt) =>
+                    opt.label.toLowerCase().includes(term) ||
+                    (opt.sublabel && opt.sublabel.toLowerCase().includes(term))
             );
         }
         return source.map((opt, idx) => ({
@@ -132,9 +132,7 @@ export default class FeatureFlagLookupInput extends LightningElement {
                 }
             }
         }
-        return this._selectedValues
-            .map(val => pillMap.get(val) || { label: val, value: val })
-            .filter(Boolean);
+        return this._selectedValues.map((val) => pillMap.get(val) || { label: val, value: val }).filter(Boolean);
     }
 
     get hasPills() {
@@ -168,9 +166,11 @@ export default class FeatureFlagLookupInput extends LightningElement {
             this.isSearching = true;
             // eslint-disable-next-line @lwc/lwc/no-async-operation
             this._debounceTimer = setTimeout(() => {
-                this.dispatchEvent(new CustomEvent('search', {
-                    detail: { searchTerm: this.searchTerm }
-                }));
+                this.dispatchEvent(
+                    new CustomEvent('search', {
+                        detail: { searchTerm: this.searchTerm }
+                    })
+                );
             }, DEBOUNCE_MS);
         } else {
             // Static filter — just open dropdown
@@ -218,7 +218,7 @@ export default class FeatureFlagLookupInput extends LightningElement {
 
     handleOptionHover(event) {
         const val = event.currentTarget.dataset.value;
-        const idx = this.filteredOptions.findIndex(o => o.value === val);
+        const idx = this.filteredOptions.findIndex((o) => o.value === val);
         if (idx >= 0) {
             this.focusedIndex = idx;
         }
@@ -226,7 +226,7 @@ export default class FeatureFlagLookupInput extends LightningElement {
 
     handleSelectOption(event) {
         const val = event.currentTarget.dataset.value;
-        const opt = this.filteredOptions.find(o => o.value === val);
+        const opt = this.filteredOptions.find((o) => o.value === val);
         if (opt) {
             this._toggleSelection(opt);
         }
@@ -234,8 +234,8 @@ export default class FeatureFlagLookupInput extends LightningElement {
 
     handleRemovePill(event) {
         const val = event.currentTarget.dataset.value;
-        this._selectedValues = this._selectedValues.filter(v => v !== val);
-        this._selectedPills = this._selectedPills.filter(p => p.value !== val);
+        this._selectedValues = this._selectedValues.filter((v) => v !== val);
+        this._selectedPills = this._selectedPills.filter((p) => p.value !== val);
         this._fireChange();
     }
 
@@ -263,17 +263,20 @@ export default class FeatureFlagLookupInput extends LightningElement {
     _toggleSelection(opt) {
         const isSelected = this._selectedValues.includes(opt.value);
         if (isSelected) {
-            this._selectedValues = this._selectedValues.filter(v => v !== opt.value);
-            this._selectedPills = this._selectedPills.filter(p => p.value !== opt.value);
+            this._selectedValues = this._selectedValues.filter((v) => v !== opt.value);
+            this._selectedPills = this._selectedPills.filter((p) => p.value !== opt.value);
         } else {
             this._selectedValues = [...this._selectedValues, opt.value];
             // Store the full option as a pill so we can display its label
-            if (!this._selectedPills.find(p => p.value === opt.value)) {
-                this._selectedPills = [...this._selectedPills, {
-                    label: opt.label,
-                    value: opt.value,
-                    sublabel: opt.sublabel
-                }];
+            if (!this._selectedPills.find((p) => p.value === opt.value)) {
+                this._selectedPills = [
+                    ...this._selectedPills,
+                    {
+                        label: opt.label,
+                        value: opt.value,
+                        sublabel: opt.sublabel
+                    }
+                ];
             }
         }
         this.searchTerm = '';
@@ -287,8 +290,10 @@ export default class FeatureFlagLookupInput extends LightningElement {
     }
 
     _fireChange() {
-        this.dispatchEvent(new CustomEvent('change', {
-            detail: { values: [...this._selectedValues] }
-        }));
+        this.dispatchEvent(
+            new CustomEvent('change', {
+                detail: { values: [...this._selectedValues] }
+            })
+        );
     }
 }

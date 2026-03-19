@@ -3,9 +3,16 @@ import { refreshApex } from '@salesforce/apex';
 import getMetrics from '@salesforce/apex/FeatureFlagAdminController.getMetrics';
 
 const SEGMENT_COLORS = [
-    '#0176d3', '#6366f1', '#22c55e', '#f59e0b',
-    '#ec4899', '#14b8a6', '#f97316', '#8b5cf6',
-    '#ef4444', '#84cc16',
+    '#0176d3',
+    '#6366f1',
+    '#22c55e',
+    '#f59e0b',
+    '#ec4899',
+    '#14b8a6',
+    '#f97316',
+    '#8b5cf6',
+    '#ef4444',
+    '#84cc16'
 ];
 
 const CIRCUMFERENCE = 2 * Math.PI * 70; // r=70
@@ -17,16 +24,15 @@ const CIRCUMFERENCE = 2 * Math.PI * 70; // r=70
  *              Date range controls refresh all charts simultaneously.
  */
 export default class FeatureFlagAnalytics extends LightningElement {
-
     /** @api Set by featureFlagAdmin shell */
     @api flagKey;
 
-    isLoading  = false;
+    isLoading = false;
     errorMessage;
 
     // Date range — default last 30 days
     startDate = this._daysAgo(30);
-    endDate   = this._daysAgo(0);
+    endDate = this._daysAgo(0);
 
     _wiredMetrics;
     analytics;
@@ -34,18 +40,18 @@ export default class FeatureFlagAnalytics extends LightningElement {
     // ─── Wire ─────────────────────────────────────────────────────────────────
 
     @wire(getMetrics, {
-        flagKey:      '$flagKey',
+        flagKey: '$flagKey',
         startDateStr: '$startDate',
-        endDateStr:   '$endDate',
+        endDateStr: '$endDate'
     })
     wiredMetrics(result) {
         this._wiredMetrics = result;
-        this.isLoading     = false;
+        this.isLoading = false;
         if (result.data) {
-            this.analytics    = result.data;
+            this.analytics = result.data;
             this.errorMessage = undefined;
         } else if (result.error) {
-            this.analytics    = null;
+            this.analytics = null;
             this.errorMessage = result.error?.body?.message ?? 'Error loading analytics';
         }
     }
@@ -76,21 +82,21 @@ export default class FeatureFlagAnalytics extends LightningElement {
 
     get donutSegments() {
         if (!this.hasVariants) return [];
-        const stats  = this.analytics.variantStats;
-        const total  = this.analytics.totalEvaluations || 1;
-        let offset   = 0;
+        const stats = this.analytics.variantStats;
+        const total = this.analytics.totalEvaluations || 1;
+        let offset = 0;
 
         return stats.map((vs, idx) => {
-            const fraction  = vs.count / total;
-            const arcLen    = fraction * CIRCUMFERENCE;
+            const fraction = vs.count / total;
+            const arcLen = fraction * CIRCUMFERENCE;
             const dashArray = `${arcLen} ${CIRCUMFERENCE - arcLen}`;
             const dashOffset = -offset;
             offset += arcLen;
             return {
-                key:        vs.variantKey ?? `v${idx}`,
-                color:      SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
+                key: vs.variantKey ?? `v${idx}`,
+                color: SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
                 dashArray,
-                dashOffset,
+                dashOffset
             };
         });
     }
@@ -98,10 +104,10 @@ export default class FeatureFlagAnalytics extends LightningElement {
     get variantLegendItems() {
         if (!this.hasVariants) return [];
         return this.analytics.variantStats.map((vs, idx) => ({
-            key:        vs.variantKey ?? `v${idx}`,
-            count:      vs.count,
+            key: vs.variantKey ?? `v${idx}`,
+            count: vs.count,
             percentage: vs.percentage,
-            dotStyle:   `background:${SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}`,
+            dotStyle: `background:${SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}`
         }));
     }
 
@@ -109,12 +115,13 @@ export default class FeatureFlagAnalytics extends LightningElement {
 
     get uniqueUserBars() {
         if (!this.hasVariants) return [];
-        const maxUsers = Math.max(...this.analytics.variantStats.map(v => v.uniqueUsers), 1);
+        const maxUsers = Math.max(...this.analytics.variantStats.map((v) => v.uniqueUsers), 1);
         return this.analytics.variantStats.map((vs, idx) => ({
-            key:        vs.variantKey ?? `v${idx}`,
+            key: vs.variantKey ?? `v${idx}`,
             uniqueUsers: vs.uniqueUsers,
-            style:      `width:${(vs.uniqueUsers / maxUsers * 100).toFixed(1)}%;` +
-                        `background:${SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}`,
+            style:
+                `width:${((vs.uniqueUsers / maxUsers) * 100).toFixed(1)}%;` +
+                `background:${SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}`
         }));
     }
 
@@ -122,14 +129,13 @@ export default class FeatureFlagAnalytics extends LightningElement {
 
     get sparklineBars() {
         if (!this.hasDailyStats) return [];
-        const stats  = this.analytics.dailyStats;
-        const maxCnt = Math.max(...stats.map(d => d.count), 1);
-        return stats.map(d => ({
-            date:    d.evalDate,
-            count:   d.count,
-            style:   `height:${(d.count / maxCnt * 100).toFixed(1)}%;` +
-                     `background:#0176d3`,
-            tooltip: `${d.evalDate}: ${d.count} evaluations`,
+        const stats = this.analytics.dailyStats;
+        const maxCnt = Math.max(...stats.map((d) => d.count), 1);
+        return stats.map((d) => ({
+            date: d.evalDate,
+            count: d.count,
+            style: `height:${((d.count / maxCnt) * 100).toFixed(1)}%;background:#0176d3`,
+            tooltip: `${d.evalDate}: ${d.count} evaluations`
         }));
     }
 

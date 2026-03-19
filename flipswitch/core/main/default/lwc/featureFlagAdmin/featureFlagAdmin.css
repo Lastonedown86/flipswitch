@@ -51,7 +51,9 @@
 
 .health-tile_clickable {
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
 }
 
 .health-tile_clickable:hover {

@@ -14,7 +14,7 @@ const REASON_OPTIONS = [
     { label: 'Emergency Disable', value: 'EMERGENCY_DISABLE' },
     { label: 'Expired', value: 'EXPIRED' },
     { label: 'Cache Hit', value: 'CACHE_HIT' },
-    { label: 'Circuit Breaker', value: 'CIRCUIT_BREAKER' },
+    { label: 'Circuit Breaker', value: 'CIRCUIT_BREAKER' }
 ];
 
 const REASON_BADGE_CLASSES = {
@@ -23,7 +23,7 @@ const REASON_BADGE_CLASSES = {
     EMERGENCY_DISABLE: 'reason-badge reason-badge_emergencydisabled',
     EXPIRED: 'reason-badge reason-badge_expired',
     CACHE_HIT: 'reason-badge reason-badge_cache',
-    CIRCUIT_BREAKER: 'reason-badge reason-badge_error',
+    CIRCUIT_BREAKER: 'reason-badge reason-badge_error'
 };
 
 /**
@@ -33,7 +33,6 @@ const REASON_BADGE_CLASSES = {
  *              Provides CSV export of the visible log set.
  */
 export default class FeatureFlagEvalLogs extends LightningElement {
-
     /** @api Optional — pre-filter to this flag key when set by shell */
     @api flagKey;
 
@@ -67,7 +66,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
     // ─── EMP API ──────────────────────────────────────────────────────────────
 
     async _subscribeToEvents() {
-        onError(error => {
+        onError((error) => {
             // eslint-disable-next-line no-console
             console.error('[FeatureFlagEvalLogs] EMP API error:', error);
             this.isStreaming = false;
@@ -89,7 +88,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
 
     _unsubscribeFromEvents() {
         if (this._subscription) {
-            unsubscribe(this._subscription, () => { });
+            unsubscribe(this._subscription, () => {});
             this._subscription = null;
             this.isStreaming = false;
         }
@@ -105,7 +104,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
             result: payload.Result__c,
             reason: payload.Evaluation_Reason__c,
             context: payload.Context__c,
-            ts: payload.Timestamp__c ?? new Date().toISOString(),
+            ts: payload.Timestamp__c ?? new Date().toISOString()
         });
 
         // Prepend — newest first; cap at MAX_LOGS
@@ -152,14 +151,14 @@ export default class FeatureFlagEvalLogs extends LightningElement {
     }
 
     get displayedLogs() {
-        return this.logs
-            .filter(log => {
-                if (this.filterFlagKey && !log.flagKey?.toLowerCase().includes(this.filterFlagKey.toLowerCase())) return false;
-                if (this.filterReason && log.reason !== this.filterReason) return false;
-                if (this.filterDateFrom && log.isoDate < this.filterDateFrom) return false;
-                if (this.filterDateTo && log.isoDate > this.filterDateTo) return false;
-                return true;
-            });
+        return this.logs.filter((log) => {
+            if (this.filterFlagKey && !log.flagKey?.toLowerCase().includes(this.filterFlagKey.toLowerCase()))
+                return false;
+            if (this.filterReason && log.reason !== this.filterReason) return false;
+            if (this.filterDateFrom && log.isoDate < this.filterDateFrom) return false;
+            if (this.filterDateTo && log.isoDate > this.filterDateTo) return false;
+            return true;
+        });
     }
 
     get displayedCount() {
@@ -188,17 +187,20 @@ export default class FeatureFlagEvalLogs extends LightningElement {
         const date = new Date(ts);
         const isoDate = date.toISOString().substring(0, 10);
         const timeLabel = date.toLocaleTimeString([], {
-            hour: '2-digit', minute: '2-digit', second: '2-digit'
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         });
 
         const reasonBadgeClass = REASON_BADGE_CLASSES[reason] ?? 'reason-badge';
 
-        const resultClass = result === 'true' || result === 'enabled'
-            ? 'result-value result-value_enabled'
-            : 'result-value result-value_disabled';
+        const resultClass =
+            result === 'true' || result === 'enabled'
+                ? 'result-value result-value_enabled'
+                : 'result-value result-value_disabled';
 
-        const rowClass = reason === 'EMERGENCY_DISABLE' || reason === 'CIRCUIT_BREAKER'
-            ? 'log-row log-row--alert' : 'log-row';
+        const rowClass =
+            reason === 'EMERGENCY_DISABLE' || reason === 'CIRCUIT_BREAKER' ? 'log-row log-row--alert' : 'log-row';
 
         return {
             id: `${ts}_${Math.random()}`,
@@ -213,7 +215,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
             timeLabel,
             reasonBadgeClass,
             resultClass,
-            rowClass,
+            rowClass
         };
     }
 
@@ -234,9 +236,9 @@ export default class FeatureFlagEvalLogs extends LightningElement {
         if (!rows.length) return;
 
         const headers = ['Time', 'Flag Key', 'User ID', 'Result', 'Reason'];
-        const csvRows = rows.map(r =>
+        const csvRows = rows.map((r) =>
             [r.timeLabel, r.flagKey, r.userId, r.result, r.reason]
-                .map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`)
+                .map((v) => `"${(v ?? '').toString().replace(/"/g, '""')}"`)
                 .join(',')
         );
         const csv = [headers.join(','), ...csvRows].join('\n');
@@ -249,11 +251,13 @@ export default class FeatureFlagEvalLogs extends LightningElement {
         a.click();
         URL.revokeObjectURL(url);
 
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Exported',
-            message: `${rows.length} log rows exported to CSV.`,
-            variant: 'success'
-        }));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Exported',
+                message: `${rows.length} log rows exported to CSV.`,
+                variant: 'success'
+            })
+        );
     }
 
     // ─── Public API (called by shell banner / health tiles) ─────────────────

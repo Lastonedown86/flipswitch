@@ -9,26 +9,14 @@ const getFlagsAdapter = registerApexTestWireAdapter(getFlags);
 const getCategoriesAdapter = registerApexTestWireAdapter(getCategories);
 
 // Mock imperative Apex methods (not wired)
-jest.mock(
-    '@salesforce/apex/FeatureFlagAdminController.toggleEmergencyDisable',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
-jest.mock(
-    '@salesforce/apex/FeatureFlagAdminController.bulkUpdateFlags',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
-jest.mock(
-    '@salesforce/apex/FeatureFlagAdminController.createFlag',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
-jest.mock(
-    '@salesforce/apex/FeatureFlagAdminController.deleteFlag',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
+jest.mock('@salesforce/apex/FeatureFlagAdminController.toggleEmergencyDisable', () => ({ default: jest.fn() }), {
+    virtual: true
+});
+jest.mock('@salesforce/apex/FeatureFlagAdminController.bulkUpdateFlags', () => ({ default: jest.fn() }), {
+    virtual: true
+});
+jest.mock('@salesforce/apex/FeatureFlagAdminController.createFlag', () => ({ default: jest.fn() }), { virtual: true });
+jest.mock('@salesforce/apex/FeatureFlagAdminController.deleteFlag', () => ({ default: jest.fn() }), { virtual: true });
 
 import createFlag from '@salesforce/apex/FeatureFlagAdminController.createFlag';
 
@@ -212,7 +200,7 @@ describe('c-feature-flag-dashboard', () => {
         expect(filterSections.length).toBeGreaterThanOrEqual(3);
 
         const sourceButtons = filterSections[2].querySelectorAll('button');
-        const sourceLabels = Array.from(sourceButtons).map(b => b.textContent.trim());
+        const sourceLabels = Array.from(sourceButtons).map((b) => b.textContent.trim());
         expect(sourceLabels).toContain('All Sources');
         expect(sourceLabels).toContain('Deployed');
         expect(sourceLabels).toContain('Code');
@@ -226,7 +214,7 @@ describe('c-feature-flag-dashboard', () => {
         // Click the 'Code' source filter
         const filterSections = element.shadowRoot.querySelectorAll('.filter-pills');
         const sourceButtons = filterSections[2].querySelectorAll('button');
-        const codeButton = Array.from(sourceButtons).find(b => b.textContent.trim() === 'Code');
+        const codeButton = Array.from(sourceButtons).find((b) => b.textContent.trim() === 'Code');
         expect(codeButton).not.toBeNull();
 
         codeButton.click();
@@ -236,7 +224,7 @@ describe('c-feature-flag-dashboard', () => {
         // Should only show Code source flags (CHECKOUT_REDESIGN + ROLLOUT_FLAG)
         expect(rows.length).toBe(2);
 
-        const keys = Array.from(rows).map(r => r.dataset.key);
+        const keys = Array.from(rows).map((r) => r.dataset.key);
         expect(keys).toContain('CHECKOUT_REDESIGN');
         expect(keys).toContain('ROLLOUT_FLAG');
         expect(keys).not.toContain('SAMPLE_BOOLEAN_FLAG');
@@ -249,7 +237,7 @@ describe('c-feature-flag-dashboard', () => {
 
         const filterSections = element.shadowRoot.querySelectorAll('.filter-pills');
         const sourceButtons = filterSections[2].querySelectorAll('button');
-        const deployedButton = Array.from(sourceButtons).find(b => b.textContent.trim() === 'Deployed');
+        const deployedButton = Array.from(sourceButtons).find((b) => b.textContent.trim() === 'Deployed');
         deployedButton.click();
         await flushPromises();
 
@@ -267,13 +255,13 @@ describe('c-feature-flag-dashboard', () => {
         const sourceButtons = filterSections[2].querySelectorAll('button');
 
         // First click Code
-        const codeButton = Array.from(sourceButtons).find(b => b.textContent.trim() === 'Code');
+        const codeButton = Array.from(sourceButtons).find((b) => b.textContent.trim() === 'Code');
         codeButton.click();
         await flushPromises();
         expect(element.shadowRoot.querySelectorAll('tbody tr').length).toBe(2);
 
         // Then click All Sources
-        const allButton = Array.from(sourceButtons).find(b => b.textContent.trim() === 'All Sources');
+        const allButton = Array.from(sourceButtons).find((b) => b.textContent.trim() === 'All Sources');
         allButton.click();
         await flushPromises();
         expect(element.shadowRoot.querySelectorAll('tbody tr').length).toBe(3);
@@ -359,19 +347,21 @@ describe('c-feature-flag-dashboard', () => {
 
         // Simulate modal save event
         const modal = element.shadowRoot.querySelector('c-feature-flag-form-modal');
-        modal.dispatchEvent(new CustomEvent('save', {
-            detail: {
-                flagKey: 'NEW_FLAG',
-                label: 'New Flag',
-                type: 'Boolean',
-                defaultValue: 'false',
-                storageTarget: 'Registry',
-            },
-        }));
+        modal.dispatchEvent(
+            new CustomEvent('save', {
+                detail: {
+                    flagKey: 'NEW_FLAG',
+                    label: 'New Flag',
+                    type: 'Boolean',
+                    defaultValue: 'false',
+                    storageTarget: 'Registry'
+                }
+            })
+        );
         await flushPromises();
 
         expect(createFlag).toHaveBeenCalledWith({
-            input: expect.objectContaining({ flagKey: 'NEW_FLAG' }),
+            input: expect.objectContaining({ flagKey: 'NEW_FLAG' })
         });
         expect(createdHandler).toHaveBeenCalledTimes(1);
     });
@@ -392,9 +382,17 @@ describe('c-feature-flag-dashboard', () => {
 
         const modal = element.shadowRoot.querySelector('c-feature-flag-form-modal');
         modal.resetSaving = jest.fn();
-        modal.dispatchEvent(new CustomEvent('save', {
-            detail: { flagKey: 'DUPE', label: 'Dupe', type: 'Boolean', defaultValue: 'false', storageTarget: 'Registry' },
-        }));
+        modal.dispatchEvent(
+            new CustomEvent('save', {
+                detail: {
+                    flagKey: 'DUPE',
+                    label: 'Dupe',
+                    type: 'Boolean',
+                    defaultValue: 'false',
+                    storageTarget: 'Registry'
+                }
+            })
+        );
         await flushPromises();
 
         expect(toastHandler).toHaveBeenCalled();
@@ -414,8 +412,7 @@ describe('c-feature-flag-dashboard', () => {
         expect(element.shadowRoot.querySelector('c-feature-flag-form-modal')).not.toBeNull();
 
         // Cancel
-        element.shadowRoot.querySelector('c-feature-flag-form-modal')
-            .dispatchEvent(new CustomEvent('cancel'));
+        element.shadowRoot.querySelector('c-feature-flag-form-modal').dispatchEvent(new CustomEvent('cancel'));
         await flushPromises();
 
         expect(element.shadowRoot.querySelector('c-feature-flag-form-modal')).toBeNull();

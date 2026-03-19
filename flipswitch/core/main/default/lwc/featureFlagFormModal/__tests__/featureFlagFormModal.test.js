@@ -6,7 +6,7 @@ import FeatureFlagFormModal from 'c/featureFlagFormModal';
 
 function createComponent(props = {}) {
     const element = createElement('c-feature-flag-form-modal', {
-        is: FeatureFlagFormModal,
+        is: FeatureFlagFormModal
     });
     Object.assign(element, props);
     document.body.appendChild(element);
@@ -100,9 +100,7 @@ describe('c-feature-flag-form-modal', () => {
         const element = createComponent({ mode: 'create' });
         await flushPromises();
 
-        q(element, '[data-id="type"]').dispatchEvent(
-            new CustomEvent('change', { detail: { value: 'Percentage' } })
-        );
+        q(element, '[data-id="type"]').dispatchEvent(new CustomEvent('change', { detail: { value: 'Percentage' } }));
         await flushPromises();
 
         const defVal = q(element, '[data-id="default-value"]');
@@ -114,9 +112,7 @@ describe('c-feature-flag-form-modal', () => {
         const element = createComponent({ mode: 'create' });
         await flushPromises();
 
-        q(element, '[data-id="type"]').dispatchEvent(
-            new CustomEvent('change', { detail: { value: 'Variant' } })
-        );
+        q(element, '[data-id="type"]').dispatchEvent(new CustomEvent('change', { detail: { value: 'Variant' } }));
         await flushPromises();
 
         const defVal = q(element, '[data-id="default-value"]');
@@ -139,7 +135,7 @@ describe('c-feature-flag-form-modal', () => {
             category: 'Release',
             expirationDate: '2025-12-31',
             isActive: false,
-            source: 'Code',
+            source: 'Code'
         });
         await flushPromises();
 
@@ -211,12 +207,10 @@ describe('c-feature-flag-form-modal', () => {
         await flushPromises();
 
         // Mock validity on all form elements
-        element.shadowRoot
-            .querySelectorAll('lightning-input, lightning-combobox, lightning-textarea')
-            .forEach((el) => {
-                el.reportValidity = jest.fn();
-                el.checkValidity = jest.fn(() => true);
-            });
+        element.shadowRoot.querySelectorAll('lightning-input, lightning-combobox, lightning-textarea').forEach((el) => {
+            el.reportValidity = jest.fn();
+            el.checkValidity = jest.fn(() => true);
+        });
 
         q(element, '[data-id="save-btn"]').click();
         await flushPromises();
@@ -227,7 +221,7 @@ describe('c-feature-flag-form-modal', () => {
                 flagKey: 'MY_FLAG',
                 label: 'My Flag',
                 type: 'Boolean',
-                defaultValue: 'false',
+                defaultValue: 'false'
             })
         );
     });
@@ -250,12 +244,10 @@ describe('c-feature-flag-form-modal', () => {
         await flushPromises();
 
         // Mock validity
-        element.shadowRoot
-            .querySelectorAll('lightning-input, lightning-combobox, lightning-textarea')
-            .forEach((el) => {
-                el.reportValidity = jest.fn();
-                el.checkValidity = jest.fn(() => true);
-            });
+        element.shadowRoot.querySelectorAll('lightning-input, lightning-combobox, lightning-textarea').forEach((el) => {
+            el.reportValidity = jest.fn();
+            el.checkValidity = jest.fn(() => true);
+        });
 
         const saveBtn = q(element, '[data-id="save-btn"]');
         saveBtn.click();
@@ -274,7 +266,7 @@ describe('c-feature-flag-form-modal', () => {
     it('renders existing categories as options with a None option', async () => {
         const element = createComponent({
             mode: 'create',
-            existingCategories: ['Release', 'Experiment'],
+            existingCategories: ['Release', 'Experiment']
         });
         await flushPromises();
 
@@ -292,9 +284,7 @@ describe('c-feature-flag-form-modal', () => {
         const element = createComponent({ mode: 'create' });
         await flushPromises();
 
-        q(element, '[data-id="storage"]').dispatchEvent(
-            new CustomEvent('change', { detail: { value: 'CMDT' } })
-        );
+        q(element, '[data-id="storage"]').dispatchEvent(new CustomEvent('change', { detail: { value: 'CMDT' } }));
         await flushPromises();
 
         const infoBox = q(element, '.slds-theme_info');

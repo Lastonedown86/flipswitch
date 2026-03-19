@@ -38,7 +38,9 @@
     color: #3e3e3c;
     background: white;
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
 }
 
 .lookup-input:focus {
@@ -168,7 +170,9 @@
     line-height: 1;
     padding: 0;
     flex-shrink: 0;
-    transition: background 0.1s, color 0.1s;
+    transition:
+        background 0.1s,
+        color 0.1s;
 }
 
 .pill__remove:hover {

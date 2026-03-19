@@ -30,12 +30,14 @@ export default class FeatureFlagAdmin extends LightningElement {
     // ─── Getters ─────────────────────────────────────────────────────────────
 
     get orgHealth() {
-        return this._wiredHealth?.data ?? {
-            totalActive: 0,
-            expiringSoon: 0,
-            emergencyDisabled: 0,
-            circuitBreakers: 0
-        };
+        return (
+            this._wiredHealth?.data ?? {
+                totalActive: 0,
+                expiringSoon: 0,
+                emergencyDisabled: 0,
+                circuitBreakers: 0
+            }
+        );
     }
 
     get hasEmergencyDisabledFlags() {
@@ -116,12 +118,14 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     /** Surface any unhandled errors as toast messages */
     errorCallback(error, stack) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Unexpected Error',
-            message: error?.message ?? 'An unexpected error occurred',
-            variant: 'error',
-            mode: 'sticky'
-        }));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Unexpected Error',
+                message: error?.message ?? 'An unexpected error occurred',
+                variant: 'error',
+                mode: 'sticky'
+            })
+        );
         // eslint-disable-next-line no-console
         console.error('[featureFlagAdmin] Error:', error, stack);
     }

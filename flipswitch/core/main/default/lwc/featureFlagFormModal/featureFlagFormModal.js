@@ -3,23 +3,23 @@ import { LightningElement, api } from 'lwc';
 const TYPE_OPTIONS = [
     { label: 'Boolean', value: 'Boolean' },
     { label: 'Percentage', value: 'Percentage' },
-    { label: 'Variant', value: 'Variant' },
+    { label: 'Variant', value: 'Variant' }
 ];
 
 const BOOLEAN_OPTIONS = [
     { label: 'false', value: 'false' },
-    { label: 'true', value: 'true' },
+    { label: 'true', value: 'true' }
 ];
 
 const STORAGE_OPTIONS = [
     { label: 'Registry (instant)', value: 'Registry' },
-    { label: 'CMDT (async deploy)', value: 'CMDT' },
+    { label: 'CMDT (async deploy)', value: 'CMDT' }
 ];
 
 const DEFAULT_VALUES = {
     Boolean: 'false',
     Percentage: '0',
-    Variant: 'control',
+    Variant: 'control'
 };
 
 /**
@@ -27,7 +27,6 @@ const DEFAULT_VALUES = {
  *              Supports both Registry (DML) and CMDT (Metadata API) storage targets.
  */
 export default class FeatureFlagFormModal extends LightningElement {
-
     /** @api 'create' or 'edit' */
     @api mode = 'create';
 
@@ -108,7 +107,7 @@ export default class FeatureFlagFormModal extends LightningElement {
     }
 
     get categoryOptions() {
-        const cats = (this.existingCategories || []).map(c => ({ label: c, value: c }));
+        const cats = (this.existingCategories || []).map((c) => ({ label: c, value: c }));
         // Add a blank option at the start
         return [{ label: '— None —', value: '' }, ...cats];
     }
@@ -166,11 +165,12 @@ export default class FeatureFlagFormModal extends LightningElement {
 
     handleSave() {
         // Client-side validation
-        const allValid = [...this.template.querySelectorAll('lightning-input, lightning-combobox, lightning-textarea')]
-            .reduce((valid, input) => {
-                input.reportValidity();
-                return valid && input.checkValidity();
-            }, true);
+        const allValid = [
+            ...this.template.querySelectorAll('lightning-input, lightning-combobox, lightning-textarea')
+        ].reduce((valid, input) => {
+            input.reportValidity();
+            return valid && input.checkValidity();
+        }, true);
 
         if (!allValid) return;
 
@@ -188,7 +188,7 @@ export default class FeatureFlagFormModal extends LightningElement {
             category: this.category,
             expirationDate: this.expirationDate,
             isActive: this.isActive,
-            storageTarget: this.storageTarget,
+            storageTarget: this.storageTarget
         };
 
         this.dispatchEvent(new CustomEvent('save', { detail }));

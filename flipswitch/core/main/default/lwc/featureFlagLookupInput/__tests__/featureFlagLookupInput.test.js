@@ -12,7 +12,7 @@ describe('c-feature-flag-lookup-input', () => {
 
     function createComponent(props = {}) {
         const element = createElement('c-feature-flag-lookup-input', {
-            is: FeatureFlagLookupInput,
+            is: FeatureFlagLookupInput
         });
         Object.assign(element, props);
         document.body.appendChild(element);
@@ -22,7 +22,7 @@ describe('c-feature-flag-lookup-input', () => {
     const MOCK_OPTIONS = [
         { label: 'System Administrator', value: '00e000000000001' },
         { label: 'Sales User', value: '00e000000000002' },
-        { label: 'Support User', value: '00e000000000003' },
+        { label: 'Support User', value: '00e000000000003' }
     ];
 
     it('renders label', async () => {
@@ -93,7 +93,7 @@ describe('c-feature-flag-lookup-input', () => {
             variant: 'static',
             options: MOCK_OPTIONS,
             selectedValues: ['00e000000000001'],
-            selectedPills: [{ label: 'System Administrator', value: '00e000000000001' }],
+            selectedPills: [{ label: 'System Administrator', value: '00e000000000001' }]
         });
         el.addEventListener('change', changeSpy);
         await Promise.resolve();
@@ -174,7 +174,7 @@ describe('c-feature-flag-lookup-input', () => {
 
         el.setSearchResults([
             { label: 'John Doe', value: '005xx0001', sublabel: 'john@test.com' },
-            { label: 'Jane Doe', value: '005xx0002', sublabel: 'jane@test.com' },
+            { label: 'Jane Doe', value: '005xx0002', sublabel: 'jane@test.com' }
         ]);
         await Promise.resolve();
 
