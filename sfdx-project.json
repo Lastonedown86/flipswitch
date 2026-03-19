@@ -1,0 +1,28 @@
+{
+  "name": "FlipSwitch",
+  "packageDirectories": [
+    {
+      "path": "./flipswitch/core",
+      "default": true,
+      "package": "FlipSwitch",
+      "versionName": "Version 1.1.0",
+      "versionNumber": "1.1.0.NEXT",
+      "versionDescription": "Enhanced Admin UI: dashboard, drag-to-reorder rule builder, live eval log streaming, analytics charts, evaluation preview",
+      "definitionFile": "./config/scratch-orgs/base-scratch-def.json",
+      "scopeProfiles": false,
+      "postInstallUrl": "https://github.com/Lastonedown86/flipswitch/wiki",
+      "releaseNotesUrl": "https://github.com/Lastonedown86/flipswitch/releases"
+    }
+  ],
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "65.0",
+  "packageAliases": {
+    "FlipSwitch": "0HodM0000001hyzSAA",
+    "FlipSwitch@1.0.0-1": "04tdM000000OzvBQAS",
+    "FlipSwitch@1.1.0-1": "04tdM000000OzyPQAS",
+    "FlipSwitch@1.1.0-2": "04tdM000000P04rQAC",
+    "FlipSwitch@1.1.0-3": "04tdM000000P0KzQAK",
+    "FlipSwitch@1.1.0-4": "04tdM000000P0MbQAK",
+    "FlipSwitch@1.1.0-6": "04tdM000000P0PpQAK"
+  }
+}

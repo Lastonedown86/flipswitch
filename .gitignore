@@ -1,1 +1,25 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Salesforce CLI
+.sf/
+.sfdx/
+auth-url.txt
+jwt-server.key
+
+# Test output
+test-results/
+test-coverage/
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
 .claude/settings.local.json

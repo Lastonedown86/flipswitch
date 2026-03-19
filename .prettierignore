@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Salesforce
+.sf/
+.sfdx/
+
+# Test output
+test-coverage/
+test-results/
+coverage/
+
+# LWC HTML templates (unquoted {expression} syntax is not standard HTML)
+**/*.html
+
+# Build output
+*.zip

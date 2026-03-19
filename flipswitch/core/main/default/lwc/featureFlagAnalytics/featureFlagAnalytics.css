@@ -1,0 +1,176 @@
+/* ── KPI strip ────────────────────────────────────────────────────────────── */
+.kpi-tile {
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+    background: white;
+}
+
+.kpi-tile--danger {
+    border-color: #fddde5;
+    background: #fef0ef;
+}
+
+.kpi-tile__value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3e3e3c;
+    line-height: 1;
+}
+
+.kpi-tile--danger .kpi-tile__value {
+    color: #c23934;
+}
+
+.kpi-tile__label {
+    display: block;
+    font-size: 0.72rem;
+    color: #706e6b;
+    margin-top: 0.25rem;
+}
+
+/* ── Chart card ───────────────────────────────────────────────────────────── */
+.chart-card {
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+    padding: 1rem;
+    background: white;
+}
+
+/* ── Donut SVG ────────────────────────────────────────────────────────────── */
+.donut-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.donut-svg {
+    width: 160px;
+    height: 160px;
+}
+
+.donut-center-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    fill: #3e3e3c;
+}
+
+.donut-center-label {
+    font-size: 0.75rem;
+    fill: #706e6b;
+}
+
+/* ── Donut legend ─────────────────────────────────────────────────────────── */
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-key {
+    flex: 1;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.legend-count {
+    color: #3e3e3c;
+    font-variant-numeric: tabular-nums;
+    min-width: 3rem;
+    text-align: right;
+}
+
+.legend-pct {
+    color: #706e6b;
+    font-variant-numeric: tabular-nums;
+    min-width: 3rem;
+    text-align: right;
+}
+
+/* ── Horizontal bars ──────────────────────────────────────────────────────── */
+.hbar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.hbar-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 6rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hbar-track {
+    flex: 1;
+    height: 14px;
+    background: #f3f2f2;
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.hbar-fill {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.4s ease;
+}
+
+.hbar-value {
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    color: #706e6b;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+/* ── Daily sparkline ──────────────────────────────────────────────────────── */
+.sparkline-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 80px;
+    padding: 0 0.25rem;
+    border-bottom: 1px solid #e0e5ee;
+}
+
+.sparkline-bar {
+    flex: 1;
+    min-width: 3px;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+    cursor: default;
+    opacity: 0.85;
+}
+
+.sparkline-bar:hover {
+    opacity: 1;
+}
+
+.sparkline-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: #706e6b;
+    padding: 0.2rem 0.25rem 0;
+}

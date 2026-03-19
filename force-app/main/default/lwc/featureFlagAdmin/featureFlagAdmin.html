@@ -1,0 +1,102 @@
+<template>
+    <div class="flipswitch-admin">
+
+        <!-- Emergency-disable alert banner -->
+        <template lwc:if={hasEmergencyDisabledFlags}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <lightning-icon
+                    icon-name="utility:error"
+                    alternative-text="Error"
+                    size="x-small"
+                    class="slds-m-right_x-small">
+                </lightning-icon>
+                <h2>
+                    {emergencyDisabledCount} flag(s) are currently emergency-disabled.
+                    <a onclick={handleEmergencyDisableBannerClick} class="slds-alert__close-link">
+                        View affected flags
+                    </a>
+                </h2>
+            </div>
+        </template>
+
+        <!-- Org health summary strip -->
+        <div class="slds-grid slds-gutters slds-m-bottom_medium health-strip">
+            <div class="slds-col">
+                <div class="health-tile health-tile_active">
+                    <span class="health-tile__count">{orgHealth.totalActive}</span>
+                    <span class="health-tile__label">Active Flags</span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_warning">
+                    <span class="health-tile__count">{orgHealth.expiringSoon}</span>
+                    <span class="health-tile__label">Expiring This Week</span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_danger">
+                    <span class="health-tile__count">{orgHealth.emergencyDisabled}</span>
+                    <span class="health-tile__label">Emergency Disabled</span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_neutral">
+                    <span class="health-tile__count">{orgHealth.circuitBreakers}</span>
+                    <span class="health-tile__label">Circuit Breaker Trips</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main tab container -->
+        <lightning-tabset active-tab-value={activeTab} onactive={handleTabChange}>
+
+            <!-- ── Dashboard tab ── -->
+            <lightning-tab label="Dashboard" value="dashboard" icon-name="utility:layers">
+                <c-feature-flag-dashboard
+                    onviewflag={handleViewFlag}
+                    onemergencydisabletoggled={handleEmergencyDisableToggled}>
+                </c-feature-flag-dashboard>
+            </lightning-tab>
+
+            <!-- ── Evaluation logs tab ── -->
+            <lightning-tab label="Eval Logs" value="logs" icon-name="utility:activity">
+                <c-feature-flag-eval-logs
+                    flag-key={selectedFlagKey}>
+                </c-feature-flag-eval-logs>
+            </lightning-tab>
+
+            <!-- ── Analytics tab ── -->
+            <lightning-tab label="Analytics" value="analytics" icon-name="utility:chart">
+                <c-feature-flag-analytics
+                    flag-key={selectedFlagKey}>
+                </c-feature-flag-analytics>
+            </lightning-tab>
+
+        </lightning-tabset>
+
+        <!-- ── Flag detail drawer ── -->
+        <template lwc:if={isDrawerOpen}>
+            <div class="drawer-backdrop" onclick={handleCloseDrawer}></div>
+            <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Flag Detail">
+                <div class="drawer-header">
+                    <h2 class="slds-text-heading_small">Flag Detail</h2>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        size="small"
+                        onclick={handleCloseDrawer}>
+                    </lightning-button-icon>
+                </div>
+                <div class="drawer-body">
+                    <c-feature-flag-detail
+                        flag-key={selectedFlagKey}
+                        onruleedit={handleRuleEdit}
+                        onemergencydisabletoggled={handleEmergencyDisableToggled}>
+                    </c-feature-flag-detail>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</template>

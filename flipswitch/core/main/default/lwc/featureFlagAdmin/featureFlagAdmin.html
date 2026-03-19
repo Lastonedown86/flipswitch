@@ -1,0 +1,111 @@
+<template>
+    <div class="flipswitch-admin">
+
+        <!-- Emergency-disable alert banner -->
+        <template lwc:if={hasEmergencyDisabledFlags}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small"
+                    class="slds-m-right_x-small">
+                </lightning-icon>
+                <h2>
+                    {emergencyDisabledCount} flag(s) are currently emergency-disabled.
+                    <a onclick={handleEmergencyDisableBannerClick} class="slds-alert__close-link">
+                        View affected flags
+                    </a>
+                </h2>
+            </div>
+        </template>
+
+        <!-- Org health summary strip -->
+        <div class="slds-grid slds-gutters slds-m-bottom_medium health-strip">
+            <div class="slds-col">
+                <div class="health-tile health-tile_active health-tile_clickable" role="button" tabindex="0"
+                    onclick={handleActiveClick}>
+                    <span class="health-tile__count">{orgHealth.totalActive}</span>
+                    <span class="health-tile__label">Active Flags
+                        <lightning-helptext
+                            content="Total number of flags where Is Active is true and the expiration date has not passed.">
+                        </lightning-helptext>
+                    </span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_warning health-tile_clickable" role="button" tabindex="0"
+                    onclick={handleExpiringClick}>
+                    <span class="health-tile__count">{orgHealth.expiringSoon}</span>
+                    <span class="health-tile__label">Expiring This Week
+                        <lightning-helptext
+                            content="Flags with an expiration date within the next 7 days. Review these to decide whether to extend, archive, or remove the flag.">
+                        </lightning-helptext>
+                    </span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_danger health-tile_clickable" role="button" tabindex="0"
+                    onclick={handleEmergencyClick}>
+                    <span class="health-tile__count">{orgHealth.emergencyDisabled}</span>
+                    <span class="health-tile__label">Emergency Disabled
+                        <lightning-helptext
+                            content="Flags that have been emergency-disabled. These immediately return their Default Value for all users regardless of targeting rules.">
+                        </lightning-helptext>
+                    </span>
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="health-tile health-tile_neutral health-tile_clickable" role="button" tabindex="0"
+                    onclick={handleCircuitBreakerClick}>
+                    <span class="health-tile__count">{orgHealth.circuitBreakers}</span>
+                    <span class="health-tile__label">Circuit Breaker Trips
+                        <lightning-helptext
+                            content="Number of evaluation errors caught in the last 24 hours. When an error occurs, the circuit breaker silently returns the Default Value so the caller is never broken. High counts may indicate data issues.">
+                        </lightning-helptext>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main tab container -->
+        <lightning-tabset active-tab-value={activeTab} onactive={handleTabChange}>
+
+            <!-- ── Dashboard tab ── -->
+            <lightning-tab label="Dashboard" value="dashboard" icon-name="utility:layers">
+                <c-feature-flag-dashboard onviewflag={handleViewFlag}
+                    onemergencydisabletoggled={handleEmergencyDisableToggled}>
+                </c-feature-flag-dashboard>
+            </lightning-tab>
+
+            <!-- ── Evaluation logs tab ── -->
+            <lightning-tab label="Eval Logs" value="logs" icon-name="utility:activity">
+                <c-feature-flag-eval-logs flag-key={selectedFlagKey}>
+                </c-feature-flag-eval-logs>
+            </lightning-tab>
+
+            <!-- ── Analytics tab ── -->
+            <lightning-tab label="Analytics" value="analytics" icon-name="utility:chart">
+                <c-feature-flag-analytics flag-key={selectedFlagKey}>
+                </c-feature-flag-analytics>
+            </lightning-tab>
+
+        </lightning-tabset>
+
+        <!-- ── Flag detail drawer ── -->
+        <template lwc:if={isDrawerOpen}>
+            <div class="drawer-backdrop" onclick={handleCloseDrawer}></div>
+            <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Flag Detail">
+                <div class="drawer-header">
+                    <h2 class="slds-text-heading_small">Flag Detail</h2>
+                    <lightning-button-icon icon-name="utility:close" alternative-text="Close" size="small"
+                        onclick={handleCloseDrawer}>
+                    </lightning-button-icon>
+                </div>
+                <div class="drawer-body">
+                    <c-feature-flag-detail flag-key={selectedFlagKey} onruleedit={handleRuleEdit}
+                        onemergencydisabletoggled={handleEmergencyDisableToggled}>
+                    </c-feature-flag-detail>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</template>

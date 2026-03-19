@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Platform Event published after each feature flag evaluation. Subscriber trigger writes to FlipSwitch_Metric__c for analytics.</description>
+    <fields>
+        <fullName>Context__c</fullName>
+        <description>Serialized evaluation context (user attributes, profile, scenario).</description>
+        <label>Context</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Evaluation_Reason__c</fullName>
+        <description>Why this result was returned: RULE_MATCH, DEFAULT, KILL_SWITCH, EXPIRED, CACHE_HIT, ERROR.</description>
+        <label>Evaluation Reason</label>
+        <length>50</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Flag_Key__c</fullName>
+        <label>Flag Key</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Result__c</fullName>
+        <description>The evaluated value returned to the caller (e.g. true, false, treatment_a).</description>
+        <label>Result</label>
+        <length>255</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Scenario__c</fullName>
+        <description>Business scenario tag set via FeatureFlag.setScenario(). Enables per-flow analytics.</description>
+        <label>Scenario</label>
+        <length>255</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Timestamp__c</fullName>
+        <label>Timestamp</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>User_Id__c</fullName>
+        <label>User Id</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <label>FlipSwitch Evaluation</label>
+    <pluralLabel>FlipSwitch Evaluations</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

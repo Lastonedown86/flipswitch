@@ -1,0 +1,39 @@
+{
+  "name": "flipswitch",
+  "version": "1.0.0",
+  "description": "Salesforce Progressive Delivery Feature Flag Framework",
+  "private": true,
+  "scripts": {
+    "lint": "eslint flipswitch/core/main/default/lwc/",
+    "prettier": "prettier --write \"flipswitch/**/*.{css,html,js,json}\"",
+    "prettier:verify": "prettier --list-different \"flipswitch/**/*.{css,html,js,json}\"",
+    "test:lwc": "lwc-jest --coverage",
+    "test:lwc:nocoverage": "lwc-jest",
+    "test:apex": "sf apex run test --concise --test-level RunLocalTests --wait 30 --result-format human --code-coverage --detailed-coverage --output-dir ./test-coverage/apex",
+    "test:apex:nocoverage": "sf apex run test --concise --test-level RunLocalTests --wait 30 --result-format human --output-dir ./test-coverage/apex",
+    "test": "npm run test:lwc && npm run test:apex",
+    "package:version:create": "sf package version create --json --package \"FlipSwitch\" --skip-ancestor-check --code-coverage --installation-key-bypass --wait 30",
+    "package:version:promote": "sf package version promote --no-prompt --package",
+    "package:manifest:generate:core": "sf project generate manifest --source-dir ./flipswitch/core/ --output-dir ./flipswitch/ --name core.package",
+    "permset:assign:admin": "sf org assign permset --name FlipSwitch_Admin",
+    "permset:assign:user": "sf org assign permset --name FlipSwitch_User",
+    "permset:assign:all": "npm run permset:assign:admin && npm run permset:assign:user",
+    "scratch:create": "sf org create scratch -f config/scratch-orgs/base-scratch-def.json -a flipswitch-dev -d 30",
+    "scratch:create:cache": "sf org create scratch -f config/scratch-orgs/platform-cache-scratch-def.json -a flipswitch-cache -d 30",
+    "scratch:deploy": "sf project deploy start --source-dir ./flipswitch/",
+    "scratch:deploy:core": "sf project deploy start --source-dir ./flipswitch/core/",
+    "scratch:test": "npm run test:apex"
+  },
+  "devDependencies": {
+    "@lwc/eslint-plugin-lwc": "^1.8.0",
+    "@salesforce/eslint-config-lwc": "^3.5.0",
+    "@salesforce/eslint-plugin-lightning": "^1.0.0",
+    "@salesforce/eslint-plugin-aura": "^2.1.0",
+    "@salesforce/sfdx-lwc-jest": "^3.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^29.15.0",
+    "prettier": "^3.3.0",
+    "prettier-plugin-apex": "^2.2.0"
+  }
+}

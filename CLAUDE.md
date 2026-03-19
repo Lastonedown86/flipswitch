@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FlipSwitch is a Salesforce Progressive Delivery Feature Flag Framework. It brings feature flags, percentage rollouts, user targeting, multi-variant experiments, and kill switches to Apex, LWC, and Flows. Distributed as an unlocked package via GitHub (MIT license, same model as NebulaLogger).
+FlipSwitch is a Salesforce Progressive Delivery Feature Flag Framework. It brings feature flags, percentage rollouts, user targeting, multi-variant experiments, and emergency disable to Apex, LWC, and Flows. Distributed as an unlocked package via GitHub (MIT license, same model as NebulaLogger).
 
 **Current status**: Planning phase — only `plan.md` (the full technical specification) exists. No code has been implemented yet.
 
@@ -102,7 +102,7 @@ Map<String, FeatureFlagResult> results = FeatureFlag.flags('FLAG_A', 'FLAG_B')
 ### Evaluation Order
 
 The evaluator checks rules in this priority:
-1. Kill switch (`Is_Active__c = false` or `Kill_Switch` rule)
+1. Emergency disable (`Is_Active__c = false` or `Emergency_Disable` rule)
 2. Expiration (`Expiration_Date__c < TODAY`)
 3. Targeting rules by `Priority__c`: User > Profile > Permission Set > Segment > Custom Field > Percentage
 4. Falls through to `Default_Value__c` if no rules match
@@ -176,7 +176,7 @@ sf package install --wait 20 --security-type AdminsOnly --package <PACKAGE_VERSI
   - Boolean flag evaluation (enabled/disabled)
   - Multi-variant evaluation with weight distribution
   - Targeting rule priority and matching (user, profile, permission set, percentage)
-  - Kill switch and expiration behavior
+  - Emergency disable and expiration behavior
   - Cache hit/miss/invalidation
   - Deterministic hashing consistency
   - Flow invocable action (single + bulk)
@@ -190,7 +190,7 @@ sf package install --wait 20 --security-type AdminsOnly --package <PACKAGE_VERSI
 | 2 | Apex Service Layer — dual API (static + fluent), evaluator, cache, logging, hashing |
 | 3 | Flow Support — invocable action for Flow decisions |
 | 4 | LWC Components — gate, variant, service module, admin dashboard |
-| 5 | Safety & Observability — kill switches, auto-expiration, circuit breaker, analytics |
+| 5 | Safety & Observability — emergency disable, auto-expiration, circuit breaker, analytics |
 | 6 | Package & Distribution — unlocked package, MIT license, GitHub release |
 | 7 | Integrations — New Relic dashboards, optional NebulaLogger, PagerDuty alerts |
 

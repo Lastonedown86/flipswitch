@@ -1,0 +1,410 @@
+<template>
+    <!-- Skeleton loading state -->
+    <template lwc:if={isLoading}>
+        <div class="slds-m-around_large slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-3">
+                <div class="skeleton-row" style="height: 300px; margin-bottom: 1rem;"></div>
+                <div class="skeleton-row" style="height: 200px; margin-bottom: 1rem;"></div>
+            </div>
+            <div class="slds-col slds-size_2-of-3">
+                <div class="skeleton-row" style="height: 400px; margin-bottom: 1rem;"></div>
+                <div class="skeleton-row" style="height: 300px;"></div>
+            </div>
+        </div>
+    </template>
+
+    <template lwc:elseif={hasError}>
+        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-around_medium" role="alert">
+            <p>{errorMessage}</p>
+        </div>
+    </template>
+
+    <template lwc:elseif={flagDetail}>
+        <div class="detail-layout slds-grid slds-gutters">
+
+            <!-- ── Left column: Flag metadata ─────────────────────────────── -->
+            <div class="slds-col slds-size_1-of-3">
+                <lightning-card title={flagDetail.summary.label} icon-name="utility:toggle">
+
+                    <div slot="actions">
+                        <!-- Copy flag key -->
+                        <lightning-button-icon icon-name="utility:copy" alternative-text="Copy flag key"
+                            title="Copy flag key to clipboard" onclick={handleCopyKey}>
+                        </lightning-button-icon>
+                        <!-- Overflow menu for flag actions -->
+                        <lightning-button-menu alternative-text="Flag actions" icon-size="x-small"
+                            menu-alignment="right" onselect={handleActionMenu} class="slds-m-left_x-small">
+                            <lightning-menu-item value="edit" label="Edit Flag" icon-name="utility:edit">
+                            </lightning-menu-item>
+                            <lightning-menu-item value="emergencydisable" label={emergencyDisableLabel}
+                                icon-name={emergencyDisableIcon}>
+                            </lightning-menu-item>
+                            <template lwc:if={isCodeSource}>
+                                <lightning-menu-item value="promote" label="Promote to CMDT" icon-name="utility:upload">
+                                </lightning-menu-item>
+                            </template>
+                            <lightning-menu-item value="delete" label="Delete Flag" icon-name="utility:delete">
+                            </lightning-menu-item>
+                        </lightning-button-menu>
+                    </div>
+
+                    <div class="slds-m-around_medium">
+
+                        <!-- Status badge + source badge -->
+                        <div class="slds-m-bottom_small">
+                            <span class={statusBadgeClass}>{statusLabel}</span>
+                            <span class={sourceBadgeClass}>{sourceLabel}</span>
+                        </div>
+
+                        <!-- Inline metrics strip -->
+                        <div class="mini-kpi-strip slds-m-bottom_small">
+                            <div class="mini-kpi">
+                                <span class="mini-kpi__value">{metricsTotal}</span>
+                                <span class="mini-kpi__label">Evaluations</span>
+                            </div>
+                            <div class="mini-kpi">
+                                <span class="mini-kpi__value">{metricsUniqueUsers}</span>
+                                <span class="mini-kpi__label">Users</span>
+                            </div>
+                            <div class="mini-kpi">
+                                <span class="mini-kpi__value">{activeRuleCount}</span>
+                                <span class="mini-kpi__label">Rules</span>
+                            </div>
+                            <div class="mini-kpi">
+                                <span class={metricsCBClass}>{metricsCBTrips}</span>
+                                <span class="mini-kpi__label">CB Trips</span>
+                            </div>
+                        </div>
+
+                        <!-- Key (monospace + copy hint) -->
+                        <div class="detail-field">
+                            <span class="detail-field__label">Flag Key
+                                <lightning-helptext
+                                    content="The unique API key used to evaluate this flag in Apex, LWC, and Flows. Use FeatureFlag.isEnabled('KEY') or the featureFlagGate component.">
+                                </lightning-helptext>
+                            </span>
+                            <code class="detail-field__value detail-field__value--mono">
+                                {flagDetail.summary.developerName}
+                            </code>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Type
+                                <lightning-helptext
+                                    content="Boolean: on/off toggle. Percentage: gradual rollout by user hash. Variant: A/B or multivariate experiment. String/Number/JSON: returns a typed payload value.">
+                                </lightning-helptext>
+                            </span>
+                            <span class="detail-field__value">{flagDetail.summary.type}</span>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Default Value
+                                <lightning-helptext
+                                    content="Returned when no targeting rules match, the flag is inactive, or an evaluation error occurs (circuit breaker). This is the safe fallback value.">
+                                </lightning-helptext>
+                            </span>
+                            <span class="detail-field__value">{flagDetail.summary.defaultValue}</span>
+                        </div>
+
+                        <div class="detail-field">
+                            <span class="detail-field__label">Category
+                                <lightning-helptext
+                                    content="Optional grouping label for organising flags in the dashboard (e.g. Release, Experiment, Ops, Permission). Has no effect on evaluation.">
+                                </lightning-helptext>
+                            </span>
+                            <span class="detail-field__value">{categoryDisplay}</span>
+                        </div>
+
+                        <template lwc:if={flagDetail.summary.expirationDate}>
+                            <div class="detail-field">
+                                <span class="detail-field__label">Expiration
+                                    <lightning-helptext
+                                        content="After this date the flag automatically evaluates to its Default Value, regardless of rules. Used to enforce cleanup of temporary release flags.">
+                                    </lightning-helptext>
+                                </span>
+                                <span class={expirationClass}>{expirationLabel}</span>
+                            </div>
+                        </template>
+
+                        <template lwc:if={flagDetail.summary.description}>
+                            <div class="detail-field detail-field--stacked">
+                                <span class="detail-field__label">Description</span>
+                                <p class="detail-field__value">{flagDetail.summary.description}</p>
+                            </div>
+                        </template>
+
+                        <!-- Quick navigation links -->
+                        <div class="quick-nav slds-m-top_small">
+                            <lightning-button label="View Logs" variant="base" icon-name="utility:activity"
+                                onclick={handleViewLogs} class="slds-m-right_x-small">
+                            </lightning-button>
+                            <lightning-button label="View Analytics" variant="base" icon-name="utility:chart"
+                                onclick={handleViewAnalytics}>
+                            </lightning-button>
+                        </div>
+
+                    </div>
+
+                </lightning-card>
+
+                <!-- Evaluation flow diagram -->
+                <lightning-card class="slds-m-top_small">
+                    <div class="slds-m-around_medium">
+                        <div class="eval-flow-header" onclick={handleToggleEvalFlow}>
+                            <lightning-icon icon-name={evalFlowIcon} size="xx-small"
+                                class="slds-m-right_xx-small"></lightning-icon>
+                            <span class="slds-text-heading_small">Evaluation Order</span>
+                        </div>
+                        <template lwc:if={showEvalFlow}>
+                            <div class="eval-flow slds-m-top_x-small">
+                                <template for:each={evalSteps} for:item="step">
+                                    <div key={step.key} class={step.cssClass}>
+                                        <div class="eval-step__header">
+                                            <span class="eval-step__number">{step.index}</span>
+                                            <lightning-icon icon-name={step.icon} size="xx-small"
+                                                class="slds-m-right_xx-small"></lightning-icon>
+                                            <span class="eval-step__label">{step.label}</span>
+                                        </div>
+                                        <span class="eval-step__desc">{step.desc}</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-card>
+
+                <!-- Code snippet panel -->
+                <lightning-card class="slds-m-top_small">
+                    <div class="slds-m-around_medium">
+                        <div class="snippet-header">
+                            <span class="slds-text-heading_small">Usage Snippets</span>
+                            <lightning-button-group>
+                                <lightning-button label="Apex" variant={apexSnippetVariant} data-snippet="apex"
+                                    onclick={handleSnippetTab}>
+                                </lightning-button>
+                                <lightning-button label="LWC" variant={lwcSnippetVariant} data-snippet="lwc"
+                                    onclick={handleSnippetTab}>
+                                </lightning-button>
+                                <lightning-button label="Flow" variant={flowSnippetVariant} data-snippet="flow"
+                                    onclick={handleSnippetTab}>
+                                </lightning-button>
+                            </lightning-button-group>
+                        </div>
+                        <div class="snippet-code">
+                            <lightning-button-icon icon-name="utility:copy" alternative-text="Copy snippet"
+                                title="Copy snippet to clipboard" variant="bare-inverse" onclick={handleCopySnippet}
+                                class="snippet-copy-btn">
+                            </lightning-button-icon>
+                            <pre><code>{activeSnippet}</code></pre>
+                        </div>
+                    </div>
+                </lightning-card>
+            </div>
+
+            <!-- ── Right column: Rules, variants, preview ─────────────────── -->
+            <div class="slds-col slds-size_2-of-3 slds-grid slds-wrap slds-gutters">
+
+                <!-- Rules -->
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_medium">
+                    <c-feature-flag-rule-builder flag-key={flagDetail.summary.flagKey}
+                        flag-type={flagDetail.summary.type} rules={flagDetail.rules} variants={flagDetail.variants}
+                        onruleschanged={handleRulesChanged} onvariantschanged={handleVariantsChanged}>
+                    </c-feature-flag-rule-builder>
+                </div>
+
+                <!-- Simulation / preview panel -->
+                <div class="slds-col slds-size_1-of-1">
+                    <lightning-card title="Simulate Evaluation" icon-name="utility:preview">
+                        <div class="slds-m-around_medium">
+                            <div class="slds-grid slds-gutters slds-m-bottom_small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="text" label="User ID (optional)"
+                                        field-level-help="Salesforce User ID to simulate evaluation for. Leave blank to use the current user. Useful for testing rules that target specific users."
+                                        placeholder="Defaults to current user" value={previewUserId}
+                                        onchange={handlePreviewUserChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2 context-builder-col">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Context Attributes
+                                            <lightning-helptext
+                                                content="Custom attributes evaluated by Custom Field and Segment rules. Add key-value pairs here."></lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <template for:each={previewAttrs} for:item="attr">
+                                                <div key={attr.id}
+                                                    class="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small slds-m-bottom_xx-small">
+                                                    <div class="slds-col slds-size_5-of-12">
+                                                        <lightning-input type="text" placeholder="Key (e.g. region)"
+                                                            value={attr.key} data-id={attr.id}
+                                                            onchange={handleAttrKeyChange}
+                                                            variant="label-hidden"></lightning-input>
+                                                    </div>
+                                                    <div class="slds-col slds-size_5-of-12">
+                                                        <lightning-input type="text" placeholder="Value (e.g. US)"
+                                                            value={attr.value} data-id={attr.id}
+                                                            onchange={handleAttrValueChange}
+                                                            variant="label-hidden"></lightning-input>
+                                                    </div>
+                                                    <div class="slds-col slds-size_2-of-12 slds-text-align_right">
+                                                        <lightning-button-icon icon-name="utility:delete" variant="bare"
+                                                            data-id={attr.id} onclick={handleRemoveAttr}
+                                                            alternative-text="Remove attribute"></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <lightning-button variant="base" icon-name="utility:add"
+                                                label="Add Attribute" onclick={handleAddAttr}
+                                                class="slds-m-top_xx-small"></lightning-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <lightning-button label="Run Preview" variant="brand" icon-name="utility:play"
+                                onclick={handleRunPreview} disabled={isPreviewLoading}>
+                            </lightning-button>
+
+                            <template lwc:if={isPreviewLoading}>
+                                <lightning-spinner alternative-text="Running preview" size="small"
+                                    class="slds-m-left_medium">
+                                </lightning-spinner>
+                            </template>
+
+                            <template lwc:if={previewResult}>
+                                <div class="preview-result slds-m-top_small">
+                                    <div class="preview-result__row">
+                                        <span class="preview-result__label">isEnabled</span>
+                                        <lightning-icon icon-name={previewEnabledIcon} size="x-small"
+                                            class={previewEnabledClass}>
+                                        </lightning-icon>
+                                        <span class={previewEnabledClass}>{previewEnabledLabel}</span>
+                                    </div>
+                                    <template lwc:if={previewResult.variant}>
+                                        <div class="preview-result__row">
+                                            <span class="preview-result__label">Variant</span>
+                                            <span class="variant-chip">{previewResult.variant}</span>
+                                        </div>
+                                    </template>
+                                    <div class="preview-result__row">
+                                        <span class="preview-result__label">Reason</span>
+                                        <span class={previewReasonClass}>{previewResult.reason}</span>
+                                    </div>
+                                    <template lwc:if={previewResult.payload}>
+                                        <div class="preview-result__row preview-result__row--stacked">
+                                            <span class="preview-result__label">Payload</span>
+                                            <pre class="preview-payload"><code>{previewResult.payload}</code></pre>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Simulation history -->
+                            <div class="sim-history slds-m-top_medium">
+                                <div class="sim-history__header">
+                                    <span class="slds-text-title_caps">Recent Simulations</span>
+                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Clear history"
+                                        title="Clear simulation history" size="small" disabled={hasNoSimulationHistory}
+                                        onclick={handleClearHistory}>
+                                    </lightning-button-icon>
+                                </div>
+                                <template lwc:if={hasSimulationHistory}>
+                                    <table class="sim-history__table">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>User</th>
+                                                <th>Result</th>
+                                                <th>Reason</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={simulationHistoryFormatted} for:item="sim">
+                                                <tr key={sim.key}>
+                                                    <td class="sim-history__time">{sim.timestamp}</td>
+                                                    <td class="sim-history__user">{sim.userId}</td>
+                                                    <td>
+                                                        <span class={sim.enabledClass}>{sim.enabledLabel}</span>
+                                                        <template lwc:if={sim.variant}>
+                                                            <span
+                                                                class="variant-chip slds-m-left_xx-small">{sim.variant}</span>
+                                                        </template>
+                                                    </td>
+                                                    <td><span class={sim.reasonClass}>{sim.reason}</span></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </template>
+                                <template lwc:else>
+                                    <div
+                                        class="slds-p-around_medium slds-text-align_center slds-text-color_weak slds-border_top">
+                                        No simulations run yet. Fill out the fields above and click Run Preview.
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </lightning-card>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <!-- Edit flag modal -->
+    <template lwc:if={showEditModal}>
+        <c-feature-flag-form-modal mode="edit"
+            existing-categories={existingCategories}
+            onsave={handleEditModalSave}
+            oncancel={handleEditModalCancel}>
+        </c-feature-flag-form-modal>
+    </template>
+
+    <!-- Delete confirmation modal -->
+    <template lwc:if={showDeleteConfirm}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
+            aria-modal="true" aria-labelledby="delete-heading">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header slds-theme_error">
+                    <lightning-button-icon icon-name="utility:close" alternative-text="Close"
+                        class="slds-modal__close" variant="inverse" onclick={handleDeleteCancel}>
+                    </lightning-button-icon>
+                    <h1 id="delete-heading" class="slds-modal__title">
+                        Delete Flag
+                    </h1>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p class="slds-m-bottom_small">
+                        Are you sure you want to delete
+                        <strong>{flagDetail.summary.developerName}</strong>?
+                    </p>
+                    <p class="slds-m-bottom_small slds-text-color_weak">
+                        This will also cascade-delete {deleteChildCount}.
+                    </p>
+                    <template lwc:if={flagDetail.source}>
+                        <template lwc:if={isDeployedSource}>
+                            <div class="slds-box slds-box_x-small slds-theme_info slds-m-bottom_small">
+                                <p class="slds-text-body_small">
+                                    This CMDT flag will be soft-deleted (Pending_Removal) and
+                                    deactivated immediately. A Metadata API deployment will be
+                                    queued to fully remove it.
+                                </p>
+                            </div>
+                        </template>
+                    </template>
+                    <p class="slds-text-color_error">
+                        <strong>This action cannot be undone.</strong>
+                    </p>
+                </div>
+                <div class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleDeleteCancel}></lightning-button>
+                    <lightning-button label={deleteButtonLabel} variant="destructive"
+                        onclick={handleDeleteConfirm} disabled={isDeleting}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Per-user/profile configuration for FlipSwitch. Override logging and flag behavior per user or profile.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Default_Save_Method__c</fullName>
+        <defaultValue>&quot;EVENT_BUS&quot;</defaultValue>
+        <description>How evaluation logs are saved. EVENT_BUS = Platform Event (default), QUEUEABLE = async job, SYNCHRONOUS = direct DML (debug only).</description>
+        <label>Default Save Method</label>
+        <length>20</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Is_Logging_Enabled__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Set to false to disable evaluation logging for this user/profile. Useful for high-volume service users.</description>
+        <label>Is Logging Enabled</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Override_All_Flags__c</fullName>
+        <defaultValue>&quot;None&quot;</defaultValue>
+        <description>QA/testing override. Enable_All forces all flags on; Disable_All forces all flags off. Use None for normal evaluation.</description>
+        <label>Override All Flags</label>
+        <length>20</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>FlipSwitch Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>
