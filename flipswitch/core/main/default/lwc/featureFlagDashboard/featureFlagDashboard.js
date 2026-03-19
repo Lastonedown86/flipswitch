@@ -463,17 +463,17 @@ export default class FeatureFlagDashboard extends LightningElement {
     async handleBulkDelete() {
         if (this.selectedKeys.size === 0) return;
         const flagKeys = Array.from(this.selectedKeys);
-        // eslint-disable-next-line no-alert
+        // eslint-disable-next-line no-alert, no-restricted-globals
         if (!confirm(`Delete ${flagKeys.length} flag(s) and all associated rules, variants, and assignments? This cannot be undone.`)) {
             return;
         }
         this.isLoading = true;
         try {
-            for (const key of flagKeys) {
+            await Promise.all(flagKeys.map(key => {
                 const flag = this.rawFlags.find(f => f.developerName === key);
                 const source = flag?.source ?? 'Code';
-                await deleteFlag({ flagKey: key, source });
-            }
+                return deleteFlag({ flagKey: key, source });
+            }));
             await refreshApex(this._wiredFlags);
             this.selectedKeys = new Set();
             this.dispatchEvent(new ShowToastEvent({

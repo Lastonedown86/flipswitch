@@ -68,6 +68,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
 
     async _subscribeToEvents() {
         onError(error => {
+            // eslint-disable-next-line no-console
             console.error('[FeatureFlagEvalLogs] EMP API error:', error);
             this.isStreaming = false;
         });
@@ -80,6 +81,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
             );
             this.isStreaming = true;
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('[FeatureFlagEvalLogs] Subscribe failed:', err);
             this.isStreaming = false;
         }
@@ -121,10 +123,12 @@ export default class FeatureFlagEvalLogs extends LightningElement {
         return SAMPLING_RATE_NOTICE;
     }
 
+    // eslint-disable-next-line no-dupe-class-members
     get isStreaming() {
         return this._isStreaming;
     }
 
+    // eslint-disable-next-line no-dupe-class-members
     set isStreaming(value) {
         this._isStreaming = value;
     }

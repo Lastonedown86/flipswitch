@@ -1,3 +1,4 @@
+/* eslint-disable @lwc/lwc/prefer-custom-event */
 import { createElement } from 'lwc';
 import FeatureFlagFormModal from 'c/featureFlagFormModal';
 
@@ -13,6 +14,7 @@ function createComponent(props = {}) {
 }
 
 async function flushPromises() {
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
     return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
@@ -152,6 +154,7 @@ describe('c-feature-flag-form-modal', () => {
     it('handles null flag gracefully in setFlagData', () => {
         const element = createComponent({ mode: 'edit' });
         element.setFlagData(null);
+        expect(element).toBeTruthy();
     });
 
     // ── Event dispatching ─────────────────────────────────────────────────

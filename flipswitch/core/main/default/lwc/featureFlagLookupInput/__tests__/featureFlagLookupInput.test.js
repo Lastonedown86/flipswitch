@@ -1,3 +1,4 @@
+/* eslint-disable @lwc/lwc/prefer-custom-event */
 import { createElement } from 'lwc';
 import FeatureFlagLookupInput from 'c/featureFlagLookupInput';
 

@@ -69,6 +69,7 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     handleEmergencyDisableBannerClick() {
         this.activeTab = 'dashboard';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             const dashboardEl = this.template.querySelector('c-feature-flag-dashboard');
             if (dashboardEl) {
@@ -79,6 +80,7 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     handleActiveClick() {
         this.activeTab = 'dashboard';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             const el = this.template.querySelector('c-feature-flag-dashboard');
             if (el) el.filterByStatus('active');
@@ -87,6 +89,7 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     handleExpiringClick() {
         this.activeTab = 'dashboard';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             const el = this.template.querySelector('c-feature-flag-dashboard');
             if (el) el.filterByStatus('expiring');
@@ -95,6 +98,7 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     handleEmergencyClick() {
         this.activeTab = 'dashboard';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             const el = this.template.querySelector('c-feature-flag-dashboard');
             if (el) el.filterByStatus('emergencydisabled');
@@ -103,6 +107,7 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     handleCircuitBreakerClick() {
         this.activeTab = 'logs';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             const el = this.template.querySelector('c-feature-flag-eval-logs');
             if (el) el.filterByReason('CIRCUIT_BREAKER');
@@ -117,6 +122,7 @@ export default class FeatureFlagAdmin extends LightningElement {
             variant: 'error',
             mode: 'sticky'
         }));
+        // eslint-disable-next-line no-console
         console.error('[featureFlagAdmin] Error:', error, stack);
     }
 }

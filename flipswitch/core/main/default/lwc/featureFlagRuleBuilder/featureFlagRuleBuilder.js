@@ -221,7 +221,6 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
     }
 
     _enrichRule(r, idx) {
-        const now    = new Date();
         const start  = r.Start_Date__c ? new Date(r.Start_Date__c) : null;
         const end    = r.End_Date__c   ? new Date(r.End_Date__c)   : null;
         const isScheduled = !!(start || end);
@@ -542,7 +541,7 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
         const field = event.currentTarget.dataset.field;
         const value = event.target.value;
         this.localVariants = this.localVariants.map(v =>
-            v.id === id ? { ...v, [field]: field === 'weight' ? Number(value) : value } : v
+            (v.id === id ? { ...v, [field]: field === 'weight' ? Number(value) : value } : v)
         );
     }
 
@@ -569,7 +568,7 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
             // Replace temp id with real Id if new
             if (isNew) {
                 this.localVariants = this.localVariants.map(v =>
-                    v.id === id ? { ...v, id: saved.Id } : v
+                    (v.id === id ? { ...v, id: saved.Id } : v)
                 );
             }
             this.dispatchEvent(new CustomEvent('variantschanged'));

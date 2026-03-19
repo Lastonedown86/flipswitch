@@ -31,7 +31,6 @@ jest.mock(
 );
 
 import createFlag from '@salesforce/apex/FeatureFlagAdminController.createFlag';
-import deleteFlag from '@salesforce/apex/FeatureFlagAdminController.deleteFlag';
 
 // ─── Test data ──────────────────────────────────────────────────────────────
 
@@ -110,6 +109,7 @@ function createComponent() {
  * Flush all pending microtasks so LWC re-renders.
  */
 async function flushPromises() {
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
     return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
