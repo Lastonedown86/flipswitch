@@ -1,21 +1,16 @@
 import { createElement } from 'lwc';
 import FeatureFlagAdmin from 'c/featureFlagAdmin';
 import { registerApexTestWireAdapter } from '@salesforce/sfdx-lwc-jest';
-import getAllFlags from '@salesforce/apex/FeatureFlag.getAllFlags';
+import getOrgHealth from '@salesforce/apex/FeatureFlagAdminController.getOrgHealth';
 
-const mockGetAllFlags = registerApexTestWireAdapter(getAllFlags);
+const mockGetOrgHealth = registerApexTestWireAdapter(getOrgHealth);
 
-const MOCK_FLAGS = [
-    {
-        DeveloperName: 'SAMPLE_BOOLEAN_FLAG',
-        Label: 'Sample Boolean Flag',
-        Type__c: 'Boolean',
-        Is_Active__c: true,
-        Default_Value__c: 'false',
-        Category__c: 'Sample',
-        Expiration_Date__c: null
-    }
-];
+const MOCK_HEALTH = {
+    totalActive: 5,
+    expiringSoon: 1,
+    emergencyDisabled: 0,
+    circuitBreakers: 2
+};
 
 describe('c-feature-flag-admin', () => {
     afterEach(() => {
@@ -27,31 +22,20 @@ describe('c-feature-flag-admin', () => {
     it('renders the component without errors', () => {
         const element = createElement('c-feature-flag-admin', { is: FeatureFlagAdmin });
         document.body.appendChild(element);
-        expect(element.shadowRoot.querySelector('lightning-card')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('.flipswitch-admin')).not.toBeNull();
     });
 
-    it('renders datatable when flags are loaded', async () => {
+    it('renders health strip when org health is loaded', async () => {
         const element = createElement('c-feature-flag-admin', { is: FeatureFlagAdmin });
         document.body.appendChild(element);
 
-        mockGetAllFlags.emit(MOCK_FLAGS);
+        mockGetOrgHealth.emit(MOCK_HEALTH);
         await Promise.resolve();
 
-        const datatable = element.shadowRoot.querySelector('lightning-datatable');
-        expect(datatable).not.toBeNull();
-        expect(datatable.data.length).toBe(1);
-    });
-
-    it('shows error message when flags fail to load', async () => {
-        const element = createElement('c-feature-flag-admin', { is: FeatureFlagAdmin });
-        document.body.appendChild(element);
-
-        mockGetAllFlags.error({ body: { message: 'Apex error' } });
-        await Promise.resolve();
-
-        const errorEl = element.shadowRoot.querySelector('.slds-text-color_error');
-        expect(errorEl).not.toBeNull();
-        expect(errorEl.textContent).toContain('Error loading flags');
+        const healthStrip = element.shadowRoot.querySelector('.health-strip');
+        expect(healthStrip).not.toBeNull();
+        const tiles = element.shadowRoot.querySelectorAll('.health-tile');
+        expect(tiles.length).toBe(4);
     });
 
     it('renders tabset with expected tabs', () => {

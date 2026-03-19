@@ -115,7 +115,7 @@ describe('c-feature-flag-dashboard', () => {
 
     it('renders the component without errors', () => {
         const element = createComponent();
-        const card = element.shadowRoot.querySelector('lightning-card');
+        const card = element.shadowRoot.querySelector('.dashboard-card');
         expect(card).not.toBeNull();
     });
 
