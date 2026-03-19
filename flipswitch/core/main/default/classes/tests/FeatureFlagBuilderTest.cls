@@ -24,7 +24,7 @@ private class FeatureFlagBuilderTest {
         Test.startTest();
         Boolean result = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG').isEnabled();
         Test.stopTest();
-        System.assertEquals(true, result);
+        System.assertEquals(true, result, 'User rule should enable flag');
     }
 
     @IsTest
@@ -33,7 +33,7 @@ private class FeatureFlagBuilderTest {
         Boolean result = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG').isEnabled();
         Test.stopTest();
         // Default_Value__c = 'false' on the CMDT sample record
-        System.assertEquals(false, result);
+        System.assertEquals(false, result, 'Flag with no matching rules should return CMDT default (false)');
     }
 
     // ─── getVariant terminal ──────────────────────────────────────────────
@@ -55,7 +55,7 @@ private class FeatureFlagBuilderTest {
         String variant = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG').getVariant();
         Test.stopTest();
 
-        System.assertEquals('treatment_a', variant);
+        System.assertEquals('treatment_a', variant, 'Should return the variant value from matching rule');
     }
 
     // ─── fallback ─────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ private class FeatureFlagBuilderTest {
             .isEnabled();
         Test.stopTest();
 
-        System.assertEquals(true, result);
+        System.assertEquals(true, result, '.withAttributes should trigger segment rule');
     }
 
     // ─── silent ───────────────────────────────────────────────────────────
@@ -234,21 +234,21 @@ private class FeatureFlagBuilderTest {
             .isEnabled();
         Test.stopTest();
         // The scenario is set — no exception, buffer should have 1 entry
-        System.assertEquals(1, FeatureFlagLogger.getBufferSize());
+        System.assertEquals(1, FeatureFlagLogger.getBufferSize(), 'Scenario should buffer one log entry');
     }
 
-    // ─── Fluent chaining (each method returns FeatureFlagBuilder) ─────────
+    // ─── Fluent chaining ──────────────────────────────────────────────────
 
     @IsTest
     static void testFluentChainReturnsSelf() {
         Test.startTest();
         FeatureFlagBuilder b = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG');
-        System.assertNotEquals(null, b.forUser(UserInfo.getUserId()));
-        System.assertNotEquals(null, b.withAttribute('k', 'v'));
-        System.assertNotEquals(null, b.withAttributes(new Map<String, Object>{ 'x' => 1 }));
-        System.assertNotEquals(null, b.fallback(false));
-        System.assertNotEquals(null, b.silent());
-        System.assertNotEquals(null, b.inScenario('test'));
+        System.assertNotEquals(null, b.forUser(UserInfo.getUserId()), '.forUser() should return builder');
+        System.assertNotEquals(null, b.withAttribute('k', 'v'), '.withAttribute() should return builder');
+        System.assertNotEquals(null, b.withAttributes(new Map<String, Object>{ 'x' => 1 }), '.withAttributes() should return builder');
+        System.assertNotEquals(null, b.fallback(false), '.fallback() should return builder');
+        System.assertNotEquals(null, b.silent(), '.silent() should return builder');
+        System.assertNotEquals(null, b.inScenario('test'), '.inScenario() should return builder');
         Test.stopTest();
     }
 
@@ -261,17 +261,36 @@ private class FeatureFlagBuilderTest {
         FeatureFlagResult result = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG').evaluate();
         Test.stopTest();
 
-        System.assertNotEquals(null, result);
-        System.assertEquals(true, result.isEnabled);
-        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
+        System.assertNotEquals(null, result, 'evaluate() should return a non-null result');
+        System.assertEquals(true, result.isEnabled, 'Flag with matching user rule should be enabled');
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason, 'Reason should be RULE_MATCH');
     }
 
     // ─── Test helper ─────────────────────────────────────────────────────
 
+    /** @description Test helper to capture callback invocations. */
     private class CallbackCapture implements FeatureFlagHandler {
         public Boolean wasCalled = false;
         public void handle() {
             wasCalled = true;
         }
+    }
+
+    // ─── Fallback on NOT_CONFIGURED ───────────────────────────────────────
+
+    @IsTest
+    static void testFallbackAppliesToNotConfiguredFlags() {
+        Test.startTest();
+        Boolean withFallback = FeatureFlag.flag('NONEXISTENT_FOR_FALLBACK')
+            .fallback(true)
+            .isEnabled();
+        Boolean withoutFallback = FeatureFlag.flag('NONEXISTENT_FOR_NOFALLBACK')
+            .isEnabled();
+        Test.stopTest();
+
+        System.assertEquals(true, withFallback,
+            'Fallback(true) should return true for NOT_CONFIGURED flag');
+        System.assertEquals(false, withoutFallback,
+            'Without fallback, NOT_CONFIGURED flag should return false');
     }
 }

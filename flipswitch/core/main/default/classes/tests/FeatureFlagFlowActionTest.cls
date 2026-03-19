@@ -11,9 +11,9 @@ private class FeatureFlagFlowActionTest {
             FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
         Test.stopTest();
 
-        System.assertEquals(1, outputs.size());
-        System.assertNotEquals(null, outputs[0].isEnabled);
-        System.assertNotEquals(null, outputs[0].reason);
+        System.assertEquals(1, outputs.size(), 'Should return one output');
+        System.assertNotEquals(null, outputs[0].isEnabled, 'isEnabled should not be null');
+        System.assertNotEquals(null, outputs[0].reason, 'reason should not be null');
     }
 
     @IsTest
@@ -31,7 +31,7 @@ private class FeatureFlagFlowActionTest {
 
         System.assertEquals(20, outputs.size(), 'Output count must match input count');
         for (FeatureFlagFlowAction.FlowOutput output : outputs) {
-            System.assertNotEquals(null, output.isEnabled);
+            System.assertNotEquals(null, output.isEnabled, 'Each output isEnabled should not be null');
         }
     }
 
@@ -46,8 +46,8 @@ private class FeatureFlagFlowActionTest {
             FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
         Test.stopTest();
 
-        System.assertEquals(1, outputs.size());
-        System.assertNotEquals(null, outputs[0].isEnabled);
+        System.assertEquals(1, outputs.size(), 'Should return one output');
+        System.assertNotEquals(null, outputs[0].isEnabled, 'isEnabled should not be null');
     }
 
     @IsTest
@@ -74,7 +74,7 @@ private class FeatureFlagFlowActionTest {
         Test.stopTest();
 
         System.assertEquals(true, outputs[0].isEnabled, 'User rule should enable flag for specified user');
-        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, outputs[0].reason);
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, outputs[0].reason, 'Reason should be RULE_MATCH for matched user rule');
     }
 
     @IsTest
@@ -87,9 +87,9 @@ private class FeatureFlagFlowActionTest {
             FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>{ input });
         Test.stopTest();
 
-        System.assertEquals(1, outputs.size());
-        System.assertEquals(false, outputs[0].isEnabled);
-        System.assertEquals(FeatureFlagResult.REASON_ERROR, outputs[0].reason);
+        System.assertEquals(1, outputs.size(), 'Should return one output');
+        System.assertEquals(false, outputs[0].isEnabled, 'Blank flag key should return disabled');
+        System.assertEquals(FeatureFlagResult.REASON_ERROR, outputs[0].reason, 'Blank flag key should return ERROR reason');
     }
 
     @IsTest
@@ -98,6 +98,6 @@ private class FeatureFlagFlowActionTest {
         List<FeatureFlagFlowAction.FlowOutput> outputs =
             FeatureFlagFlowAction.evaluate(new List<FeatureFlagFlowAction.FlowInput>());
         Test.stopTest();
-        System.assertEquals(0, outputs.size());
+        System.assertEquals(0, outputs.size(), 'Empty input should return empty output');
     }
 }

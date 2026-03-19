@@ -96,7 +96,7 @@
 
 .reason-badge_rule       { background: #e8f0fe; color: #0176d3; }
 .reason-badge_default    { background: #e0e5ee; color: #3e3e3c; }
-.reason-badge_killswitch { background: #c23934; color: white; }
+.reason-badge_emergency-disable { background: #c23934; color: white; }
 .reason-badge_expired    { background: #fde8c7; color: #b05604; }
 .reason-badge_cache      { background: #ece7f2; color: #5a1ba9; }
 .reason-badge_error      { background: #fddde5; color: #c23934; }

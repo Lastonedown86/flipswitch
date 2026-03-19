@@ -5,15 +5,22 @@
  *              Uses an upsert on Flag_Key__c (external ID) to update-or-create
  *              the metric for each flag.
  */
+@SuppressWarnings('PMD.ApexCRUDViolation, PMD.StdCyclomaticComplexity, PMD.CyclomaticComplexity, PMD.CognitiveComplexity')
 public inherited sharing class FeatureFlagEvaluationTriggerHandler {
 
+    /**
+     * @description Aggregate platform events into FlipSwitch_Metric__c records.
+     * @param events  List of evaluation platform events to process
+     */
     public static void handleEvaluationEvents(List<FlipSwitch_Evaluation__e> events) {
         // Accumulate counts per flag key
         Map<String, Integer> evalCounts  = new Map<String, Integer>();
         Map<String, Set<String>> userSets = new Map<String, Set<String>>();
 
         for (FlipSwitch_Evaluation__e event : events) {
-            if (String.isBlank(event.Flag_Key__c)) continue;
+            if (String.isBlank(event.Flag_Key__c)) {
+                continue;
+            }
 
             String key = event.Flag_Key__c;
 
@@ -29,7 +36,9 @@ public inherited sharing class FeatureFlagEvaluationTriggerHandler {
             }
         }
 
-        if (evalCounts.isEmpty()) return;
+        if (evalCounts.isEmpty()) {
+            return;
+        }
 
         // Load existing metrics for upsert
         Map<String, FlipSwitch_Metric__c> existingMetrics = new Map<String, FlipSwitch_Metric__c>();

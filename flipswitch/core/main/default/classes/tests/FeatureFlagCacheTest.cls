@@ -9,7 +9,9 @@ private class FeatureFlagCacheTest {
         Test.stopTest();
         // In test context, Platform Cache may not be available (no partition).
         // The contract is: no exception thrown. Value may or may not be cached.
-        System.assert(true, 'No exception should be thrown on cache put/get');
+        // result is null when cache partition is unavailable — that's expected
+        System.assert(result == null || result == 'cachedValue',
+            'Cache should return cached value or null if partition unavailable');
     }
 
     @IsTest
@@ -39,7 +41,8 @@ private class FeatureFlagCacheTest {
         FeatureFlagResult result = FeatureFlagCache.getEvaluation(userId, 'EVAL_FLAG');
         Test.stopTest();
         // No exception is the core assertion; result may be null if no cache partition
-        System.assert(true, 'No exception thrown on evaluation cache put/get');
+        System.assert(result == null || result.isEnabled,
+            'Cache should return the cached result or null if partition unavailable');
     }
 
     @IsTest

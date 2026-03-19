@@ -20,20 +20,20 @@ private class FeatureFlagTest {
         Boolean result = FeatureFlag.isEnabled('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
         // Default_Value__c = 'false' on the CMDT sample record
-        System.assertEquals(false, result);
+        System.assertEquals(false, result, 'isEnabled should return false when no matching rule exists');
     }
 
     @IsTest
-    static void testStaticIsEnabledReturnsTrueWhenRuleMatches() {
+    static void testStaticIsEnabledReturnsTrueWithRule() {
         insertEnableRule();
         Test.startTest();
         Boolean result = FeatureFlag.isEnabled('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
-        System.assertEquals(true, result);
+        System.assertEquals(true, result, 'isEnabled should return true when a matching user rule exists');
     }
 
     @IsTest
-    static void testStaticGetVariantReturnsString() {
+    static void testStaticGetVariant() {
         Test.startTest();
         String variant = FeatureFlag.getVariant('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
@@ -59,7 +59,7 @@ private class FeatureFlagTest {
     @IsTest
     static void testFlagsOverloadTwoArgs() {
         FeatureFlagBatchBuilder builder = FeatureFlag.flags('SAMPLE_BOOLEAN_FLAG', 'SAMPLE_BOOLEAN_FLAG');
-        System.assertNotEquals(null, builder);
+        System.assertNotEquals(null, builder, 'flags(2-args) should return a non-null batch builder');
     }
 
     @IsTest
@@ -67,10 +67,10 @@ private class FeatureFlagTest {
         FeatureFlagBatchBuilder builder = FeatureFlag.flags(
             'SAMPLE_BOOLEAN_FLAG', 'SAMPLE_BOOLEAN_FLAG', 'SAMPLE_BOOLEAN_FLAG'
         );
-        System.assertNotEquals(null, builder);
+        System.assertNotEquals(null, builder, 'flags(3-args) should return a non-null batch builder');
     }
 
-    // ─── Transaction controls ─────────────────────────────────────────────
+    // ─── Logging controls ──────────────────────────────────────────────────
 
     @IsTest
     static void testSuspendLoggingPreventsBuffering() {
@@ -114,7 +114,7 @@ private class FeatureFlagTest {
         FeatureFlag.isEnabled('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
         // Verify scenario was set — buffer should have entry
-        System.assertEquals(1, FeatureFlagLogger.getBufferSize());
+        System.assertEquals(1, FeatureFlagLogger.getBufferSize(), 'Buffer should have 1 entry after setScenario + evaluation');
         // Reset scenario for test isolation
         FeatureFlag.setScenario(null);
     }
@@ -136,7 +136,7 @@ private class FeatureFlagTest {
         Test.startTest();
         Boolean result = FeatureFlag.isEnabledForCurrentUser('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
-        System.assertNotEquals(null, result);
+        System.assertNotEquals(null, result, 'isEnabledForCurrentUser should return a non-null Boolean');
     }
 
     @IsTest
@@ -144,7 +144,7 @@ private class FeatureFlagTest {
         Test.startTest();
         String result = FeatureFlag.getVariantForCurrentUser('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
-        System.assertNotEquals(null, result);
+        System.assertNotEquals(null, result, 'getVariantForCurrentUser should return a non-null string');
     }
 
     @IsTest
@@ -154,7 +154,7 @@ private class FeatureFlagTest {
             new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
         );
         Test.stopTest();
-        System.assert(results.containsKey('SAMPLE_BOOLEAN_FLAG'));
+        System.assert(results.containsKey('SAMPLE_BOOLEAN_FLAG'), 'evaluateFlagsForCurrentUser should include the requested flag key');
     }
 
     @IsTest
@@ -166,15 +166,49 @@ private class FeatureFlagTest {
     }
 
     @IsTest
-    static void testActivateAndDeactivateKillSwitch() {
+    static void testActivateAndDeactivateEmergencyDisable() {
         Test.startTest();
-        FeatureFlag.activateKillSwitch('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlag.activateEmergencyDisable('SAMPLE_BOOLEAN_FLAG');
         Boolean afterActivation = FeatureFlag.isEnabled('SAMPLE_BOOLEAN_FLAG');
-        FeatureFlag.deactivateKillSwitch('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlag.deactivateEmergencyDisable('SAMPLE_BOOLEAN_FLAG');
         Boolean afterDeactivation = FeatureFlag.isEnabled('SAMPLE_BOOLEAN_FLAG');
         Test.stopTest();
 
-        System.assertEquals(false, afterActivation,   'Kill switch should disable the flag');
+        System.assertEquals(false, afterActivation,   'Emergency disable should disable the flag');
         System.assertEquals(false, afterDeactivation, 'After deactivation, default (false) applies');
+    }
+
+    // ─── Flag definition API ──────────────────────────────────────────────
+
+    @IsTest
+    static void testDefineReturnsDefinitionBuilder() {
+        FeatureFlagDefinition def = FeatureFlag.define('DEFINE_API_TEST');
+        System.assertNotEquals(null, def, 'define() should return a non-null FeatureFlagDefinition');
+    }
+
+    @IsTest
+    static void testRegisterCreatesRegistryRecord() {
+        Test.startTest();
+        FeatureFlag.register('REGISTER_API_TEST');
+        Test.stopTest();
+
+        Integer count = [
+            SELECT COUNT()
+            FROM   FlipSwitch_Flag_Registry__c
+            WHERE  Flag_Key__c = 'REGISTER_API_TEST'
+        ];
+        System.assertEquals(1, count, 'register() should create a registry record');
+    }
+
+    @IsTest
+    static void testIsEnabledWithFallbackForCodeDefinedFlag() {
+        Test.startTest();
+        Boolean result = FeatureFlag.flag('NEVER_DEPLOYED_FLAG')
+            .fallback(true)
+            .isEnabled();
+        Test.stopTest();
+
+        System.assertEquals(true, result,
+            'Fallback should apply for code-defined flag with NOT_CONFIGURED reason');
     }
 }

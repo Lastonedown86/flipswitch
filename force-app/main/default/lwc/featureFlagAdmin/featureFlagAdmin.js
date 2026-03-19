@@ -6,7 +6,7 @@ import { refreshApex } from '@salesforce/apex';
 /**
  * @description Shell component for the FlipSwitch Admin app.
  *              Manages global tab navigation, the org health strip,
- *              the kill-switch alert banner, and cross-tab state
+ *              the emergency-disable alert banner, and cross-tab state
  *              (selected flag key flows to detail / logs / analytics tabs).
  */
 export default class FeatureFlagAdmin extends LightningElement {
@@ -15,6 +15,9 @@ export default class FeatureFlagAdmin extends LightningElement {
 
     /** Flag key selected in the dashboard — shared with detail/logs/analytics tabs */
     selectedFlagKey;
+
+    /** Controls the slide-in detail drawer */
+    isDrawerOpen = false;
 
     /** Wired result stored for refreshApex */
     _wiredHealth;
@@ -30,17 +33,17 @@ export default class FeatureFlagAdmin extends LightningElement {
         return this._wiredHealth?.data ?? {
             totalActive: 0,
             expiringSoon: 0,
-            killSwitched: 0,
+            emergencyDisabled: 0,
             circuitBreakers: 0
         };
     }
 
-    get hasKillSwitchedFlags() {
-        return this.orgHealth.killSwitched > 0;
+    get hasEmergencyDisabledFlags() {
+        return this.orgHealth.emergencyDisabled > 0;
     }
 
-    get killSwitchedCount() {
-        return this.orgHealth.killSwitched;
+    get emergencyDisabledCount() {
+        return this.orgHealth.emergencyDisabled;
     }
 
     // ─── Event handlers ──────────────────────────────────────────────────────
@@ -52,21 +55,25 @@ export default class FeatureFlagAdmin extends LightningElement {
     /** Fired by featureFlagDashboard when a row is clicked */
     handleViewFlag(event) {
         this.selectedFlagKey = event.detail.flagKey;
-        this.activeTab = 'detail';
+        this.isDrawerOpen = true;
     }
 
-    /** Fired by featureFlagDashboard or featureFlagDetail on kill-switch toggle */
-    handleKillSwitchToggled() {
+    handleCloseDrawer() {
+        this.isDrawerOpen = false;
+    }
+
+    /** Fired by featureFlagDashboard or featureFlagDetail on emergency-disable toggle */
+    handleEmergencyDisableToggled() {
         refreshApex(this._wiredHealth);
     }
 
-    /** Banner link: jump to dashboard filtered to kill-switched flags */
-    handleKillSwitchBannerClick() {
+    /** Banner link: jump to dashboard filtered to emergency-disabled flags */
+    handleEmergencyDisableBannerClick() {
         this.activeTab = 'dashboard';
         // Communicate filter intent to dashboard via a custom event on its element
         const dashboardEl = this.template.querySelector('c-feature-flag-dashboard');
         if (dashboardEl) {
-            dashboardEl.filterByStatus('killswitch');
+            dashboardEl.filterByStatus('emergencydisable');
         }
     }
 

@@ -12,6 +12,7 @@
  *              FeatureFlag.flag('MY_FLAG').forUser(id).withAttribute('k','v').isEnabled()
  *              FeatureFlag.flags('A','B').forUser(id).evaluateAll()
  */
+@SuppressWarnings('PMD.ApexCRUDViolation, PMD.ExcessivePublicCount')
 public inherited sharing class FeatureFlag {
 
     /**
@@ -51,6 +52,7 @@ public inherited sharing class FeatureFlag {
     /**
      * @description Create a fluent single-flag builder.
      * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
+     * @return         FeatureFlagBuilder instance
      */
     public static FeatureFlagBuilder flag(String flagKey) {
         return new FeatureFlagBuilder(flagKey);
@@ -58,18 +60,64 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Create a fluent multi-flag batch builder.
-     * @param flagKeys  Comma-separated or List of DeveloperNames
+     * @param flagKey1  First flag DeveloperName
+     * @param flagKey2  Second flag DeveloperName
+     * @return          FeatureFlagBatchBuilder instance
      */
     public static FeatureFlagBatchBuilder flags(String flagKey1, String flagKey2) {
         return new FeatureFlagBatchBuilder(new List<String>{ flagKey1, flagKey2 });
     }
 
+    /** @description Create a fluent multi-flag batch builder (3 args).
+     *  @param flagKey1  First flag DeveloperName
+     *  @param flagKey2  Second flag DeveloperName
+     *  @param flagKey3  Third flag DeveloperName
+     *  @return          FeatureFlagBatchBuilder instance
+     */
     public static FeatureFlagBatchBuilder flags(String flagKey1, String flagKey2, String flagKey3) {
         return new FeatureFlagBatchBuilder(new List<String>{ flagKey1, flagKey2, flagKey3 });
     }
 
+    /** @description Create a fluent multi-flag batch builder (list).
+     *  @param flagKeys  List of flag DeveloperNames
+     *  @return          FeatureFlagBatchBuilder instance
+     */
     public static FeatureFlagBatchBuilder flags(List<String> flagKeys) {
         return new FeatureFlagBatchBuilder(flagKeys);
+    }
+
+    // ─── Flag definition API ──────────────────────────────────────────────
+
+    /**
+     * @description Create a fluent flag definition builder for inline declaration.
+     *              Use this to self-document flag metadata in code and auto-register
+     *              the flag in the runtime registry so the admin dashboard discovers
+     *              it without a metadata deployment.
+     *
+     *              Idempotent — safe to call every transaction. Existing records
+     *              are only updated for fields that are currently null/blank.
+     *
+     *              FeatureFlag.define('NEW_CHECKOUT')
+     *                  .type('Boolean')
+     *                  .category('Checkout')
+     *                  .description('Redesigned checkout flow')
+     *                  .register();
+     *
+     * @param flagKey  Unique flag identifier (DeveloperName convention)
+     * @return         FeatureFlagDefinition fluent builder
+     */
+    public static FeatureFlagDefinition define(String flagKey) {
+        return new FeatureFlagDefinition(flagKey);
+    }
+
+    /**
+     * @description Register a flag key with safe defaults (Boolean, disabled).
+     *              Shorthand for FeatureFlag.define(flagKey).register().
+     *              Useful in setup scripts, post-install handlers, and test setup.
+     * @param flagKey  Unique flag identifier (DeveloperName convention)
+     */
+    public static void register(String flagKey) {
+        FeatureFlagRegistry.registerIfNew(flagKey);
     }
 
     // ─── Transaction controls (NebulaLogger pattern) ──────────────────────
@@ -109,6 +157,7 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Override the save method for this transaction.
+     * @param method  The SaveMethod enum value to use
      */
     public static void setSaveMethod(SaveMethod method) {
         FeatureFlagLogger.setSaveMethod(method);
@@ -118,6 +167,8 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Evaluate a flag for the running user. Used by featureFlagGate LWC.
+     * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
+     * @return         true if the flag is enabled
      */
     @AuraEnabled(cacheable=true)
     public static Boolean isEnabledForCurrentUser(String flagKey) {
@@ -126,6 +177,8 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Get the variant for the running user. Used by featureFlagVariant LWC.
+     * @param flagKey  FlipSwitch_Flag__mdt DeveloperName
+     * @return         Variant key string
      */
     @AuraEnabled(cacheable=true)
     public static String getVariantForCurrentUser(String flagKey) {
@@ -135,6 +188,8 @@ public inherited sharing class FeatureFlag {
     /**
      * @description Batch evaluate multiple flags for LWC service module.
      *              Returns a JSON-serializable map.
+     * @param flagKeys  List of flag DeveloperNames
+     * @return          Map of flagKey to evaluation result
      */
     @AuraEnabled(cacheable=true)
     public static Map<String, Object> evaluateFlagsForCurrentUser(List<String> flagKeys) {
@@ -153,6 +208,7 @@ public inherited sharing class FeatureFlag {
 
     /**
      * @description Get all feature flags for the admin dashboard.
+     * @return  List of all FlipSwitch_Flag__mdt records
      */
     @AuraEnabled(cacheable=true)
     public static List<FlipSwitch_Flag__mdt> getAllFlags() {
@@ -165,36 +221,38 @@ public inherited sharing class FeatureFlag {
     }
 
     /**
-     * @description Create a kill switch rule for a flag.
-     *              Called from the admin UI kill switch button.
+     * @description Create an emergency disable rule for a flag.
+     *              Called from the admin UI emergency disable button.
+     * @param flagKey  DeveloperName of the flag to emergency-disable
      */
     @AuraEnabled
-    public static void activateKillSwitch(String flagKey) {
-        FlipSwitch_Rule__c killRule = new FlipSwitch_Rule__c(
-            Name                = 'Kill Switch — ' + flagKey,
+    public static void activateEmergencyDisable(String flagKey) {
+        FlipSwitch_Rule__c disableRule = new FlipSwitch_Rule__c(
+            Name                = 'Emergency Disable — ' + flagKey,
             Flag_Key__c = flagKey,
-            Rule_Type__c        = 'Kill_Switch',
+            Rule_Type__c        = 'Emergency_Disable',
             Priority__c         = 1,
             Is_Active__c        = true
         );
-        insert killRule;
-        // Invalidate cache so the kill switch takes effect immediately
+        insert disableRule;
+        // Invalidate cache so the emergency disable takes effect immediately
         FeatureFlagCache.removeFlag(flagKey);
     }
 
     /**
-     * @description Remove a kill switch rule for a flag (re-enable).
+     * @description Remove an emergency disable rule for a flag (re-enable).
+     * @param flagKey  DeveloperName of the flag to re-enable
      */
     @AuraEnabled
-    public static void deactivateKillSwitch(String flagKey) {
-        List<FlipSwitch_Rule__c> killRules = [
+    public static void deactivateEmergencyDisable(String flagKey) {
+        List<FlipSwitch_Rule__c> disableRules = [
             SELECT Id FROM FlipSwitch_Rule__c
             WHERE Flag_Key__c = :flagKey
-              AND Rule_Type__c = 'Kill_Switch'
+              AND Rule_Type__c = 'Emergency_Disable'
               AND Is_Active__c = TRUE
         ];
-        if (!killRules.isEmpty()) {
-            delete killRules;
+        if (!disableRules.isEmpty()) {
+            delete disableRules;
         }
         FeatureFlagCache.removeFlag(flagKey);
     }

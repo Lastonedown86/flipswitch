@@ -1,7 +1,7 @@
 # Plan: Salesforce Progressive Delivery Feature Flag Framework
 
 ## TL;DR
-Build an unlocked-package-based Progressive Delivery framework for Salesforce that brings feature flags, percentage rollouts, user targeting, multi-variant experiments, and kill switches to Apex, LWC, and Flows. Uses a hybrid storage model: Custom Metadata Types for CI/CD-deployable flag definitions + Custom Objects for runtime targeting rules and overrides. Includes an admin LWC UI, evaluation logging via Platform Events, and a clean static API (`FeatureFlag.isEnabled('MY_FLAG')`).
+Build an unlocked-package-based Progressive Delivery framework for Salesforce that brings feature flags, percentage rollouts, user targeting, multi-variant experiments, and emergency disable to Apex, LWC, and Flows. Uses a hybrid storage model: Custom Metadata Types for CI/CD-deployable flag definitions + Custom Objects for runtime targeting rules and overrides. Includes an admin LWC UI, evaluation logging via Platform Events, and a clean static API (`FeatureFlag.isEnabled('MY_FLAG')`).
 
 ---
 
@@ -20,7 +20,7 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
    - `Description__c` (LongTextArea) — purpose and owner
    - `Type__c` (Picklist) — `Boolean` | `Variant` | `Percentage`
    - `Default_Value__c` (Text) — default when no targeting rules match (e.g. `false`, `control`)
-   - `Is_Active__c` (Checkbox) — master kill switch
+   - `Is_Active__c` (Checkbox) — master disable
    - `Expiration_Date__c` (Date) — auto-expiration date (null = never)
    - `Category__c` (Text) — grouping for admin UI (e.g. `Checkout`, `UI`, `Backend`)
 
@@ -46,7 +46,7 @@ Build an unlocked-package-based Progressive Delivery framework for Salesforce th
    - `Result__c` (Text) — evaluated value
    - `Context__c` (LongTextArea) — serialized evaluation context
    - `Timestamp__c` (DateTime)
-   - `Evaluation_Reason__c` (Text) — why this result (e.g. `RULE_MATCH`, `DEFAULT`, `KILL_SWITCH`, `EXPIRED`)
+   - `Evaluation_Reason__c` (Text) — why this result (e.g. `RULE_MATCH`, `DEFAULT`, `EMERGENCY_DISABLE`, `EXPIRED`)
 
 5. **`FlipSwitch_Assignment__c`** (Custom Object) — Sticky assignments for percentage/variant rollouts
    - `Flag_Key__c` (Text, indexed)
@@ -134,14 +134,14 @@ FeatureFlag.flag('NEW_CHECKOUT')
 5. **`FeatureFlagResult.cls`** — Result wrapper
    - `Boolean isEnabled`
    - `String variant`
-   - `String reason` (RULE_MATCH, DEFAULT, KILL_SWITCH, EXPIRED, CACHE_HIT)
+   - `String reason` (RULE_MATCH, DEFAULT, EMERGENCY_DISABLE, EXPIRED, CACHE_HIT)
    - `Map<String,Object> payload`
 
 ### Internal Engine Classes
 
 6. **`FeatureFlagEvaluator.cls`** — Core evaluation engine (called by both builders)
    - Loads flag definition from CMDT
-   - Checks kill switch (`Is_Active__c = false` → return default)
+   - Checks emergency disable (`Is_Active__c = false` → return default)
    - Checks expiration (`Expiration_Date__c < TODAY` → return default, mark inactive)
    - Evaluates targeting rules in priority order:
      1. Exact user match
@@ -202,7 +202,7 @@ FeatureFlag.flag('NEW_CHECKOUT')
 
 16. **`FeatureFlagPlugin`** (Interface) + `FlipSwitch_Plugin__mdt` — extensibility framework
     - `void onEvaluate(FeatureFlagResult result, FeatureFlagContext context)` — hook after each evaluation
-    - Configured via CMDT — orgs add custom logic (Slack alerts on kill switch, external analytics sync)
+    - Configured via CMDT — orgs add custom logic (Slack alerts on emergency disable, external analytics sync)
     - Plugin framework available in unlocked package only (managed package platform limitation)
 
 17. **`FlipSwitch_Settings__c`** (Hierarchy Custom Setting) — per-user/profile framework config
@@ -214,7 +214,7 @@ FeatureFlag.flag('NEW_CHECKOUT')
 - `FeatureFlagTest.cls` — Unit tests covering both static and fluent API paths
 - `FeatureFlagBuilderTest.cls` — Fluent builder chaining, context attributes, fallbacks, callbacks
 - `FeatureFlagBatchBuilderTest.cls` — Multi-flag batch evaluation, single SOQL verification
-- `FeatureFlagEvaluatorTest.cls` — Edge cases: expired flags, kill switches, rule priority
+- `FeatureFlagEvaluatorTest.cls` — Edge cases: expired flags, emergency disable, rule priority
 - `FeatureFlagCacheTest.cls` — Cache hit/miss/invalidation
 - `FeatureFlagHashTest.cls` — Distribution uniformity tests
 
@@ -267,21 +267,21 @@ Decomposed into 5 focused child components. Hosted on a Lightning App Page / Tab
 
 #### Shell (`featureFlagAdmin`)
 - `lightning-tabset` with 4 tabs: Dashboard / Flag Detail / Eval Logs / Analytics
-- **Sticky kill-switch alert banner** — red banner when any flag is kill-switched; click navigates to affected flags
-- **Org health summary strip** — 4 KPI tiles: Active Flags / Expiring This Week / Kill-Switched / Circuit Breaker Trips
+- **Sticky emergency-disable alert banner** — red banner when any flag is emergency-disabled; click navigates to affected flags
+- **Org health summary strip** — 4 KPI tiles: Active Flags / Expiring This Week / Emergency Disabled / Circuit Breaker Trips
 - Cross-tab state: `selectedFlagKey` propagated to Detail / Logs / Analytics tabs
 - `errorCallback` surfaces child errors as toast messages
 
 #### Dashboard (`featureFlagDashboard`)
 - Searchable flag list (name, key, description)
-- **Status badges**: Active (green) / Disabled (gray) / Expiring Soon (yellow) / Expired (red) / Kill Switch (dark red)
+- **Status badges**: Active (green) / Disabled (gray) / Expiring Soon (yellow) / Expired (red) / Emergency Disable (dark red)
 - **Type icons**: Boolean toggle / Percentage pie / Variant beaker
 - **Rollout progress bar** for Percentage flags
 - **Variant chip list** for Variant flags
 - **Expiration countdown** (days remaining, color-coded urgency)
 - Category filter pills + status filter pills
 - Column sorting (name, status, expiration)
-- Row-level kill-switch toggle button (no navigation required)
+- Row-level emergency-disable toggle button (no navigation required)
 - Row double-click or preview icon navigates to Flag Detail tab
 - **Bulk actions**: Enable Selected / Disable Selected with checkbox selection
 - Public `filterByStatus(status)` method called by shell banner
@@ -290,7 +290,7 @@ Decomposed into 5 focused child components. Hosted on a Lightning App Page / Tab
 #### Flag Detail (`featureFlagDetail`)
 - Flag metadata panel: key, type, default value, category, expiration countdown
 - **Flag key copy-to-clipboard** button
-- **Kill-switch toggle** button (contextual label + variant)
+- **Emergency-disable toggle** button (contextual label + variant)
 - **Usage snippet generator** panel — Apex and LWC tabs, code populated from flag metadata
 - Delegates rule + variant management to `featureFlagRuleBuilder`
 - **Simulation / preview panel**: input User ID + JSON attributes → calls `previewEvaluation()` Apex → shows isEnabled, variant, reason, payload with color-coded reason badge
@@ -316,7 +316,7 @@ Decomposed into 5 focused child components. Hosted on a Lightning App Page / Tab
 - **Live streaming indicator** with animated pulse dot
 - Events prepended (newest first), capped at 500 in-memory entries
 - Filter bar: flag key search, reason combobox, date-from / date-to
-- **Reason badges** color-coded: RULE_MATCH (blue) / DEFAULT (gray) / KILL_SWITCH (dark red) / EXPIRED (orange) / CACHE_HIT (purple) / CIRCUIT_BREAKER (red)
+- **Reason badges** color-coded: RULE_MATCH (blue) / DEFAULT (gray) / EMERGENCY_DISABLE (dark red) / EXPIRED (orange) / CACHE_HIT (purple) / CIRCUIT_BREAKER (red)
 - **Export to CSV** button (client-side Blob download of filtered rows)
 - Sampling rate notice (informational)
 - `isExposed: false` — internal child component
@@ -341,7 +341,7 @@ Key `@AuraEnabled` methods (all `with sharing`):
 | `saveRule(rule)` | — | Upsert targeting rule |
 | `deleteRule(ruleId)` | — | Delete targeting rule |
 | `reorderRules(rules)` | — | Bulk priority update after drag |
-| `toggleKillSwitch(flagKey, active)` | — | Create / delete kill-switch rule |
+| `toggleEmergencyDisable(flagKey, active)` | — | Create / delete emergency-disable rule |
 | `bulkUpdateFlags(flagKeys, action)` | — | Bulk enable/disable |
 | `saveVariant(variant)` | — | Upsert variant definition |
 | `deleteVariant(variantId)` | — | Delete variant |
@@ -353,10 +353,10 @@ Key `@AuraEnabled` methods (all `with sharing`):
 
 ## Phase 5: Safety & Observability
 
-### Kill Switches
+### Emergency Disable
 - `Is_Active__c = false` on CMDT immediately disables (requires deployment or Metadata API)
-- **Runtime kill switch**: Special rule with `Rule_Type__c = 'Kill_Switch'` on `FlipSwitch_Rule__c` (no deployment needed)
-- Admin UI one-click kill switch creates this rule instantly
+- **Runtime emergency disable**: Special rule with `Rule_Type__c = 'Emergency_Disable'` on `FlipSwitch_Rule__c` (no deployment needed)
+- Admin UI one-click emergency disable creates this rule instantly
 
 ### Auto-Expiration
 - Scheduled Apex job (`FeatureFlagExpirationJob.cls`) runs daily
@@ -480,15 +480,15 @@ force-app/
 
 ### New Relic Integration (mirrors NebulaLogger pattern)
 - `FlipSwitch_Evaluation__e` Platform Events → subscriber trigger → New Relic via same pub/sub path
-- Dashboard templates: flag evaluation counts, variant distribution, kill switch activations
-- PagerDuty alerts: kill switch triggers, evaluation error rate spikes
+- Dashboard templates: flag evaluation counts, variant distribution, emergency disable activations
+- PagerDuty alerts: emergency disable triggers, evaluation error rate spikes
 - Scenario tagging (`FeatureFlag.setScenario('Checkout Flow')`) enables per-flow dashboards
 
 ### NebulaLogger Integration (Optional)
 - When NebulaLogger is detected (`Type.forName('Logger') != null`):
   - Flag evaluations logged via `Logger.fine()` instead of raw Platform Events
   - Evaluation context attached as structured log data
-  - Kill switch activations logged as `Logger.warn()`
+  - Emergency disable activations logged as `Logger.warn()`
 - When not present: fallback to native Platform Event logging
 
 ## Business Case Summary
@@ -501,7 +501,7 @@ Native feature flag framework — same architecture patterns as NebulaLogger (Pl
 
 ### Key Metrics
 - Blast radius: 100% → 5% canary
-- Rollback time: 30-90 min (redeploy) → <1 min (kill switch)
+- Rollback time: 30-90 min (redeploy) → <1 min (emergency disable)
 - Emergency deploys: monthly → near-zero
 - Release velocity: deploy anytime, release when ready
 
@@ -519,7 +519,7 @@ Native feature flag framework — same architecture patterns as NebulaLogger (Pl
    - Boolean flag evaluation (enabled/disabled)
    - Multi-variant evaluation with correct weight distribution
    - Targeting rule priority and matching (user, profile, permission set, percentage)
-   - Kill switch and expiration behavior
+   - Emergency disable and expiration behavior
    - Cache hit/miss/invalidation
    - Deterministic hashing consistency
    - Flow invocable action (single + bulk)
@@ -530,7 +530,7 @@ Native feature flag framework — same architecture patterns as NebulaLogger (Pl
    - LWC gate component renders correct slot
    - Admin UI CRUD operations on rules
    - Flow decision element with feature flag action
-   - Kill switch disables flag immediately
+   - Emergency disable disables flag immediately
 
 3. **Manual Verification**:
    - Admin UI: create flag, add targeting rules, verify evaluation
@@ -545,7 +545,7 @@ Native feature flag framework — same architecture patterns as NebulaLogger (Pl
 - **Storage: Hybrid CMDT + Custom Objects** — CMDTs for flag definitions (deployable, CI/CD friendly, no storage limits) + Custom Objects for runtime rules (admin-editable without deployment). This is the recommended pattern because pure CMDT would require deployments for any rule change, and pure Custom Objects would lose CI/CD deployability.
 - **Percentage rollout: Deterministic hash** — `SHA-256(userId + flagKey) % 100` gives consistent assignment without storing per-user records. `FlipSwitch_Assignment__c` exists as optional sticky assignment table for cases where hash-based assignment isn't sufficient (e.g., when percentage changes and you want to preserve existing assignments).
 - **Logging: Platform Events** — Async, non-blocking, decoupled. Won't impact DML limits or transaction performance. Subscriber writes to reportable object.
-- **Scope included**: Apex API (static + fluent), LWC components (gate + variant + admin), Flow invocable action, evaluation logging, kill switches, auto-expiration, percentage rollouts, multi-variant support, plugin framework, Callable interface, New Relic/NebulaLogger integration.
+- **Scope included**: Apex API (static + fluent), LWC components (gate + variant + admin), Flow invocable action, evaluation logging, emergency disable, auto-expiration, percentage rollouts, multi-variant support, plugin framework, Callable interface, New Relic/NebulaLogger integration.
 - **Scope excluded**: Aura components (legacy, not prioritized), Visualforce support, external integrations (LaunchDarkly sync), mobile SDK, real-time streaming of flag changes, AppExchange listing, managed package (deferred to v2 if demand).
 - **Distribution**: Personal GitHub, MIT license, unlocked package only (v1). Same model as NebulaLogger.
 - **Starting from scratch** — no existing patterns to migrate from.

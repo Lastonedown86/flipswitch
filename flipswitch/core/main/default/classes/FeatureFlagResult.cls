@@ -6,30 +6,38 @@
 public inherited sharing class FeatureFlagResult {
 
     /** Reason constants — why this result was returned */
-    public static final String REASON_RULE_MATCH  = 'RULE_MATCH';
-    public static final String REASON_DEFAULT     = 'DEFAULT';
-    public static final String REASON_KILL_SWITCH = 'KILL_SWITCH';
-    public static final String REASON_EXPIRED     = 'EXPIRED';
-    public static final String REASON_CACHE_HIT   = 'CACHE_HIT';
-    public static final String REASON_QA_OVERRIDE = 'QA_OVERRIDE';
-    public static final String REASON_ERROR       = 'ERROR';
+    public static final String REASON_RULE_MATCH      = 'RULE_MATCH';
+    public static final String REASON_DEFAULT         = 'DEFAULT';
+    public static final String REASON_EMERGENCY_DISABLE = 'EMERGENCY_DISABLE';
+    public static final String REASON_EXPIRED         = 'EXPIRED';
+    public static final String REASON_CACHE_HIT       = 'CACHE_HIT';
+    public static final String REASON_QA_OVERRIDE     = 'QA_OVERRIDE';
+    public static final String REASON_ERROR           = 'ERROR';
+    public static final String REASON_NOT_CONFIGURED  = 'NOT_CONFIGURED';
 
-    /** Whether the flag evaluated to enabled */
+    /** @description Whether the flag evaluated to enabled. */
     public Boolean isEnabled { get; private set; }
 
-    /** Variant key (e.g. 'control', 'treatment_a'). Null for boolean flags. */
+    /** @description Variant key (e.g. 'control', 'treatment_a'). Null for boolean flags. */
     public String variant { get; private set; }
 
-    /** Why this result was returned */
+    /** @description Why this result was returned. */
     public String reason { get; private set; }
 
-    /** Optional JSON payload for the matched variant */
+    /** @description Optional JSON payload for the matched variant. */
     public Map<String, Object> payload { get; private set; }
 
-    private FeatureFlagResult() {}
+    @SuppressWarnings('PMD.EmptyStatementBlock')
+    private FeatureFlagResult() {
+        // Private constructor — use factory methods enabled(), disabled(), fromDefault()
+    }
 
     /**
      * @description Factory: flag is enabled, optionally with a variant and payload.
+     * @param variant  Variant key or null for boolean flags
+     * @param payload  Optional JSON payload map
+     * @param reason   Evaluation reason constant
+     * @return         Enabled FeatureFlagResult
      */
     public static FeatureFlagResult enabled(String variant, Map<String, Object> payload, String reason) {
         FeatureFlagResult r = new FeatureFlagResult();
@@ -42,6 +50,8 @@ public inherited sharing class FeatureFlagResult {
 
     /**
      * @description Factory: flag is disabled, falling back to default.
+     * @param reason  Evaluation reason constant
+     * @return        Disabled FeatureFlagResult
      */
     public static FeatureFlagResult disabled(String reason) {
         FeatureFlagResult r = new FeatureFlagResult();
@@ -55,6 +65,8 @@ public inherited sharing class FeatureFlagResult {
     /**
      * @description Factory: result from a safe default value when no rules matched.
      *              The default value string is parsed to determine isEnabled.
+     * @param defaultValue  The CMDT/registry default value string
+     * @return              FeatureFlagResult based on the default value
      */
     public static FeatureFlagResult fromDefault(String defaultValue) {
         FeatureFlagResult r = new FeatureFlagResult();

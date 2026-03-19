@@ -2,7 +2,7 @@
 
 ## Context
 
-FlipSwitch is a Salesforce Progressive Delivery Feature Flag Framework — unlocked package, MIT license, GitHub distribution (same model as NebulaLogger). It solves the "all-or-nothing deployment" problem in Salesforce by bringing feature flags, percentage rollouts, user targeting, multi-variant experiments, and kill switches to Apex, LWC, and Flows.
+FlipSwitch is a Salesforce Progressive Delivery Feature Flag Framework — unlocked package, MIT license, GitHub distribution (same model as NebulaLogger). It solves the "all-or-nothing deployment" problem in Salesforce by bringing feature flags, percentage rollouts, user targeting, multi-variant experiments, and emergency disable to Apex, LWC, and Flows.
 
 **Current state**: Only `plan.md` (full technical spec) and `CLAUDE.md` exist. Zero code. This plan takes the project from 0 to a shippable v1 unlocked package.
 
@@ -114,7 +114,7 @@ force-app/main/default/
 - `Description__c` LongTextArea
 
 **`FlipSwitch_Rule__c`** picklist values for `Rule_Type__c`:
-`User | Profile | Permission_Set | Percentage | Custom_Field | Segment | Kill_Switch`
+`User | Profile | Permission_Set | Percentage | Custom_Field | Segment | Emergency_Disable`
 
 **`FlipSwitch_Settings__c`** (Hierarchy):
 - `Is_Logging_Enabled__c` Checkbox (default true)
@@ -156,7 +156,7 @@ permissionsets/
 public class FeatureFlagResult {
     public Boolean isEnabled;
     public String variant;
-    public String reason;           // RULE_MATCH | DEFAULT | KILL_SWITCH | EXPIRED | CACHE_HIT | ERROR
+    public String reason;           // RULE_MATCH | DEFAULT | EMERGENCY_DISABLE | EXPIRED | CACHE_HIT | ERROR
     public Map<String,Object> payload;
     // Constructor + factory methods: enabled(variant), disabled(), fromDefault()
 }
@@ -222,10 +222,10 @@ public class FeatureFlagLogger {
 #### `force-app/main/default/classes/FeatureFlagEvaluator.cls`
 Core engine — called by both builders. Evaluation order:
 1. Load `FlipSwitch_Flag__mdt` via CMDT query (or cache hit)
-2. Kill switch: `Is_Active__c = false` → return `FeatureFlagResult.disabled()` with reason `KILL_SWITCH`
+2. Emergency disable: `Is_Active__c = false` → return `FeatureFlagResult.disabled()` with reason `EMERGENCY_DISABLE`
 3. Expiration: `Expiration_Date__c != null && Expiration_Date__c < Date.today()` → return disabled, reason `EXPIRED`
 4. Check `FlipSwitch_Settings__c.Override_All_Flags__c` (QA override)
-5. Check for `Kill_Switch` rule type in `FlipSwitch_Rule__c`
+5. Check for `Emergency_Disable` rule type in `FlipSwitch_Rule__c`
 6. Evaluate rules by `Priority__c` ASC:
    - `User`: `Rule_Value__c` contains context.userId
    - `Profile`: `Rule_Value__c` contains context.profileId
@@ -354,7 +354,7 @@ All test classes in: `force-app/main/default/classes/tests/`
 
 #### `FeatureFlagEvaluatorTest.cls`
 ```
-testKillSwitchDisabledFlag()          — Is_Active__c = false → KILL_SWITCH reason
+testEmergencyDisableDisabledFlag()          — Is_Active__c = false → EMERGENCY_DISABLE reason
 testExpiredFlagReturnsDefault()       — Expiration_Date__c in past → EXPIRED reason
 testUserRuleMatchReturnsVariant()     — user ID in rule → RULE_MATCH
 testProfileRuleMatch()
@@ -366,7 +366,7 @@ testRulePriorityOrder()               — lower priority number wins when multip
 testCircuitBreakerReturnsDefault()    — force exception in evaluator → no throw, returns default
 testQAOverrideEnableAll()             — Override_All_Flags__c = Enable_All → all enabled
 testQAOverrideDisableAll()
-testCustomKillSwitchRule()            — Rule_Type__c = Kill_Switch → immediately disabled
+testCustomEmergencyDisableRule()            — Rule_Type__c = Emergency_Disable → immediately disabled
 ```
 
 #### `FeatureFlagBuilderTest.cls`
@@ -468,7 +468,7 @@ lwc/<componentName>/
 #### `featureFlagAdmin` — Admin dashboard
 - **Tabs**: Flag List | Flag Detail | Evaluation Logs | Rule Builder
 - **Flag List**: Datatable of all `FlipSwitch_Flag__mdt` records + active rule counts
-- **Kill Switch**: One-click button → Apex inserts `FlipSwitch_Rule__c` with `Rule_Type__c = 'Kill_Switch'`
+- **Emergency Disable**: One-click button → Apex inserts `FlipSwitch_Rule__c` with `Rule_Type__c = 'Emergency_Disable'`
 - **Rule Builder**: Lightning Input fields → saves new `FlipSwitch_Rule__c` record
 - **Evaluation Logs**: Datatable of Platform Event log records with flag/date filtering
 - Hosted via `flexipages/FlipSwitch_Admin_App.flexipage-meta.xml` + `tabs/FlipSwitch_Flags.tab-meta.xml`
@@ -513,8 +513,8 @@ describe('featureFlagGate', () => {
 
 **Depends on**: Phases 1–4
 
-### Kill Switch Runtime Rule
-- Supported via `Rule_Type__c = 'Kill_Switch'` in `FeatureFlagEvaluator` (implemented in Phase 2)
+### Emergency Disable Runtime Rule
+- Supported via `Rule_Type__c = 'Emergency_Disable'` in `FeatureFlagEvaluator` (implemented in Phase 2)
 - Admin UI button (Phase 4) creates this rule without any deployment
 - Instant effect: next evaluation hits the rule before any other targeting logic
 
@@ -549,7 +549,7 @@ force-app/main/default/
 
 ### Verification
 - Create flag with `Expiration_Date__c = yesterday`, run job, assert rule is deactivated
-- Trigger kill switch via admin UI, verify next evaluation returns disabled immediately
+- Trigger emergency disable via admin UI, verify next evaluation returns disabled immediately
 - Force evaluator exception, assert caller receives default value with no propagated exception
 
 ---

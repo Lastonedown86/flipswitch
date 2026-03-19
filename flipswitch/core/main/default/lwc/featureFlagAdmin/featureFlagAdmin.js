@@ -1,162 +1,122 @@
-import { LightningElement, track, wire } from 'lwc';
+import { LightningElement, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { createRecord } from 'lightning/uiRecordApi';
-import getAllFlags from '@salesforce/apex/FeatureFlag.getAllFlags';
-import activateKillSwitch from '@salesforce/apex/FeatureFlag.activateKillSwitch';
-import deactivateKillSwitch from '@salesforce/apex/FeatureFlag.deactivateKillSwitch';
+import getOrgHealth from '@salesforce/apex/FeatureFlagAdminController.getOrgHealth';
+import { refreshApex } from '@salesforce/apex';
 
-import FLIPSWITCH_RULE_OBJECT from '@salesforce/schema/FlipSwitch_Rule__c';
-import FLAG_KEY_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Flag_Key__c';
-import RULE_TYPE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Rule_Type__c';
-import RULE_VALUE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Rule_Value__c';
-import VARIANT_VALUE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Variant_Value__c';
-import PRIORITY_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Priority__c';
-import IS_ACTIVE_FIELD from '@salesforce/schema/FlipSwitch_Rule__c.Is_Active__c';
-
+/**
+ * @description Shell component for the FlipSwitch Admin app.
+ *              Manages global tab navigation, the org health strip,
+ *              the emergency-disable alert banner, and cross-tab state
+ *              (selected flag key flows to detail / logs / analytics tabs).
+ */
 export default class FeatureFlagAdmin extends LightningElement {
-    @track flags = [];
-    @track flagsError;
-    @track saveMessage;
-    @track killSwitchMessage;
+    /** Currently active tab value */
+    activeTab = 'dashboard';
 
-    killSwitchFlagKey = '';
+    /** Flag key selected in the dashboard — shared with detail/logs/analytics tabs */
+    selectedFlagKey;
 
-    @track newRule = {
-        flagKey: '',
-        ruleType: 'User',
-        ruleValue: '',
-        priority: 10,
-        variantValue: ''
-    };
+    /** Controls the slide-in detail drawer */
+    isDrawerOpen = false;
 
-    flagColumns = [
-        { label: 'Flag Key', fieldName: 'DeveloperName', type: 'text' },
-        { label: 'Label', fieldName: 'Label', type: 'text' },
-        { label: 'Type', fieldName: 'Type__c', type: 'text' },
-        { label: 'Active', fieldName: 'Is_Active__c', type: 'boolean' },
-        { label: 'Default Value', fieldName: 'Default_Value__c', type: 'text' },
-        { label: 'Category', fieldName: 'Category__c', type: 'text' },
-        { label: 'Expires', fieldName: 'Expiration_Date__c', type: 'date' }
-    ];
+    /** Wired result stored for refreshApex */
+    _wiredHealth;
 
-    ruleTypeOptions = [
-        { label: 'User', value: 'User' },
-        { label: 'Profile', value: 'Profile' },
-        { label: 'Permission Set', value: 'Permission_Set' },
-        { label: 'Percentage', value: 'Percentage' },
-        { label: 'Segment', value: 'Segment' },
-        { label: 'Custom Field', value: 'Custom_Field' },
-        { label: 'Kill Switch', value: 'Kill_Switch' }
-    ];
-
-    @wire(getAllFlags)
-    wiredFlags({ data, error }) {
-        if (data) {
-            this.flags = data;
-            this.flagsError = undefined;
-        } else if (error) {
-            this.flagsError = 'Error loading flags: ' + error.body.message;
-        }
+    @wire(getOrgHealth)
+    wiredHealth(result) {
+        this._wiredHealth = result;
     }
 
-    handleRefresh() {
-        this.dispatchEvent(new CustomEvent('refresh'));
-        // Force wire re-evaluation
-        getAllFlags({})
-            .then((data) => {
-                this.flags = data;
-            })
-            .catch((error) => {
-                this.flagsError = error.body.message;
-            });
+    // ─── Getters ─────────────────────────────────────────────────────────────
+
+    get orgHealth() {
+        return this._wiredHealth?.data ?? {
+            totalActive: 0,
+            expiringSoon: 0,
+            emergencyDisabled: 0,
+            circuitBreakers: 0
+        };
     }
 
-    handleFlagRowAction(event) {
-        const action = event.detail.action;
-        const row = event.detail.row;
-        if (action.name === 'kill') {
-            this.killSwitchFlagKey = row.DeveloperName;
-        }
+    get hasEmergencyDisabledFlags() {
+        return this.orgHealth.emergencyDisabled > 0;
     }
 
-    handleRuleFieldChange(event) {
-        const field = event.target.dataset.field;
-        this.newRule = { ...this.newRule, [field]: event.target.value };
+    get emergencyDisabledCount() {
+        return this.orgHealth.emergencyDisabled;
     }
 
-    handleSaveRule() {
-        if (!this.newRule.flagKey || !this.newRule.ruleType) {
-            this.saveMessage = 'Flag Key and Rule Type are required.';
-            return;
-        }
+    // ─── Event handlers ──────────────────────────────────────────────────────
 
-        const fields = {};
-        fields[FLAG_KEY_FIELD.fieldApiName] = this.newRule.flagKey;
-        fields[RULE_TYPE_FIELD.fieldApiName] = this.newRule.ruleType;
-        fields[RULE_VALUE_FIELD.fieldApiName] = this.newRule.ruleValue;
-        fields[VARIANT_VALUE_FIELD.fieldApiName] = this.newRule.variantValue;
-        fields[PRIORITY_FIELD.fieldApiName] = parseInt(this.newRule.priority, 10);
-        fields[IS_ACTIVE_FIELD.fieldApiName] = true;
-
-        createRecord({ apiName: FLIPSWITCH_RULE_OBJECT.objectApiName, fields })
-            .then(() => {
-                this.saveMessage = 'Rule saved successfully.';
-                this.dispatchEvent(
-                    new ShowToastEvent({ title: 'Success', message: 'Rule created.', variant: 'success' })
-                );
-                this.newRule = { flagKey: '', ruleType: 'User', ruleValue: '', priority: 10, variantValue: '' };
-            })
-            .catch((error) => {
-                this.saveMessage = 'Error: ' + error.body.message;
-                this.dispatchEvent(
-                    new ShowToastEvent({ title: 'Error', message: error.body.message, variant: 'error' })
-                );
-            });
+    handleTabChange(event) {
+        this.activeTab = event.target.value;
     }
 
-    handleKillSwitchKeyChange(event) {
-        this.killSwitchFlagKey = event.target.value;
+    /** Fired by featureFlagDashboard when a row is clicked */
+    handleViewFlag(event) {
+        this.selectedFlagKey = event.detail.flagKey;
+        this.isDrawerOpen = true;
     }
 
-    handleActivateKillSwitch() {
-        if (!this.killSwitchFlagKey) {
-            this.killSwitchMessage = 'Please enter a flag key.';
-            return;
-        }
-        activateKillSwitch({ flagKey: this.killSwitchFlagKey })
-            .then(() => {
-                this.killSwitchMessage = `Kill switch activated for: ${this.killSwitchFlagKey}`;
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Kill Switch Active',
-                        message: `${this.killSwitchFlagKey} is now disabled.`,
-                        variant: 'warning'
-                    })
-                );
-            })
-            .catch((error) => {
-                this.killSwitchMessage = 'Error: ' + error.body.message;
-            });
+    handleCloseDrawer() {
+        this.isDrawerOpen = false;
     }
 
-    handleDeactivateKillSwitch() {
-        if (!this.killSwitchFlagKey) {
-            this.killSwitchMessage = 'Please enter a flag key.';
-            return;
-        }
-        deactivateKillSwitch({ flagKey: this.killSwitchFlagKey })
-            .then(() => {
-                this.killSwitchMessage = `Kill switch removed for: ${this.killSwitchFlagKey}`;
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Kill Switch Removed',
-                        message: `${this.killSwitchFlagKey} rules restored.`,
-                        variant: 'success'
-                    })
-                );
-            })
-            .catch((error) => {
-                this.killSwitchMessage = 'Error: ' + error.body.message;
-            });
+    /** Fired by featureFlagDashboard or featureFlagDetail on emergency-disable toggle */
+    handleEmergencyDisableToggled() {
+        refreshApex(this._wiredHealth);
+    }
+
+    handleEmergencyDisableBannerClick() {
+        this.activeTab = 'dashboard';
+        setTimeout(() => {
+            const dashboardEl = this.template.querySelector('c-feature-flag-dashboard');
+            if (dashboardEl) {
+                dashboardEl.filterByStatus('emergencydisabled');
+            }
+        }, 0);
+    }
+
+    handleActiveClick() {
+        this.activeTab = 'dashboard';
+        setTimeout(() => {
+            const el = this.template.querySelector('c-feature-flag-dashboard');
+            if (el) el.filterByStatus('active');
+        }, 0);
+    }
+
+    handleExpiringClick() {
+        this.activeTab = 'dashboard';
+        setTimeout(() => {
+            const el = this.template.querySelector('c-feature-flag-dashboard');
+            if (el) el.filterByStatus('expiring');
+        }, 0);
+    }
+
+    handleEmergencyClick() {
+        this.activeTab = 'dashboard';
+        setTimeout(() => {
+            const el = this.template.querySelector('c-feature-flag-dashboard');
+            if (el) el.filterByStatus('emergencydisabled');
+        }, 0);
+    }
+
+    handleCircuitBreakerClick() {
+        this.activeTab = 'logs';
+        setTimeout(() => {
+            const el = this.template.querySelector('c-feature-flag-eval-logs');
+            if (el) el.filterByReason('CIRCUIT_BREAKER');
+        }, 0);
+    }
+
+    /** Surface any unhandled errors as toast messages */
+    errorCallback(error, stack) {
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Unexpected Error',
+            message: error?.message ?? 'An unexpected error occurred',
+            variant: 'error',
+            mode: 'sticky'
+        }));
+        console.error('[featureFlagAdmin] Error:', error, stack);
     }
 }

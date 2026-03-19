@@ -13,7 +13,7 @@ const RULE_TYPE_OPTIONS = [
     { label: 'Segment',        value: 'Segment' },
     { label: 'Custom Field',   value: 'Custom_Field' },
     { label: 'Percentage',     value: 'Percentage' },
-    { label: 'Kill Switch',    value: 'Kill_Switch' },
+    { label: 'Emergency Disable', value: 'Emergency_Disable' },
 ];
 
 const RULE_VALUE_HINTS = {
@@ -23,7 +23,7 @@ const RULE_VALUE_HINTS = {
     Segment:        { label: 'Segment Tag(s)',        placeholder: 'e.g. beta_testers;early_adopters' },
     Custom_Field:   { label: 'Field=Value Expression', placeholder: 'e.g. Account.Industry=Technology' },
     Percentage:     { label: 'Rollout %',            placeholder: '0–100' },
-    Kill_Switch:    { label: 'Kill Switch',           placeholder: 'No value needed' },
+    Emergency_Disable: { label: 'Emergency Disable',     placeholder: 'No value needed' },
 };
 
 const SEGMENT_COLORS = [

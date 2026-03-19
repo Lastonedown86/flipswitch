@@ -12,8 +12,12 @@
  *              - Sends email notification to the org's default system admin
  *              - Invalidates the Platform Cache for affected flags
  */
+@SuppressWarnings('PMD.ApexCRUDViolation')
 public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
 
+    /** @description Finds and deactivates expired rules, notifies admins, and invalidates cache.
+     *  @param sc  Schedulable context
+     */
     public void execute(SchedulableContext sc) {
         Datetime now = Datetime.now();
 
@@ -70,8 +74,7 @@ public inherited sharing class FeatureFlagExpirationJob implements Schedulable {
             );
 
             Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
-        } catch (Exception e) {
-            // Notification failure must not prevent rule deactivation
+        } catch (Exception e) { // NOPMD - EmptyCatchBlock: notification failure must not prevent rule deactivation
         }
     }
 

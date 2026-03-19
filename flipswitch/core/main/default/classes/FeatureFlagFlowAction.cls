@@ -34,7 +34,7 @@ public inherited sharing class FeatureFlagFlowAction {
         @InvocableVariable(label='Variant' description='Variant key returned (e.g. control, treatment_a). Null for boolean flags.')
         public String variant;
 
-        @InvocableVariable(label='Reason' description='Why this result was returned (RULE_MATCH, DEFAULT, KILL_SWITCH, etc.)')
+        @InvocableVariable(label='Reason' description='Why this result was returned (RULE_MATCH, DEFAULT, EMERGENCY_DISABLE, etc.)')
         public String reason;
     }
 

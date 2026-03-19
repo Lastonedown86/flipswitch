@@ -27,12 +27,10 @@ private class FeatureFlagHashTest {
         Integer r2 = FeatureFlagHash.getHashedPercentile(userId, 'FLAG_B');
         Integer r3 = FeatureFlagHash.getHashedPercentile(userId, 'FLAG_C');
         // Not guaranteed to differ, but in practice SHA-256 across different keys will differ
-        // Assert at least two of three are not all equal (statistical safety net)
-        Boolean someAreDifferent = (r1 != r2 || r2 != r3 || r1 != r3);
         // We can't guarantee strict inequality, but we can confirm range
-        System.assert(r1 >= 0 && r1 <= 99);
-        System.assert(r2 >= 0 && r2 <= 99);
-        System.assert(r3 >= 0 && r3 <= 99);
+        System.assert(r1 >= 0 && r1 <= 99, 'FLAG_A hash should be in range 0-99');
+        System.assert(r2 >= 0 && r2 <= 99, 'FLAG_B hash should be in range 0-99');
+        System.assert(r3 >= 0 && r3 <= 99, 'FLAG_C hash should be in range 0-99');
     }
 
     @IsTest
@@ -55,6 +53,6 @@ private class FeatureFlagHashTest {
     static void testEmptyFlagKeyDoesNotThrow() {
         Id userId = UserInfo.getUserId();
         Integer result = FeatureFlagHash.getHashedPercentile(userId, '');
-        System.assert(result >= 0 && result <= 99);
+        System.assert(result >= 0 && result <= 99, 'Empty flag key hash should be in range 0-99');
     }
 }

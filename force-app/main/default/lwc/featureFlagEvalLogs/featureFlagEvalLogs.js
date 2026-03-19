@@ -11,7 +11,7 @@ const REASON_OPTIONS = [
     { label: 'All Reasons',    value: '' },
     { label: 'Rule Match',     value: 'RULE_MATCH' },
     { label: 'Default',        value: 'DEFAULT' },
-    { label: 'Kill Switch',    value: 'KILL_SWITCH' },
+    { label: 'Emergency Disable', value: 'EMERGENCY_DISABLE' },
     { label: 'Expired',        value: 'EXPIRED' },
     { label: 'Cache Hit',      value: 'CACHE_HIT' },
     { label: 'Circuit Breaker', value: 'CIRCUIT_BREAKER' },
@@ -20,7 +20,7 @@ const REASON_OPTIONS = [
 const REASON_BADGE_CLASSES = {
     RULE_MATCH:      'reason-badge reason-badge_rule',
     DEFAULT:         'reason-badge reason-badge_default',
-    KILL_SWITCH:     'reason-badge reason-badge_killswitch',
+    EMERGENCY_DISABLE: 'reason-badge reason-badge_emergency-disable',
     EXPIRED:         'reason-badge reason-badge_expired',
     CACHE_HIT:       'reason-badge reason-badge_cache',
     CIRCUIT_BREAKER: 'reason-badge reason-badge_error',
@@ -193,7 +193,7 @@ export default class FeatureFlagEvalLogs extends LightningElement {
             ? 'result-value result-value_enabled'
             : 'result-value result-value_disabled';
 
-        const rowClass = reason === 'KILL_SWITCH' || reason === 'CIRCUIT_BREAKER'
+        const rowClass = reason === 'EMERGENCY_DISABLE' || reason === 'CIRCUIT_BREAKER'
             ? 'log-row log-row--alert' : 'log-row';
 
         return {

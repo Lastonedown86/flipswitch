@@ -1,8 +1,8 @@
 <template>
     <div class="flipswitch-admin">
 
-        <!-- Kill-switch alert banner -->
-        <template lwc:if={hasKillSwitchedFlags}>
+        <!-- Emergency-disable alert banner -->
+        <template lwc:if={hasEmergencyDisabledFlags}>
             <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
                 <span class="slds-assistive-text">Error</span>
                 <lightning-icon
@@ -12,8 +12,8 @@
                     class="slds-m-right_x-small">
                 </lightning-icon>
                 <h2>
-                    {killSwitchedCount} flag(s) are currently kill-switched.
-                    <a onclick={handleKillSwitchBannerClick} class="slds-alert__close-link">
+                    {emergencyDisabledCount} flag(s) are currently emergency-disabled.
+                    <a onclick={handleEmergencyDisableBannerClick} class="slds-alert__close-link">
                         View affected flags
                     </a>
                 </h2>
@@ -36,8 +36,8 @@
             </div>
             <div class="slds-col">
                 <div class="health-tile health-tile_danger">
-                    <span class="health-tile__count">{orgHealth.killSwitched}</span>
-                    <span class="health-tile__label">Kill-Switched</span>
+                    <span class="health-tile__count">{orgHealth.emergencyDisabled}</span>
+                    <span class="health-tile__label">Emergency Disabled</span>
                 </div>
             </div>
             <div class="slds-col">
@@ -54,38 +54,9 @@
             <!-- ── Dashboard tab ── -->
             <lightning-tab label="Dashboard" value="dashboard" icon-name="utility:layers">
                 <c-feature-flag-dashboard
-                    active-tab={activeTab}
                     onviewflag={handleViewFlag}
-                    onkillswitchtoggled={handleKillSwitchToggled}>
+                    onemergencydisabletoggled={handleEmergencyDisableToggled}>
                 </c-feature-flag-dashboard>
-            </lightning-tab>
-
-            <!-- ── Flag detail / rules tab ── -->
-            <lightning-tab label="Flag Detail" value="detail" icon-name="utility:settings">
-                <template lwc:if={selectedFlagKey}>
-                    <c-feature-flag-detail
-                        flag-key={selectedFlagKey}
-                        onruleedit={handleRuleEdit}
-                        onkillswitchtoggled={handleKillSwitchToggled}>
-                    </c-feature-flag-detail>
-                </template>
-                <template lwc:else>
-                    <div class="slds-illustration slds-illustration_small slds-m-top_large">
-                        <div class="slds-illustration__figure">
-                            <lightning-icon
-                                icon-name="utility:info"
-                                size="large"
-                                class="slds-illustration__svg">
-                            </lightning-icon>
-                        </div>
-                        <div class="slds-illustration__body">
-                            <h3 class="slds-text-heading_medium">No Flag Selected</h3>
-                            <p class="slds-text-body_regular">
-                                Select a flag from the Dashboard tab to view its details.
-                            </p>
-                        </div>
-                    </div>
-                </template>
             </lightning-tab>
 
             <!-- ── Evaluation logs tab ── -->
@@ -103,6 +74,29 @@
             </lightning-tab>
 
         </lightning-tabset>
+
+        <!-- ── Flag detail drawer ── -->
+        <template lwc:if={isDrawerOpen}>
+            <div class="drawer-backdrop" onclick={handleCloseDrawer}></div>
+            <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Flag Detail">
+                <div class="drawer-header">
+                    <h2 class="slds-text-heading_small">Flag Detail</h2>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        size="small"
+                        onclick={handleCloseDrawer}>
+                    </lightning-button-icon>
+                </div>
+                <div class="drawer-body">
+                    <c-feature-flag-detail
+                        flag-key={selectedFlagKey}
+                        onruleedit={handleRuleEdit}
+                        onemergencydisabletoggled={handleEmergencyDisableToggled}>
+                    </c-feature-flag-detail>
+                </div>
+            </div>
+        </template>
 
     </div>
 </template>

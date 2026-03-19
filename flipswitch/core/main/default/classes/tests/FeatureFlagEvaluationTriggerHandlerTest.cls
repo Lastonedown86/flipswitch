@@ -26,7 +26,7 @@ private class FeatureFlagEvaluationTriggerHandlerTest {
         System.assertEquals(1, metrics.size(), 'Should create one metric record');
         System.assertEquals(1, metrics[0].Evaluation_Count__c, 'Evaluation count should be 1');
         System.assertEquals(1, metrics[0].Unique_Users__c, 'Unique user count should be 1');
-        System.assertNotEquals(null, metrics[0].Last_Evaluated__c);
+        System.assertNotEquals(null, metrics[0].Last_Evaluated__c, 'Last_Evaluated__c should be set');
     }
 
     @IsTest

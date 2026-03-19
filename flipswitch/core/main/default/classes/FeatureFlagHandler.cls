@@ -10,5 +10,6 @@
  *       .execute();
  */
 public interface FeatureFlagHandler {
+    /** @description Execute the handler callback logic. */
     void handle();
 }

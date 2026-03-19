@@ -1,0 +1,2321 @@
+{
+  "status": 1,
+  "result": {
+    "checkOnly": false,
+    "completedDate": "2026-03-15T00:37:05.000Z",
+    "createdBy": "005dM00000XW4Bx",
+    "createdByName": "William Chapman",
+    "createdDate": "2026-03-15T00:36:40.000Z",
+    "details": {
+      "componentFailures": [
+        {
+          "changed": false,
+          "columnNumber": 13,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:52.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Type__c",
+          "lineNumber": 55,
+          "problem": "Cannot modify managed object: entity=CustomFieldDefinition, component=00NdM0000241T6a, state=SECOND_GEN_INSTALLED_EDITABLE",
+          "problemType": "Error",
+          "success": false
+        },
+        {
+          "changed": false,
+          "componentType": "FlexiPage",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:54.000Z",
+          "deleted": false,
+          "fileName": "flexipages/FlipSwitch_Admin_App.flexipage",
+          "fullName": "FlipSwitch_Admin_App",
+          "problem": "An unexpected error occurred. Please include this ErrorId if you contact support: 1538388014-26542 (987800308)",
+          "problemType": "Error",
+          "success": false
+        },
+        {
+          "changed": false,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagAdmin/featureFlagAdmin.js",
+          "fullName": "featureFlagAdmin",
+          "problem": "Access to TOKEN 'force:base.colorTextSuccess' with access 'INTERNAL' is not allowed from namespace 'c' in 'c:featureFlagEvalLogs'(MODULE)",
+          "problemType": "Error",
+          "success": false
+        }
+      ],
+      "componentSuccesses": [
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Assignment__c.object",
+          "fullName": "FlipSwitch_Assignment__c.Assigned_Variant__c",
+          "id": "00NdM0000241T6IUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Assignment__c.object",
+          "fullName": "FlipSwitch_Assignment__c.Flag_Key__c",
+          "id": "00NdM0000241T6JUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Assignment__c.object",
+          "fullName": "FlipSwitch_Assignment__c.User_Id__c",
+          "id": "00NdM0000241T6KUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt.Cache_Partition_Name__c",
+          "id": "00NdM0000241T6LUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt.Circuit_Breaker_Enabled__c",
+          "id": "00NdM0000241T6MUAU",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt.Compound_Rules_Enabled__c",
+          "id": "00NdM000024CrObUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt.Log_Sampling_Rate__c",
+          "id": "00NdM0000241T6NUAU",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt.Stale_Flag_Threshold_Days__c",
+          "id": "00NdM000024CrOcUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Context__c",
+          "id": "00NdM0000241T6OUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Evaluation_Reason__c",
+          "id": "00NdM0000241T6PUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Flag_Key__c",
+          "id": "00NdM0000241T6QUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Result__c",
+          "id": "00NdM0000241T6RUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Scenario__c",
+          "id": "00NdM0000241T6SUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.Timestamp__c",
+          "id": "00NdM0000241T6TUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e.User_Id__c",
+          "id": "00NdM0000241T6UUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Category__c",
+          "id": "00NdM0000244taTUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Default_Value__c",
+          "id": "00NdM0000244taUUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Description__c",
+          "id": "00NdM0000244taVUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Expiration_Date__c",
+          "id": "00NdM0000244taWUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.First_Seen_Class__c",
+          "id": "00NdM0000244taXUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.First_Seen_Date__c",
+          "id": "00NdM0000244taYUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Flag_Key__c",
+          "id": "00NdM0000244taZUAQ",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Is_Active__c",
+          "id": "00NdM0000244taaUAA",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Is_Promoted__c",
+          "id": "00NdM0000244tabUAA",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Last_Evaluated_Date__c",
+          "id": "00NdM0000244tacUAA",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Source__c",
+          "id": "00NdM0000244tadUAA",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c.Type__c",
+          "id": "00NdM0000244taeUAA",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Capacity__c",
+          "id": "00NdM000024CrOdUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Category__c",
+          "id": "00NdM0000241T6VUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Default_Value__c",
+          "id": "00NdM0000241T6WUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Description__c",
+          "id": "00NdM0000241T6XUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Expiration_Date__c",
+          "id": "00NdM0000241T6YUAU",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Is_Active__c",
+          "id": "00NdM0000241T6ZUAU",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt.Is_Closed__c",
+          "id": "00NdM000024CrOeUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Inventory_Claim__c.object",
+          "fullName": "FlipSwitch_Inventory_Claim__c.Claim_Key__c",
+          "id": "00NdM000024CrOfUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Inventory_Claim__c.object",
+          "fullName": "FlipSwitch_Inventory_Claim__c.Claimed_At__c",
+          "id": "00NdM000024CrOgUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Inventory_Claim__c.object",
+          "fullName": "FlipSwitch_Inventory_Claim__c.Flag_Key__c",
+          "id": "00NdM000024CrOhUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Inventory_Claim__c.object",
+          "fullName": "FlipSwitch_Inventory_Claim__c.User_Id__c",
+          "id": "00NdM000024CrOiUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c.Evaluation_Count__c",
+          "id": "00NdM0000241T6bUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c.Flag_Key__c",
+          "id": "00NdM0000241T6cUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c.Last_Evaluated__c",
+          "id": "00NdM0000241T6dUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c.Unique_Users__c",
+          "id": "00NdM0000241T6eUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c.Variant_Distribution__c",
+          "id": "00NdM0000241T6fUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Plugin__mdt.object",
+          "fullName": "FlipSwitch_Plugin__mdt.Class_Name__c",
+          "id": "00NdM0000241T6gUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Plugin__mdt.object",
+          "fullName": "FlipSwitch_Plugin__mdt.Is_Enabled__c",
+          "id": "00NdM0000241T6hUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Plugin__mdt.object",
+          "fullName": "FlipSwitch_Plugin__mdt.Priority__c",
+          "id": "00NdM0000241T6iUAE",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule_Condition__c.object",
+          "fullName": "FlipSwitch_Rule_Condition__c.Condition_Type__c",
+          "id": "00NdM000024CrOjUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule_Condition__c.object",
+          "fullName": "FlipSwitch_Rule_Condition__c.Condition_Value__c",
+          "id": "00NdM000024CrOkUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule_Condition__c.object",
+          "fullName": "FlipSwitch_Rule_Condition__c.Rule__c",
+          "id": "00NdM000024CrOlUAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule_Condition__c.object",
+          "fullName": "FlipSwitch_Rule_Condition__c.Sort_Order__c",
+          "id": "00NdM000024CrOmUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.End_Date__c",
+          "id": "00NdM0000241T6jUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Flag_Key__c",
+          "id": "00NdM0000241T6kUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Is_Active__c",
+          "id": "00NdM0000241T6lUAE",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomField",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Match_Type__c",
+          "id": "00NdM000024CrOnUAK",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Priority__c",
+          "id": "00NdM0000241T6mUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Rule_Type__c",
+          "id": "00NdM0000241T6nUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Rule_Value__c",
+          "id": "00NdM0000241T6oUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Start_Date__c",
+          "id": "00NdM0000241T6pUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c.Variant_Value__c",
+          "id": "00NdM0000241T6qUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Settings__c.object",
+          "fullName": "FlipSwitch_Settings__c.Default_Save_Method__c",
+          "id": "00NdM0000241T6rUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Settings__c.object",
+          "fullName": "FlipSwitch_Settings__c.Is_Logging_Enabled__c",
+          "id": "00NdM0000241T6sUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Settings__c.object",
+          "fullName": "FlipSwitch_Settings__c.Override_All_Flags__c",
+          "id": "00NdM0000241T6tUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Variant__c.object",
+          "fullName": "FlipSwitch_Variant__c.Flag_Key__c",
+          "id": "00NdM0000241T6uUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Variant__c.object",
+          "fullName": "FlipSwitch_Variant__c.Payload__c",
+          "id": "00NdM0000241T6vUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Variant__c.object",
+          "fullName": "FlipSwitch_Variant__c.Variant_Key__c",
+          "id": "00NdM0000241T6wUAE",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomField",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:53.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Variant__c.object",
+          "fullName": "FlipSwitch_Variant__c.Weight__c",
+          "id": "00NdM0000241T6xUAE",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomMetadata",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:54.000Z",
+          "deleted": false,
+          "fileName": "customMetadata/FlipSwitch_Config.Default.md",
+          "fullName": "FlipSwitch_Config.Default",
+          "id": "m00dM000031WrVKQA0",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomMetadata",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:54.000Z",
+          "deleted": false,
+          "fileName": "customMetadata/FlipSwitch_Flag.SAMPLE_BOOLEAN_FLAG.md",
+          "fullName": "FlipSwitch_Flag.SAMPLE_BOOLEAN_FLAG",
+          "id": "m01dM00003alEMEQA2",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/CallableFeatureFlag.cls",
+          "fullName": "CallableFeatureFlag",
+          "id": "01pdM00000TI2CLQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlag.cls",
+          "fullName": "FeatureFlag",
+          "id": "01pdM00000TI2CMQA1",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagAdminController.cls",
+          "fullName": "FeatureFlagAdminController",
+          "id": "01pdM00000TI8WHQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagAdminControllerTest.cls",
+          "fullName": "FeatureFlagAdminControllerTest",
+          "id": "01pdM00000TJSxZQAX",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagBatchBuilder.cls",
+          "fullName": "FeatureFlagBatchBuilder",
+          "id": "01pdM00000TI2CNQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagBatchBuilderTest.cls",
+          "fullName": "FeatureFlagBatchBuilderTest",
+          "id": "01pdM00000TI2COQA1",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagBuilder.cls",
+          "fullName": "FeatureFlagBuilder",
+          "id": "01pdM00000TI2CPQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagBuilderTest.cls",
+          "fullName": "FeatureFlagBuilderTest",
+          "id": "01pdM00000TI2CQQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagCache.cls",
+          "fullName": "FeatureFlagCache",
+          "id": "01pdM00000TI2CRQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagCacheTest.cls",
+          "fullName": "FeatureFlagCacheTest",
+          "id": "01pdM00000TI2CSQA1",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagContext.cls",
+          "fullName": "FeatureFlagContext",
+          "id": "01pdM00000TI2CTQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagDefinition.cls",
+          "fullName": "FeatureFlagDefinition",
+          "id": "01pdM00000TIMHVQA5",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagDefinitionTest.cls",
+          "fullName": "FeatureFlagDefinitionTest",
+          "id": "01pdM00000TIMHWQA5",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagEvaluationTriggerHandler.cls",
+          "fullName": "FeatureFlagEvaluationTriggerHandler",
+          "id": "01pdM00000TI2CUQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagEvaluationTriggerHandlerTest.cls",
+          "fullName": "FeatureFlagEvaluationTriggerHandlerTest",
+          "id": "01pdM00000TI2CVQA1",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagEvaluator.cls",
+          "fullName": "FeatureFlagEvaluator",
+          "id": "01pdM00000TI2CWQA1",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagEvaluatorTest.cls",
+          "fullName": "FeatureFlagEvaluatorTest",
+          "id": "01pdM00000TI2CXQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagException.cls",
+          "fullName": "FeatureFlagException",
+          "id": "01pdM00000TI2CYQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagExpirationJob.cls",
+          "fullName": "FeatureFlagExpirationJob",
+          "id": "01pdM00000TI2CZQA1",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagExpirationJobTest.cls",
+          "fullName": "FeatureFlagExpirationJobTest",
+          "id": "01pdM00000TI2CaQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagFlowAction.cls",
+          "fullName": "FeatureFlagFlowAction",
+          "id": "01pdM00000TI2CbQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagFlowActionTest.cls",
+          "fullName": "FeatureFlagFlowActionTest",
+          "id": "01pdM00000TI2CcQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagHandler.cls",
+          "fullName": "FeatureFlagHandler",
+          "id": "01pdM00000TI2CdQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagHash.cls",
+          "fullName": "FeatureFlagHash",
+          "id": "01pdM00000TI2CeQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagHashTest.cls",
+          "fullName": "FeatureFlagHashTest",
+          "id": "01pdM00000TI2CfQAL",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagInventoryJob.cls",
+          "fullName": "FeatureFlagInventoryJob",
+          "id": "01pdM00000TJWjRQAX",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "ApexClass",
+          "created": true,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagInventoryJobTest.cls",
+          "fullName": "FeatureFlagInventoryJobTest",
+          "id": "01pdM00000TJWjSQAX",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagLogger.cls",
+          "fullName": "FeatureFlagLogger",
+          "id": "01pdM00000TI2CgQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagPlugin.cls",
+          "fullName": "FeatureFlagPlugin",
+          "id": "01pdM00000TI2ChQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagRegistry.cls",
+          "fullName": "FeatureFlagRegistry",
+          "id": "01pdM00000TIMHXQA5",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagRegistryTest.cls",
+          "fullName": "FeatureFlagRegistryTest",
+          "id": "01pdM00000TIMHYQA5",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagResult.cls",
+          "fullName": "FeatureFlagResult",
+          "id": "01pdM00000TI2CiQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagSeeder.cls",
+          "fullName": "FeatureFlagSeeder",
+          "id": "01pdM00000TJSxaQAH",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexClass",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:58.000Z",
+          "deleted": false,
+          "fileName": "classes/FeatureFlagTest.cls",
+          "fullName": "FeatureFlagTest",
+          "id": "01pdM00000TI2CjQAL",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ApexTrigger",
+          "created": false,
+          "createdDate": "2026-03-15T00:36:59.000Z",
+          "deleted": false,
+          "fileName": "triggers/FeatureFlagEvaluationTrigger.trigger",
+          "fullName": "FeatureFlagEvaluationTrigger",
+          "id": "01qdM00000BUhE5QAL",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagAdmin",
+          "fullName": "featureFlagAdmin",
+          "id": "0RbdM000005XoMXSA0",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagAnalytics",
+          "fullName": "featureFlagAnalytics",
+          "id": "0RbdM000005XqEfSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagDashboard",
+          "fullName": "featureFlagDashboard",
+          "id": "0RbdM000005XqEgSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagDetail",
+          "fullName": "featureFlagDetail",
+          "id": "0RbdM000005XqEhSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagEvalLogs",
+          "fullName": "featureFlagEvalLogs",
+          "id": "0RbdM000005XqEiSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagGate",
+          "fullName": "featureFlagGate",
+          "id": "0RbdM000005XoMYSA0",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagRuleBuilder",
+          "fullName": "featureFlagRuleBuilder",
+          "id": "0RbdM000005XqEjSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagService",
+          "fullName": "featureFlagService",
+          "id": "0RbdM000005XoMZSA0",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "LightningComponentBundle",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "lwc/featureFlagVariant",
+          "fullName": "featureFlagVariant",
+          "id": "0RbdM000005XoMaSAK",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Assignment__c.object",
+          "fullName": "FlipSwitch_Assignment__c",
+          "id": "01IdM00000DyPTtUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Config__mdt.object",
+          "fullName": "FlipSwitch_Config__mdt",
+          "id": "01IdM00000DyPTuUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Evaluation__e.object",
+          "fullName": "FlipSwitch_Evaluation__e",
+          "id": "01IdM00000DyPTvUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag_Registry__c.object",
+          "fullName": "FlipSwitch_Flag_Registry__c",
+          "id": "01IdM00000DyVFxUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Flag__mdt.object",
+          "fullName": "FlipSwitch_Flag__mdt",
+          "id": "01IdM00000DyPTwUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": true,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Inventory_Claim__c.object",
+          "fullName": "FlipSwitch_Inventory_Claim__c",
+          "id": "01IdM00000Dz1PVUAZ",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Metric__c.object",
+          "fullName": "FlipSwitch_Metric__c",
+          "id": "01IdM00000DyPTxUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Plugin__mdt.object",
+          "fullName": "FlipSwitch_Plugin__mdt",
+          "id": "01IdM00000DyPTyUAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": true,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule_Condition__c.object",
+          "fullName": "FlipSwitch_Rule_Condition__c",
+          "id": "01IdM00000Dz1PWUAZ",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Rule__c.object",
+          "fullName": "FlipSwitch_Rule__c",
+          "id": "01IdM00000DyPTzUAN",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Settings__c.object",
+          "fullName": "FlipSwitch_Settings__c",
+          "id": "01IdM00000DyPU0UAN",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomObject",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Variant__c.object",
+          "fullName": "FlipSwitch_Variant__c",
+          "id": "01IdM00000DyPU1UAN",
+          "success": true
+        },
+        {
+          "changed": false,
+          "componentType": "ValidationRule",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "objects/FlipSwitch_Assignment__c.object",
+          "fullName": "FlipSwitch_Assignment__c.Unique_User_Flag_Assignment",
+          "id": "03ddM00000A3qE1QAJ",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "CustomTab",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "tabs/FlipSwitch_Flags.tab",
+          "fullName": "FlipSwitch_Flags",
+          "id": "01rdM00001JZnc4QAD",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "PermissionSet",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "permissionsets/FlipSwitch_Admin.permissionset",
+          "fullName": "FlipSwitch_Admin",
+          "id": "0PSdM00000UFpiTWAT",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "PermissionSet",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "permissionsets/FlipSwitch_User.permissionset",
+          "fullName": "FlipSwitch_User",
+          "id": "0PSdM00000UFpiUWAT",
+          "success": true
+        },
+        {
+          "changed": true,
+          "componentType": "",
+          "created": false,
+          "createdDate": "2026-03-15T00:37:04.000Z",
+          "deleted": false,
+          "fileName": "package.xml",
+          "fullName": "package.xml",
+          "success": true
+        }
+      ],
+      "runTestResult": {
+        "numFailures": 0,
+        "numTestsRun": 0,
+        "totalTime": 0,
+        "codeCoverage": [],
+        "codeCoverageWarnings": [],
+        "failures": [],
+        "flowCoverage": [],
+        "flowCoverageWarnings": [],
+        "successes": []
+      }
+    },
+    "done": true,
+    "id": "0AfdM00000WqcpxSAB",
+    "ignoreWarnings": false,
+    "lastModifiedDate": "2026-03-15T00:37:05.000Z",
+    "numberComponentErrors": 3,
+    "numberComponentsDeployed": 128,
+    "numberComponentsTotal": 131,
+    "numberFiles": "138",
+    "numberTestErrors": 0,
+    "numberTestsCompleted": 0,
+    "numberTestsTotal": 0,
+    "rollbackOnError": true,
+    "runTestsEnabled": false,
+    "startDate": "2026-03-15T00:36:42.000Z",
+    "status": "Failed",
+    "success": false,
+    "zipSize": 150897,
+    "files": [
+      {
+        "fullName": "CallableFeatureFlag",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\CallableFeatureFlag.cls"
+      },
+      {
+        "fullName": "CallableFeatureFlag",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\CallableFeatureFlag.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlag",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlag.cls"
+      },
+      {
+        "fullName": "FeatureFlag",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlag.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagAdminController",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagAdminController.cls"
+      },
+      {
+        "fullName": "FeatureFlagAdminController",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagAdminController.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagBatchBuilder",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagBatchBuilder.cls"
+      },
+      {
+        "fullName": "FeatureFlagBatchBuilder",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagBatchBuilder.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagBuilder",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagBuilder.cls"
+      },
+      {
+        "fullName": "FeatureFlagBuilder",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagBuilder.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagCache",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagCache.cls"
+      },
+      {
+        "fullName": "FeatureFlagCache",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagCache.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagContext",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagContext.cls"
+      },
+      {
+        "fullName": "FeatureFlagContext",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagContext.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagDefinition",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagDefinition.cls"
+      },
+      {
+        "fullName": "FeatureFlagDefinition",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagDefinition.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTriggerHandler",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagEvaluationTriggerHandler.cls"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTriggerHandler",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagEvaluationTriggerHandler.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagEvaluator",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagEvaluator.cls"
+      },
+      {
+        "fullName": "FeatureFlagEvaluator",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagEvaluator.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagException",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagException.cls"
+      },
+      {
+        "fullName": "FeatureFlagException",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagException.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagExpirationJob",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagExpirationJob.cls"
+      },
+      {
+        "fullName": "FeatureFlagExpirationJob",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagExpirationJob.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagFlowAction",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagFlowAction.cls"
+      },
+      {
+        "fullName": "FeatureFlagFlowAction",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagFlowAction.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagHandler",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagHandler.cls"
+      },
+      {
+        "fullName": "FeatureFlagHandler",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagHandler.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagHash",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagHash.cls"
+      },
+      {
+        "fullName": "FeatureFlagHash",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagHash.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagInventoryJob",
+        "type": "ApexClass",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagInventoryJob.cls"
+      },
+      {
+        "fullName": "FeatureFlagInventoryJob",
+        "type": "ApexClass",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagInventoryJob.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagLogger",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagLogger.cls"
+      },
+      {
+        "fullName": "FeatureFlagLogger",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagLogger.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagPlugin",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagPlugin.cls"
+      },
+      {
+        "fullName": "FeatureFlagPlugin",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagPlugin.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagRegistry",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagRegistry.cls"
+      },
+      {
+        "fullName": "FeatureFlagRegistry",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagRegistry.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagResult",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagResult.cls"
+      },
+      {
+        "fullName": "FeatureFlagResult",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagResult.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagSeeder",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagSeeder.cls"
+      },
+      {
+        "fullName": "FeatureFlagSeeder",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\FeatureFlagSeeder.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagAdminControllerTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagAdminControllerTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagAdminControllerTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagAdminControllerTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagBatchBuilderTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagBatchBuilderTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagBatchBuilderTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagBatchBuilderTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagBuilderTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagBuilderTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagBuilderTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagBuilderTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagCacheTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagCacheTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagCacheTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagCacheTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagDefinitionTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagDefinitionTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagDefinitionTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagDefinitionTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTriggerHandlerTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagEvaluationTriggerHandlerTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTriggerHandlerTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagEvaluationTriggerHandlerTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagEvaluatorTest",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagEvaluatorTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagEvaluatorTest",
+        "type": "ApexClass",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagEvaluatorTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagExpirationJobTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagExpirationJobTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagExpirationJobTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagExpirationJobTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagFlowActionTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagFlowActionTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagFlowActionTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagFlowActionTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagHashTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagHashTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagHashTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagHashTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagInventoryJobTest",
+        "type": "ApexClass",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagInventoryJobTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagInventoryJobTest",
+        "type": "ApexClass",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagInventoryJobTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagRegistryTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagRegistryTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagRegistryTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagRegistryTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagTest.cls"
+      },
+      {
+        "fullName": "FeatureFlagTest",
+        "type": "ApexClass",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\classes\\tests\\FeatureFlagTest.cls-meta.xml"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTrigger",
+        "type": "ApexTrigger",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\triggers\\FeatureFlagEvaluationTrigger.trigger"
+      },
+      {
+        "fullName": "FeatureFlagEvaluationTrigger",
+        "type": "ApexTrigger",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\triggers\\FeatureFlagEvaluationTrigger.trigger-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Inventory_Claim__c.Claim_Key__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Inventory_Claim__c\\fields\\Claim_Key__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Inventory_Claim__c.Claimed_At__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Inventory_Claim__c\\fields\\Claimed_At__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Inventory_Claim__c.Flag_Key__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Inventory_Claim__c\\fields\\Flag_Key__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Inventory_Claim__c.User_Id__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Inventory_Claim__c\\fields\\User_Id__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule_Condition__c.Condition_Type__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule_Condition__c\\fields\\Condition_Type__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule_Condition__c.Condition_Value__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule_Condition__c\\fields\\Condition_Value__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule_Condition__c.Rule__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule_Condition__c\\fields\\Rule__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule_Condition__c.Sort_Order__c",
+        "type": "CustomField",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule_Condition__c\\fields\\Sort_Order__c.field-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Config.Default",
+        "type": "CustomMetadata",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\customMetadata\\FlipSwitch_Config.Default.md-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Flag.SAMPLE_BOOLEAN_FLAG",
+        "type": "CustomMetadata",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\customMetadata\\FlipSwitch_Flag.SAMPLE_BOOLEAN_FLAG.md-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Assignment__c",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Assignment__c\\FlipSwitch_Assignment__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Config__mdt",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Config__mdt\\FlipSwitch_Config__mdt.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Evaluation__e",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Evaluation__e\\FlipSwitch_Evaluation__e.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Flag_Registry__c",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Flag_Registry__c\\FlipSwitch_Flag_Registry__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Flag__mdt",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Flag__mdt\\FlipSwitch_Flag__mdt.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Inventory_Claim__c",
+        "type": "CustomObject",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Inventory_Claim__c\\FlipSwitch_Inventory_Claim__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Metric__c",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Metric__c\\FlipSwitch_Metric__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Plugin__mdt",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Plugin__mdt\\FlipSwitch_Plugin__mdt.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule_Condition__c",
+        "type": "CustomObject",
+        "state": "Created",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule_Condition__c\\FlipSwitch_Rule_Condition__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Rule__c",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Rule__c\\FlipSwitch_Rule__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Settings__c",
+        "type": "CustomObject",
+        "state": "Unchanged",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Settings__c\\FlipSwitch_Settings__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Variant__c",
+        "type": "CustomObject",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\objects\\FlipSwitch_Variant__c\\FlipSwitch_Variant__c.object-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Flags",
+        "type": "CustomTab",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\tabs\\FlipSwitch_Flags.tab-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Admin_App",
+        "type": "FlexiPage",
+        "state": "Failed",
+        "problemType": "Error",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\flexipages\\FlipSwitch_Admin_App.flexipage-meta.xml",
+        "error": "An unexpected error occurred. Please include this ErrorId if you contact support: 1538388014-26542 (987800308)"
+      },
+      {
+        "fullName": "featureFlagAdmin",
+        "type": "LightningComponentBundle",
+        "state": "Failed",
+        "problemType": "Error",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagAdmin\\featureFlagAdmin.js",
+        "error": "Access to TOKEN 'force:base.colorTextSuccess' with access 'INTERNAL' is not allowed from namespace 'c' in 'c:featureFlagEvalLogs'(MODULE)"
+      },
+      {
+        "fullName": "featureFlagAnalytics",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagAnalytics\\featureFlagAnalytics.css"
+      },
+      {
+        "fullName": "featureFlagAnalytics",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagAnalytics\\featureFlagAnalytics.html"
+      },
+      {
+        "fullName": "featureFlagAnalytics",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagAnalytics\\featureFlagAnalytics.js"
+      },
+      {
+        "fullName": "featureFlagAnalytics",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagAnalytics\\featureFlagAnalytics.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagDashboard",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDashboard\\featureFlagDashboard.css"
+      },
+      {
+        "fullName": "featureFlagDashboard",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDashboard\\featureFlagDashboard.html"
+      },
+      {
+        "fullName": "featureFlagDashboard",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDashboard\\featureFlagDashboard.js"
+      },
+      {
+        "fullName": "featureFlagDashboard",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDashboard\\featureFlagDashboard.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagDetail",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDetail\\featureFlagDetail.css"
+      },
+      {
+        "fullName": "featureFlagDetail",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDetail\\featureFlagDetail.html"
+      },
+      {
+        "fullName": "featureFlagDetail",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDetail\\featureFlagDetail.js"
+      },
+      {
+        "fullName": "featureFlagDetail",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagDetail\\featureFlagDetail.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagEvalLogs",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagEvalLogs\\featureFlagEvalLogs.css"
+      },
+      {
+        "fullName": "featureFlagEvalLogs",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagEvalLogs\\featureFlagEvalLogs.html"
+      },
+      {
+        "fullName": "featureFlagEvalLogs",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagEvalLogs\\featureFlagEvalLogs.js"
+      },
+      {
+        "fullName": "featureFlagEvalLogs",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagEvalLogs\\featureFlagEvalLogs.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagGate",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagGate\\featureFlagGate.html"
+      },
+      {
+        "fullName": "featureFlagGate",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagGate\\featureFlagGate.js"
+      },
+      {
+        "fullName": "featureFlagGate",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagGate\\featureFlagGate.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagRuleBuilder",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagRuleBuilder\\featureFlagRuleBuilder.css"
+      },
+      {
+        "fullName": "featureFlagRuleBuilder",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagRuleBuilder\\featureFlagRuleBuilder.html"
+      },
+      {
+        "fullName": "featureFlagRuleBuilder",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagRuleBuilder\\featureFlagRuleBuilder.js"
+      },
+      {
+        "fullName": "featureFlagRuleBuilder",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagRuleBuilder\\featureFlagRuleBuilder.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagService",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagService\\featureFlagService.js"
+      },
+      {
+        "fullName": "featureFlagService",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagService\\featureFlagService.js-meta.xml"
+      },
+      {
+        "fullName": "featureFlagVariant",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagVariant\\featureFlagVariant.html"
+      },
+      {
+        "fullName": "featureFlagVariant",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagVariant\\featureFlagVariant.js"
+      },
+      {
+        "fullName": "featureFlagVariant",
+        "type": "LightningComponentBundle",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\lwc\\featureFlagVariant\\featureFlagVariant.js-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_Admin",
+        "type": "PermissionSet",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\permissionsets\\FlipSwitch_Admin.permissionset-meta.xml"
+      },
+      {
+        "fullName": "FlipSwitch_User",
+        "type": "PermissionSet",
+        "state": "Changed",
+        "filePath": "C:\\Users\\Bill\\Desktop\\flipswitch\\flipswitch\\core\\main\\default\\permissionsets\\FlipSwitch_User.permissionset-meta.xml"
+      }
+    ],
+    "zipFileCount": 121,
+    "deployUrl": "https://orgfarm-c9f3ef1a92-dev-ed.develop.my.salesforce.com/lightning/setup/DeployStatus/page?address=%2Fchangemgmt%2FmonitorDeploymentsDetails.apexp%3FasyncId%3D0AfdM00000WqcpxSAB%26retURL%3D%252Fchangemgmt%252FmonitorDeployment.apexp"
+  },
+  "warnings": [
+    "Starting in December 2025, this command will require that the target org use source tracking.\nSpecifically, to use this command with a production org, scratch org created with the `--no-track-source` flag, or other non-source-tracking org, you must specify the metadata you want to deploy with either the `--metadata`, `--source-dir`, or `--manifest` flag.",
+    "CustomField, FlipSwitch_Flag__mdt.Type__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Assignment__c.Assigned_Variant__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Assignment__c.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Assignment__c.User_Id__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Config__mdt.Cache_Partition_Name__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Config__mdt.Circuit_Breaker_Enabled__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Config__mdt.Compound_Rules_Enabled__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Config__mdt.Log_Sampling_Rate__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Config__mdt.Stale_Flag_Threshold_Days__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Context__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Evaluation_Reason__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Result__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Scenario__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.Timestamp__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Evaluation__e.User_Id__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Category__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Default_Value__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Description__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Expiration_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.First_Seen_Class__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.First_Seen_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Is_Active__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Is_Promoted__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Last_Evaluated_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Source__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag_Registry__c.Type__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Capacity__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Category__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Default_Value__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Description__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Expiration_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Is_Active__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Flag__mdt.Is_Closed__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Metric__c.Evaluation_Count__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Metric__c.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Metric__c.Last_Evaluated__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Metric__c.Unique_Users__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Metric__c.Variant_Distribution__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Plugin__mdt.Class_Name__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Plugin__mdt.Is_Enabled__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Plugin__mdt.Priority__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.End_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Is_Active__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Match_Type__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Priority__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Rule_Type__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Rule_Value__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Start_Date__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Rule__c.Variant_Value__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Settings__c.Default_Save_Method__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Settings__c.Is_Logging_Enabled__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Settings__c.Override_All_Flags__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Variant__c.Flag_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Variant__c.Payload__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Variant__c.Variant_Key__c, returned from org, but not found in the local project",
+    "CustomField, FlipSwitch_Variant__c.Weight__c, returned from org, but not found in the local project",
+    "ValidationRule, FlipSwitch_Assignment__c.Unique_User_Flag_Assignment, returned from org, but not found in the local project"
+  ]
+}

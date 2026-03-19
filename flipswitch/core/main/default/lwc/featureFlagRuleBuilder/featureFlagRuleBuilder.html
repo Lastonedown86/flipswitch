@@ -278,12 +278,24 @@
                                         value={editRule.ruleValue}
                                         class="percentage-slider"
                                         data-field="ruleValue"
-                                        onchange={handleEditFieldChange}>
-                                    </input>
+                                        onchange={handleEditFieldChange} />
                                     <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
                                         Uses SHA-256 hash of userId + flagKey for consistent assignment
                                     </div>
                                 </div>
+                            </template>
+                            <template lwc:elseif={isLookupRuleType}>
+                                <c-feature-flag-lookup-input
+                                    label={ruleValueLabel}
+                                    field-level-help={ruleValueHelp}
+                                    placeholder={ruleValuePlaceholder}
+                                    variant={lookupVariant}
+                                    options={lookupOptions}
+                                    selected-values={editRuleSelectedValues}
+                                    selected-pills={editRuleSelectedPills}
+                                    onchange={handleLookupChange}
+                                    onsearch={handleLookupSearch}>
+                                </c-feature-flag-lookup-input>
                             </template>
                             <template lwc:else>
                                 <lightning-input

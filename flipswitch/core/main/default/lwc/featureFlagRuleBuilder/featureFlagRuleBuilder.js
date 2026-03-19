@@ -5,6 +5,12 @@ import deleteRule  from '@salesforce/apex/FeatureFlagAdminController.deleteRule'
 import reorderRules from '@salesforce/apex/FeatureFlagAdminController.reorderRules';
 import saveVariant  from '@salesforce/apex/FeatureFlagAdminController.saveVariant';
 import deleteVariant from '@salesforce/apex/FeatureFlagAdminController.deleteVariant';
+import getProfiles from '@salesforce/apex/FeatureFlagAdminController.getProfiles';
+import getPermissionSets from '@salesforce/apex/FeatureFlagAdminController.getPermissionSets';
+import searchUsers from '@salesforce/apex/FeatureFlagAdminController.searchUsers';
+import searchAccounts from '@salesforce/apex/FeatureFlagAdminController.searchAccounts';
+import getTerritories from '@salesforce/apex/FeatureFlagAdminController.getTerritories';
+import resolveRuleValues from '@salesforce/apex/FeatureFlagAdminController.resolveRuleValues';
 
 const RULE_TYPE_OPTIONS = [
     { label: 'User',           value: 'User' },
@@ -20,22 +26,45 @@ const RULE_TYPE_OPTIONS = [
 ];
 
 const RULE_VALUE_HINTS = {
-    User:           { label: 'User ID(s)',           placeholder: 'Semicolon-separated Salesforce User IDs' },
-    Profile:        { label: 'Profile Name(s)',      placeholder: 'e.g. System Administrator;Sales User' },
-    Permission_Set: { label: 'Permission Set Name(s)', placeholder: 'e.g. FlipSwitch_Admin' },
+    User:           { label: 'Users',                placeholder: 'Search by name…' },
+    Profile:        { label: 'Profiles',             placeholder: 'Filter profiles…' },
+    Permission_Set: { label: 'Permission Sets',      placeholder: 'Filter permission sets…' },
     Segment:        { label: 'Segment Tag(s)',        placeholder: 'e.g. beta_testers;early_adopters' },
     Custom_Field:   { label: 'Field=Value Expression', placeholder: 'e.g. Account.Industry=Technology' },
     Percentage:     { label: 'Rollout %',            placeholder: '0–100' },
     Emergency_Disable:    { label: 'Emergency Disable',           placeholder: 'No value needed' },
-    Account:        { label: 'Account ID(s)',         placeholder: 'Enter one or more Account IDs, semicolon-separated (e.g. 001xx000000xxxAAA)' },
+    Account:        { label: 'Accounts',              placeholder: 'Search by name…' },
     Account_Segment: { label: 'Account Segment Expression', placeholder: 'Format: FieldApiName:Value (e.g. Industry:Technology)' },
-    Territory:      { label: 'Territory ID(s)',       placeholder: 'Enter one or more Territory2 IDs, semicolon-separated' },
+    Territory:      { label: 'Territories',           placeholder: 'Filter territories…' },
 };
 
 const SEGMENT_COLORS = [
     '#0176d3', '#6366f1', '#22c55e', '#f59e0b',
     '#ec4899', '#14b8a6', '#f97316', '#8b5cf6',
 ];
+
+/** Rule types that use the lookup input instead of plain text */
+const LOOKUP_RULE_TYPES = new Set([
+    'User', 'Profile', 'Permission_Set', 'Account', 'Territory'
+]);
+
+/** Maps rule types to their lookup variant (static combobox vs typeahead search) */
+const LOOKUP_VARIANTS = {
+    User:           'search',
+    Profile:        'static',
+    Permission_Set: 'static',
+    Account:        'search',
+    Territory:      'static',
+};
+
+/** Field-level help for lookup inputs */
+const LOOKUP_HELP = {
+    User:           'Select one or more users. The rule matches if the evaluating user\'s ID is in this list.',
+    Profile:        'Select one or more profiles. The rule matches if the evaluating user belongs to any selected profile.',
+    Permission_Set: 'Select one or more permission sets. The rule matches if the evaluating user has any of these assigned.',
+    Account:        'Search for one or more accounts. The rule matches if the context account ID is in this list.',
+    Territory:      'Select one or more territories. The rule matches if the evaluating user is assigned to any selected territory.',
+};
 
 /**
  * @description Rule builder component with drag-to-reorder, inline active toggles,
@@ -90,6 +119,15 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
     _rules    = [];
     _variants = [];
 
+    // ─── Lookup state ────────────────────────────────────────────────────────
+
+    @track profileOptions = [];
+    @track permSetOptions = [];
+    @track territoryOptions = [];
+    @track editRuleSelectedValues = [];
+    @track editRuleSelectedPills = [];
+    _lookupOptionsLoaded = {};  // { Profile: true, … } — avoids re-fetching
+
     // ─── Getters ─────────────────────────────────────────────────────────────
 
     get isVariantFlag() {
@@ -114,6 +152,28 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
 
     get isAccountSegment() {
         return this.editRule?.ruleType === 'Account_Segment';
+    }
+
+    get isLookupRuleType() {
+        return LOOKUP_RULE_TYPES.has(this.editRule?.ruleType);
+    }
+
+    get lookupVariant() {
+        return LOOKUP_VARIANTS[this.editRule?.ruleType] ?? 'static';
+    }
+
+    get lookupOptions() {
+        const rt = this.editRule?.ruleType;
+        switch (rt) {
+            case 'Profile':        return this.profileOptions;
+            case 'Permission_Set': return this.permSetOptions;
+            case 'Territory':      return this.territoryOptions;
+            default:               return [];
+        }
+    }
+
+    get ruleValueHelp() {
+        return LOOKUP_HELP[this.editRule?.ruleType] ?? '';
     }
 
     get ruleValueLabel() {
@@ -311,6 +371,9 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
             startDate:    null,
             endDate:      null,
         };
+        this.editRuleSelectedValues = [];
+        this.editRuleSelectedPills = [];
+        this._loadLookupOptionsForType('User');
         this.showRuleModal = true;
     }
 
@@ -320,6 +383,21 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
         if (!rule) return;
         this.isEditingExisting = true;
         this.editRule = { ...rule };
+
+        // Parse existing semicolon-delimited values into selected values array
+        if (LOOKUP_RULE_TYPES.has(rule.ruleType) && rule.ruleValue) {
+            this.editRuleSelectedValues = rule.ruleValue
+                .split(';')
+                .map(v => v.trim())
+                .filter(Boolean);
+            // Resolve IDs/names to display labels
+            this._resolveExistingValues(rule.ruleType, rule.ruleValue);
+        } else {
+            this.editRuleSelectedValues = [];
+            this.editRuleSelectedPills = [];
+        }
+
+        this._loadLookupOptionsForType(rule.ruleType);
         this.showRuleModal = true;
     }
 
@@ -329,7 +407,11 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
     }
 
     handleEditRuleTypeChange(event) {
-        this.editRule = { ...this.editRule, ruleType: event.detail.value };
+        const newType = event.detail.value;
+        this.editRule = { ...this.editRule, ruleType: newType, ruleValue: '' };
+        this.editRuleSelectedValues = [];
+        this.editRuleSelectedPills = [];
+        this._loadLookupOptionsForType(newType);
     }
 
     handleEditFieldChange(event) {
@@ -352,10 +434,16 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
             return;
         }
 
+        // For lookup types, join selected values into semicolon-delimited string
+        let ruleValue = this.editRule.ruleValue;
+        if (LOOKUP_RULE_TYPES.has(this.editRule.ruleType)) {
+            ruleValue = this.editRuleSelectedValues.join(';');
+        }
+
         const record = {
             Flag_Key__c:      this.flagKey,
             Rule_Type__c:     this.editRule.ruleType,
-            Rule_Value__c:    this.editRule.ruleValue,
+            Rule_Value__c:    ruleValue,
             Variant_Value__c: this.editRule.variantValue || null,
             Priority__c:      this.editRule.priority,
             Is_Active__c:     this.editRule.isActive,
@@ -529,6 +617,85 @@ export default class FeatureFlagRuleBuilder extends LightningElement {
             }));
         } finally {
             this.isLoading = false;
+        }
+    }
+
+    // ─── Lookup handlers ──────────────────────────────────────────────────────
+
+    handleLookupChange(event) {
+        this.editRuleSelectedValues = event.detail.values;
+        // Sync ruleValue for non-lookup save path
+        this.editRule = {
+            ...this.editRule,
+            ruleValue: event.detail.values.join(';')
+        };
+    }
+
+    async handleLookupSearch(event) {
+        const { searchTerm } = event.detail;
+        const rt = this.editRule?.ruleType;
+        try {
+            let results = [];
+            if (rt === 'User') {
+                results = await searchUsers({ searchTerm });
+            } else if (rt === 'Account') {
+                results = await searchAccounts({ searchTerm });
+            }
+            const lookupEl = this.template.querySelector('c-feature-flag-lookup-input');
+            if (lookupEl) {
+                lookupEl.setSearchResults(results);
+            }
+        } catch (err) {
+            const lookupEl = this.template.querySelector('c-feature-flag-lookup-input');
+            if (lookupEl) {
+                lookupEl.setSearchResults([]);
+            }
+        }
+    }
+
+    // ─── Lookup helpers ──────────────────────────────────────────────────────
+
+    async _loadLookupOptionsForType(ruleType) {
+        if (!LOOKUP_RULE_TYPES.has(ruleType)) return;
+        if (LOOKUP_VARIANTS[ruleType] === 'search') return; // search types don't preload
+
+        // Only fetch once per session
+        if (this._lookupOptionsLoaded[ruleType]) return;
+
+        try {
+            let options = [];
+            switch (ruleType) {
+                case 'Profile':
+                    options = await getProfiles();
+                    this.profileOptions = options;
+                    break;
+                case 'Permission_Set':
+                    options = await getPermissionSets();
+                    this.permSetOptions = options;
+                    break;
+                case 'Territory':
+                    options = await getTerritories();
+                    this.territoryOptions = options;
+                    break;
+                default:
+                    break;
+            }
+            this._lookupOptionsLoaded[ruleType] = true;
+        } catch (err) {
+            // Silently fall back to empty options
+        }
+    }
+
+    async _resolveExistingValues(ruleType, ruleValue) {
+        try {
+            const pills = await resolveRuleValues({ ruleType, ruleValue });
+            this.editRuleSelectedPills = pills;
+        } catch (err) {
+            // If resolution fails, show raw values as pills
+            this.editRuleSelectedPills = this.editRuleSelectedValues.map(v => ({
+                label: v,
+                value: v
+            }));
         }
     }
 }

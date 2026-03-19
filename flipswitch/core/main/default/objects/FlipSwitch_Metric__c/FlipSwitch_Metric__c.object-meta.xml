@@ -59,6 +59,35 @@
         <type>LongTextArea</type>
         <visibleLines>5</visibleLines>
     </fields>
+    <fields>
+        <fullName>Last_Evaluated_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Last Evaluated Date</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Total_Evaluations__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <label>Total Evaluations</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Unique_Users_30d__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <label>Unique Users (30d)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
     <label>FlipSwitch Metric</label>
     <nameField>
         <label>Metric Name</label>

@@ -25,6 +25,8 @@ public inherited sharing class FeatureFlagLogger {
     /**
      * @description Buffer an evaluation event. Does nothing when suspended,
      *              logging is disabled, or the sampling rate rejects this call.
+     * @param result  The evaluation result to log
+     * @param ctx     The evaluation context with user and flag info
      */
     public static void log(FeatureFlagResult result, FeatureFlagContext ctx) {
         if (suspended) {
@@ -81,12 +83,18 @@ public inherited sharing class FeatureFlagLogger {
         suspended = false;
     }
 
-    /** @description Set the save method for this transaction. */
+    /**
+     * @description Set the save method for this transaction.
+     * @param method  The save method enum value
+     */
     public static void setSaveMethod(FeatureFlag.SaveMethod method) {
         saveMethod = method;
     }
 
-    /** @description Set the scenario tag applied to all subsequent log entries. */
+    /**
+     * @description Set the scenario tag applied to all subsequent log entries.
+     * @param scenario  The scenario name
+     */
     public static void setScenario(String scenario) {
         currentScenario = scenario;
     }
@@ -100,7 +108,10 @@ public inherited sharing class FeatureFlagLogger {
         saveMethod = FeatureFlag.SaveMethod.EVENT_BUS;
     }
 
-    /** @description Returns the number of events currently buffered (for tests). */
+    /**
+     * @description Returns the number of events currently buffered (for tests).
+     * @return  Buffer size
+     */
     @TestVisible
     private static Integer getBufferSize() {
         return BUFFER.size();
@@ -150,17 +161,20 @@ public inherited sharing class FeatureFlagLogger {
         return JSON.serialize(ctxMap);
     }
 
-    /**
-     * @description Queueable for QUEUEABLE save method — publishes events
-     *              outside the originating transaction.
-     */
+    /** @description Queueable context for deferred event publishing. */
     public class FeatureFlagLoggerQueueable implements Queueable {
         private final List<FlipSwitch_Evaluation__e> events;
 
+        /** @description Construct a queueable with the events to publish.
+         *  @param events  Platform events to publish
+         */
         public FeatureFlagLoggerQueueable(List<FlipSwitch_Evaluation__e> events) {
             this.events = events;
         }
 
+        /** @description Publish buffered events.
+         *  @param qc  Queueable context
+         */
         public void execute(QueueableContext qc) {
             EventBus.publish(events);
         }

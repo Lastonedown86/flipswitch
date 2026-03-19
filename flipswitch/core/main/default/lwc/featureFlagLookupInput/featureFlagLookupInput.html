@@ -1,0 +1,85 @@
+<template>
+    <div class="lookup-container">
+        <label class="slds-form-element__label">
+            {label}
+            <template lwc:if={fieldLevelHelp}>
+                <lightning-helptext content={fieldLevelHelp}></lightning-helptext>
+            </template>
+        </label>
+
+        <!-- Search / filter input -->
+        <div class="lookup-input-wrapper">
+            <lightning-icon
+                icon-name="utility:search"
+                size="xx-small"
+                class="lookup-search-icon">
+            </lightning-icon>
+            <input
+                type="text"
+                class="lookup-input"
+                placeholder={computedPlaceholder}
+                value={searchTerm}
+                onfocus={handleInputFocus}
+                oninput={handleSearchInput}
+                onkeydown={handleKeyDown}
+                aria-expanded={dropdownOpen}
+                aria-haspopup="listbox"
+                role="combobox"
+                autocomplete="off" />
+            <template lwc:if={isSearching}>
+                <lightning-spinner alternative-text="Searching…" size="small" class="lookup-spinner"></lightning-spinner>
+            </template>
+        </div>
+
+        <!-- Dropdown options -->
+        <template lwc:if={dropdownOpen}>
+            <div class="lookup-dropdown" role="listbox">
+                <template lwc:if={hasFilteredOptions}>
+                    <template for:each={filteredOptions} for:item="opt">
+                        <div
+                            key={opt.value}
+                            class={opt.itemClass}
+                            role="option"
+                            data-value={opt.value}
+                            onclick={handleSelectOption}
+                            onmouseenter={handleOptionHover}>
+                            <span class="lookup-option__label">{opt.label}</span>
+                            <template lwc:if={opt.sublabel}>
+                                <span class="lookup-option__sublabel">{opt.sublabel}</span>
+                            </template>
+                            <template lwc:if={opt.selected}>
+                                <lightning-icon icon-name="utility:check" size="xx-small" class="lookup-option__check"></lightning-icon>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+                <template lwc:else>
+                    <div class="lookup-option lookup-option--empty">
+                        <template lwc:if={isSearchType}>
+                            <span>{noResultsMessage}</span>
+                        </template>
+                        <template lwc:else>
+                            <span>No matching options</span>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Selected pills -->
+        <template lwc:if={hasPills}>
+            <div class="pill-container">
+                <template for:each={pills} for:item="pill">
+                    <span key={pill.value} class="pill">
+                        <span class="pill__label">{pill.label}</span>
+                        <button
+                            class="pill__remove"
+                            title="Remove"
+                            data-value={pill.value}
+                            onclick={handleRemovePill}>×</button>
+                    </span>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

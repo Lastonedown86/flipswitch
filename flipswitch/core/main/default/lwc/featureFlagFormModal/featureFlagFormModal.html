@@ -1,0 +1,147 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium"
+        aria-modal="true" aria-labelledby="modal-heading">
+
+        <div class="slds-modal__container">
+
+            <!-- Header -->
+            <div class="slds-modal__header">
+                <lightning-button-icon icon-name="utility:close" alternative-text="Close"
+                    class="slds-modal__close" onclick={handleCancel}></lightning-button-icon>
+                <h1 id="modal-heading" class="slds-modal__title slds-hyphenate">
+                    <lightning-icon icon-name={headerIcon} size="small" class="slds-m-right_x-small"></lightning-icon>
+                    {headerTitle}
+                </h1>
+            </div>
+
+            <!-- Body -->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content">
+
+                <!-- Flag Key (create only) -->
+                <template lwc:if={isCreateMode}>
+                    <div class="slds-form-element slds-m-bottom_small">
+                        <lightning-input data-id="flag-key" type="text" label="Flag Key" value={flagKey}
+                            onchange={handleFlagKeyChange} required
+                            pattern="^[A-Za-z][A-Za-z0-9_]*$"
+                            message-when-pattern-mismatch="Must start with a letter; only letters, numbers, and underscores"
+                            placeholder="e.g. NEW_CHECKOUT_FLOW"
+                            field-level-help="Unique API key used in FeatureFlag.isEnabled('KEY'). Cannot be changed after creation.">
+                        </lightning-input>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <div class="slds-form-element slds-m-bottom_small">
+                        <span class="slds-form-element__label">Flag Key</span>
+                        <div class="slds-form-element__control">
+                            <code class="flag-key-display">{flagKey}</code>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Label -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-input data-id="label" type="text" label="Label" value={label}
+                        onchange={handleLabelChange} required
+                        placeholder="e.g. New Checkout Flow">
+                    </lightning-input>
+                </div>
+
+                <!-- Type -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-combobox data-id="type" label="Type" value={type}
+                        options={typeOptions} onchange={handleTypeChange}
+                        field-level-help="Boolean: on/off toggle. Percentage: gradual rollout (0-100). Variant: A/B or multivariate experiment.">
+                    </lightning-combobox>
+                </div>
+
+                <!-- Default Value (dynamic based on type) -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <template lwc:if={isBooleanType}>
+                        <lightning-combobox data-id="default-value" label="Default Value" value={defaultValue}
+                            options={booleanOptions} onchange={handleDefaultValueChange}
+                            field-level-help="Value returned when no targeting rules match.">
+                        </lightning-combobox>
+                    </template>
+                    <template lwc:elseif={isPercentageType}>
+                        <lightning-input data-id="default-value" type="number" label="Default Value (%)" value={defaultValue}
+                            onchange={handleDefaultValueChange} min="0" max="100"
+                            field-level-help="Rollout percentage (0-100). Users are assigned deterministically via hash.">
+                        </lightning-input>
+                    </template>
+                    <template lwc:else>
+                        <lightning-input data-id="default-value" type="text" label="Default Variant Key" value={defaultValue}
+                            onchange={handleDefaultValueChange}
+                            placeholder="e.g. control"
+                            field-level-help="Default variant key returned when no targeting rules match.">
+                        </lightning-input>
+                    </template>
+                </div>
+
+                <!-- Category -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-combobox data-id="category" label="Category" value={category}
+                        options={categoryOptions} onchange={handleCategoryChange}
+                        placeholder="Select or type a category"
+                        field-level-help="Optional grouping label for the dashboard (e.g. Release, Experiment, Ops).">
+                    </lightning-combobox>
+                </div>
+
+                <!-- Description -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-textarea data-id="description" label="Description" value={description}
+                        onchange={handleDescriptionChange}
+                        placeholder="Purpose of this flag, owner, and expected cleanup date"
+                        max-length="32768">
+                    </lightning-textarea>
+                </div>
+
+                <!-- Expiration Date -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-input data-id="expiration-date" type="date" label="Expiration Date" value={expirationDate}
+                        onchange={handleExpirationDateChange}
+                        field-level-help="After this date, the flag automatically returns its default value regardless of rules. Leave blank for no expiration.">
+                    </lightning-input>
+                </div>
+
+                <!-- Is Active -->
+                <div class="slds-form-element slds-m-bottom_small">
+                    <lightning-input data-id="is-active" type="toggle" label="Active" checked={isActive}
+                        onchange={handleIsActiveChange}
+                        message-toggle-active="Flag is enabled"
+                        message-toggle-inactive="Flag is disabled">
+                    </lightning-input>
+                </div>
+
+                <!-- Storage Target (create only) -->
+                <template lwc:if={isCreateMode}>
+                    <div class="slds-form-element slds-m-bottom_small">
+                        <lightning-combobox data-id="storage" label="Storage" value={storageTarget}
+                            options={storageOptions} onchange={handleStorageChange}
+                            field-level-help="Registry: instant creation via DML. Editable in the admin UI. CMDT: deployed via Metadata API (async). Becomes a deployable artifact in your source control.">
+                        </lightning-combobox>
+                    </div>
+                    <template lwc:if={isCmdtStorage}>
+                        <div class="slds-box slds-box_x-small slds-theme_info slds-m-bottom_small">
+                            <p class="slds-text-body_small">
+                                <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                CMDT flags are deployed asynchronously via Metadata API.
+                                The flag will appear after the deployment completes.
+                            </p>
+                        </div>
+                    </template>
+                </template>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="slds-modal__footer">
+                <lightning-button data-id="cancel-btn" label="Cancel" onclick={handleCancel}></lightning-button>
+                <lightning-button data-id="save-btn" label={saveButtonLabel} variant="brand" onclick={handleSave}
+                    disabled={isSaving} class="slds-m-left_x-small">
+                </lightning-button>
+            </div>
+
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" onclick={handleCancel}></div>
+</template>

@@ -23,6 +23,11 @@
  */
 public inherited sharing class CallableFeatureFlag implements System.Callable {
 
+    /** @description Route a call to the appropriate FeatureFlag method.
+     *  @param action  The action name (isEnabled, getVariant, evaluate, setScenario, flushLogs)
+     *  @param args    Map of parameters for the action
+     *  @return        Action-specific result or null
+     */
     public Object call(String action, Map<String, Object> args) {
         switch on action.toLowerCase() {
             when 'isenabled' {

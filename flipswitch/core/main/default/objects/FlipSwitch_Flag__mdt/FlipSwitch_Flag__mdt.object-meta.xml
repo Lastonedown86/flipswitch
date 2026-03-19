@@ -52,38 +52,32 @@
         <label>Is Closed</label>
         <type>Checkbox</type>
     </fields>
+
     <fields>
-        <fullName>Type__c</fullName>
+        <fullName>Owner__c</fullName>
         <fieldManageability>DeveloperControlled</fieldManageability>
-        <label>Type</label>
-        <required>true</required>
-        <type>Picklist</type>
-        <valueSet>
-            <restricted>true</restricted>
-            <valueSetDefinition>
-                <sorted>false</sorted>
-                <value>
-                    <fullName>Boolean</fullName>
-                    <default>true</default>
-                    <label>Boolean</label>
-                </value>
-                <value>
-                    <fullName>Variant</fullName>
-                    <default>false</default>
-                    <label>Variant</label>
-                </value>
-                <value>
-                    <fullName>Percentage</fullName>
-                    <default>false</default>
-                    <label>Percentage</label>
-                </value>
-                <value>
-                    <fullName>Inventory</fullName>
-                    <default>false</default>
-                    <label>Inventory</label>
-                </value>
-            </valueSetDefinition>
-        </valueSet>
+        <label>Flag Owner</label>
+        <required>false</required>
+        <unique>false</unique>
+        <externalId>false</externalId>
+        <type>Email</type>
+    </fields>
+    <fields>
+        <fullName>Last_Modified_By__c</fullName>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Last Modified By</label>
+        <length>255</length>
+        <required>false</required>
+        <unique>false</unique>
+        <externalId>false</externalId>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Pending_Removal__c</fullName>
+        <defaultValue>false</defaultValue>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Pending Removal</label>
+        <type>Checkbox</type>
     </fields>
     <label>FlipSwitch Flag</label>
     <pluralLabel>FlipSwitch Flags</pluralLabel>

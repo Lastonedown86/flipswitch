@@ -21,7 +21,7 @@ private class FeatureFlagBatchBuilderTest {
         Test.stopTest();
 
         System.assertEquals(1, results.size(), 'Deduped flag keys should produce 1 result');
-        System.assert(results.containsKey('SAMPLE_BOOLEAN_FLAG'));
+        System.assert(results.containsKey('SAMPLE_BOOLEAN_FLAG'), 'Should contain SAMPLE_BOOLEAN_FLAG key');
     }
 
     @IsTest
@@ -34,7 +34,7 @@ private class FeatureFlagBatchBuilderTest {
         ).evaluateAll();
         Test.stopTest();
 
-        System.assertNotEquals(null, results.get('SAMPLE_BOOLEAN_FLAG'));
+        System.assertNotEquals(null, results.get('SAMPLE_BOOLEAN_FLAG'), 'SAMPLE_BOOLEAN_FLAG result should not be null');
     }
 
     @IsTest
@@ -54,7 +54,8 @@ private class FeatureFlagBatchBuilderTest {
         // SOQL for rules + User context + CMDT + settings + logging/sampling = bounded, not N per flag
         System.assert(queriesUsed <= 8,
             'Batch evaluation should use a bounded number of queries, not N per flag. Used: ' + queriesUsed);
-        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled);
+        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled,
+            'User rule should enable flag in batch evaluation');
     }
 
     @IsTest
@@ -103,7 +104,7 @@ private class FeatureFlagBatchBuilderTest {
             .evaluateAll();
         Test.stopTest();
 
-        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled);
+        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled, 'forUser should evaluate rules for specified user');
     }
 
     @IsTest
@@ -115,6 +116,6 @@ private class FeatureFlagBatchBuilderTest {
             .evaluateAll();
         Test.stopTest();
         // Scenario is carried through — buffer gets entries
-        System.assert(FeatureFlagLogger.getBufferSize() >= 1);
+        System.assert(FeatureFlagLogger.getBufferSize() >= 1, 'Scenario tag should cause at least one log buffer entry');
     }
 }

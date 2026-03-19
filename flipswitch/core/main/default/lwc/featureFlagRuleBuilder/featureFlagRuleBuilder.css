@@ -20,7 +20,7 @@
 }
 
 .rule-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .rule-item--inactive {
@@ -30,7 +30,7 @@
 
 .rule-item--dragging {
     opacity: 0.4;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 
 .rule-item--drag-over {
