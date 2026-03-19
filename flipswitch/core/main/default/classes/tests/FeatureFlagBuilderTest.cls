@@ -293,4 +293,85 @@ private class FeatureFlagBuilderTest {
         System.assertEquals(false, withoutFallback,
             'Without fallback, NOT_CONFIGURED flag should return false');
     }
+
+    // ─── Additional coverage tests ────────────────────────────────────────
+
+    @IsTest
+    static void testFallbackStringVariant() {
+        Test.startTest();
+        String variant = FeatureFlag.flag('NONEXISTENT_STRING_FALLBACK')
+            .fallback('my_variant')
+            .getVariant();
+        Test.stopTest();
+
+        System.assertEquals('my_variant', variant,
+            'String fallback should return the variant when flag is not configured');
+    }
+
+    @IsTest
+    static void testExecuteWithNoHandlersDoesNotThrow() {
+        Test.startTest();
+        FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG')
+            .execute();
+        Test.stopTest();
+
+        System.assert(true, 'execute() with no handlers should complete without error');
+    }
+
+    @IsTest
+    static void testAllowDmlSetsFlag() {
+        Test.startTest();
+        FeatureFlagBuilder builder = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG')
+            .allowDml();
+        Test.stopTest();
+
+        System.assertEquals(true, builder.isDmlAllowed(),
+            'allowDml() should set DML flag to true');
+    }
+
+    @IsTest
+    static void testWithAccountSetsAccountId() {
+        Account acc = new Account(Name = 'Builder Test Acct');
+        insert acc;
+
+        Test.startTest();
+        FeatureFlagResult result = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG')
+            .withAccount(acc.Id)
+            .evaluate();
+        Test.stopTest();
+
+        System.assertNotEquals(null, result, 'Should return a result with account set');
+    }
+
+    @IsTest
+    static void testGetPayloadReturnsNull() {
+        Test.startTest();
+        Map<String, Object> payload = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG')
+            .getPayload();
+        Test.stopTest();
+
+        // Payload is null when no variant payload is configured
+        System.assertEquals(null, payload, 'Payload should be null when not configured');
+    }
+
+    @IsTest
+    static void testFallbackNotAppliedWhenRuleMatchesVariant() {
+        insert new FlipSwitch_Rule__c(
+            Flag_Key__c      = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c     = 'User',
+            Rule_Value__c    = String.valueOf(UserInfo.getUserId()),
+            Variant_Value__c = 'treatment',
+            Priority__c      = 10,
+            Is_Active__c     = true
+        );
+
+        Test.startTest();
+        String variant = FeatureFlag.flag('SAMPLE_BOOLEAN_FLAG')
+            .fallback('control')
+            .getVariant();
+        Test.stopTest();
+
+        System.assertEquals('treatment', variant,
+            'Fallback should not override when a rule matches');
+    }
 }

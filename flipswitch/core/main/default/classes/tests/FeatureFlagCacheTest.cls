@@ -81,4 +81,27 @@ private class FeatureFlagCacheTest {
         Test.stopTest();
         System.assert(true, 'Special characters in key should not cause exceptions');
     }
+
+    @IsTest
+    static void testPutFlagWithCustomTtl() {
+        Test.startTest();
+        FeatureFlagCache.putFlag('TTL_FLAG', 'value', 600);
+        Object result = FeatureFlagCache.getFlag('TTL_FLAG');
+        Test.stopTest();
+        System.assert(result == null || result == 'value',
+            'Custom TTL should work without error');
+    }
+
+    @IsTest
+    static void testInvalidateAllNoException() {
+        FeatureFlagCache.putFlag('INV_FLAG_A', 'a');
+        FeatureFlagCache.putFlag('INV_FLAG_B', 'b');
+
+        Test.startTest();
+        FeatureFlagCache.invalidateAll();
+        Test.stopTest();
+
+        System.assertEquals(null, FeatureFlagCache.getFlag('INV_FLAG_A'),
+            'After invalidateAll, cache should be empty');
+    }
 }

@@ -826,4 +826,265 @@ private class FeatureFlagEvaluatorTest {
         System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
             'Reason should be DEFAULT for a closed flag with no existing claim');
     }
+
+    // ─── Additional coverage tests ────────────────────────────────────────
+
+    @IsTest
+    static void evaluator_inactiveRegistryFlag_returnsNotConfigured() {
+        insert new FlipSwitch_Flag_Registry__c(
+            Flag_Key__c      = 'INACTIVE_REG_FLAG',
+            Name             = 'Inactive Reg Flag',
+            Type__c          = 'Boolean',
+            Default_Value__c = 'true',
+            Is_Active__c     = false,
+            Source__c        = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('INACTIVE_REG_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('INACTIVE_REG_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(false, result.isEnabled);
+        System.assertEquals(FeatureFlagResult.REASON_NOT_CONFIGURED, result.reason);
+    }
+
+    @IsTest
+    static void evaluator_expiredRegistryFlag_returnsExpired() {
+        insert new FlipSwitch_Flag_Registry__c(
+            Flag_Key__c        = 'EXPIRED_REG_FLAG',
+            Name               = 'Expired Reg Flag',
+            Type__c            = 'Boolean',
+            Default_Value__c   = 'true',
+            Is_Active__c       = true,
+            Expiration_Date__c = Date.today().addDays(-1),
+            Source__c          = 'Code'
+        );
+        FeatureFlagRegistry.clearCache();
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('EXPIRED_REG_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('EXPIRED_REG_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(false, result.isEnabled);
+        System.assertEquals(FeatureFlagResult.REASON_EXPIRED, result.reason);
+    }
+
+    @IsTest
+    static void evaluator_customFieldRule_matchesAttribute() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Custom_Field',
+            Rule_Value__c  = '{"field":"account_type","value":"Partner"}',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+        insert rule;
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withAttribute('account_type', 'Partner');
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(true, result.isEnabled);
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
+    }
+
+    @IsTest
+    static void evaluator_customFieldRule_noMatchReturnsDefault() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Custom_Field',
+            Rule_Value__c  = '{"field":"account_type","value":"Partner"}',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+        insert rule;
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withAttribute('account_type', 'Customer');
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(false, result.isEnabled);
+    }
+
+    @IsTest
+    static void evaluator_ruleScheduleStartDateFuture_skipped() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'User',
+            Rule_Value__c  = String.valueOf(UserInfo.getUserId()),
+            Priority__c    = 10,
+            Is_Active__c   = true,
+            Start_Date__c  = Datetime.now().addDays(1)
+        );
+        insert rule;
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Rule with future start date should be skipped');
+    }
+
+    @IsTest
+    static void evaluator_ruleScheduleEndDatePast_skipped() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'User',
+            Rule_Value__c  = String.valueOf(UserInfo.getUserId()),
+            Priority__c    = 10,
+            Is_Active__c   = true,
+            End_Date__c    = Datetime.now().addDays(-1)
+        );
+        insert rule;
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate('SAMPLE_BOOLEAN_FLAG', ctx, null);
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Rule with past end date should be skipped');
+    }
+
+    @IsTest
+    static void evaluator_segmentInvalidJson_returnsDefault() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Segment',
+            Rule_Value__c  = '{invalid json}',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withAttribute('region', 'US');
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Invalid JSON should cause rule mismatch, falling through to default');
+    }
+
+    @IsTest
+    static void evaluator_permissionSetRule_nullPermSetsNoMatch() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Permission_Set',
+            Rule_Value__c  = 'SomeNonexistentPermSet',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason);
+    }
+
+    @IsTest
+    static void evaluator_unknownRuleType_returnsDefault() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'FutureRuleType',
+            Rule_Value__c  = 'something',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Unknown rule type should fall through to default');
+    }
+
+    @IsTest
+    static void evaluator_customFieldInvalidJson_noMatch() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Custom_Field',
+            Rule_Value__c  = 'not json',
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withAttribute('x', 'y');
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason);
+    }
+
+    @IsTest
+    static void evaluator_inactiveRule_isSkipped() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'User',
+            Rule_Value__c  = String.valueOf(UserInfo.getUserId()),
+            Priority__c    = 10,
+            Is_Active__c   = false
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals(FeatureFlagResult.REASON_DEFAULT, result.reason,
+            'Inactive rule should be skipped');
+    }
+
+    @IsTest
+    static void evaluator_matchingRuleWithVariant_returnsVariant() {
+        FlipSwitch_Rule__c rule = new FlipSwitch_Rule__c(
+            Flag_Key__c      = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c     = 'User',
+            Rule_Value__c    = String.valueOf(UserInfo.getUserId()),
+            Variant_Value__c = 'treatment_b',
+            Priority__c      = 10,
+            Is_Active__c     = true
+        );
+
+        Test.startTest();
+        FeatureFlagContext ctx = FeatureFlagContext.forUser(UserInfo.getUserId());
+        ctx.withFlagKey('SAMPLE_BOOLEAN_FLAG');
+        FeatureFlagResult result = FeatureFlagEvaluator.evaluate(
+            'SAMPLE_BOOLEAN_FLAG', ctx, new List<FlipSwitch_Rule__c>{ rule });
+        Test.stopTest();
+
+        System.assertEquals('treatment_b', result.variant);
+        System.assertEquals(FeatureFlagResult.REASON_RULE_MATCH, result.reason);
+    }
 }

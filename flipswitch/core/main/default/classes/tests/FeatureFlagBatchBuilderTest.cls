@@ -118,4 +118,71 @@ private class FeatureFlagBatchBuilderTest {
         // Scenario is carried through — buffer gets entries
         System.assert(FeatureFlagLogger.getBufferSize() >= 1, 'Scenario tag should cause at least one log buffer entry');
     }
+
+    // ─── Additional coverage tests ────────────────────────────────────────
+
+    @IsTest
+    static void testNullFlagKeysReturnsEmpty() {
+        Test.startTest();
+        Map<String, FeatureFlagResult> results = new FeatureFlagBatchBuilder(null).evaluateAll();
+        Test.stopTest();
+
+        System.assertEquals(0, results.size(), 'Null flagKeys should return empty map');
+    }
+
+    @IsTest
+    static void testWithAccountAppliedToAllFlags() {
+        Account acc = new Account(Name = 'Batch Acct');
+        insert acc;
+
+        insert new FlipSwitch_Rule__c(
+            Flag_Key__c    = 'SAMPLE_BOOLEAN_FLAG',
+            Rule_Type__c   = 'Account',
+            Rule_Value__c  = String.valueOf(acc.Id),
+            Priority__c    = 10,
+            Is_Active__c   = true
+        );
+
+        Test.startTest();
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).withAccount(acc.Id)
+            .evaluateAll();
+        Test.stopTest();
+
+        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled,
+            'Account rule should match when account is set');
+    }
+
+    @IsTest
+    static void testCurrentScenarioFallback() {
+        FeatureFlagLogger.reset();
+        FeatureFlag.currentScenario = 'Global Scenario';
+
+        Test.startTest();
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG' }
+        ).evaluateAll();
+        Test.stopTest();
+
+        FeatureFlag.currentScenario = null;
+        System.assert(FeatureFlagLogger.getBufferSize() >= 1,
+            'Global scenario should be picked up when no builder scenario is set');
+    }
+
+    @IsTest
+    static void testMixedEnabledDisabledResults() {
+        insertUserRule('SAMPLE_BOOLEAN_FLAG');
+
+        Test.startTest();
+        Map<String, FeatureFlagResult> results = FeatureFlag.flags(
+            new List<String>{ 'SAMPLE_BOOLEAN_FLAG', 'NONEXISTENT_FLAG_FOR_BATCH' }
+        ).evaluateAll();
+        Test.stopTest();
+
+        System.assertEquals(true, results.containsKey('SAMPLE_BOOLEAN_FLAG'));
+        System.assertEquals(true, results.containsKey('NONEXISTENT_FLAG_FOR_BATCH'));
+        System.assertEquals(true, results.get('SAMPLE_BOOLEAN_FLAG').isEnabled);
+        System.assertEquals(false, results.get('NONEXISTENT_FLAG_FOR_BATCH').isEnabled);
+    }
 }
