@@ -1,0 +1,10 @@
+{
+  "orgName": "FlipSwitch Dev",
+  "edition": "Developer",
+  "features": ["PlatformCache", "Communities"],
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    }
+  }
+}

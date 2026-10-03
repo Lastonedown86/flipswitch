@@ -1,0 +1,148 @@
+<template>
+    <lightning-card title="Evaluation Logs" icon-name="utility:activity">
+
+        <div slot="actions" class="slds-grid slds-gutters_xx-small">
+            <!-- Live streaming indicator -->
+            <div class="slds-col slds-no-flex">
+                <span class={streamingIndicatorClass} title={streamingTitle}>
+                    <span class={streamingDotClass}></span>
+                    {streamingLabel}
+                </span>
+            </div>
+            <!-- Export CSV -->
+            <div class="slds-col slds-no-flex">
+                <lightning-button
+                    label="Export CSV"
+                    icon-name="utility:download"
+                    size="small"
+                    disabled={isEmpty}
+                    onclick={handleExportCsv}>
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- Sampling rate notice -->
+        <template lwc:if={samplingRateNotice}>
+            <div class="slds-m-horizontal_medium slds-m-top_x-small">
+                <lightning-helptext
+                    content={samplingRateNotice}
+                    icon-name="utility:info">
+                </lightning-helptext>
+                <span class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small">
+                    {samplingRateNotice}
+                </span>
+            </div>
+        </template>
+
+        <!-- Filter bar -->
+        <div class="slds-grid slds-gutters slds-m-horizontal_medium slds-m-top_small slds-m-bottom_x-small">
+            <div class="slds-col slds-size_1-of-4">
+                <lightning-input
+                    type="search"
+                    label="Filter by flag key"
+                    variant="label-hidden"
+                    placeholder="Flag key…"
+                    value={filterFlagKey}
+                    onchange={handleFilterChange}
+                    data-filter="flagKey">
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <lightning-combobox
+                    label="Reason"
+                    variant="label-hidden"
+                    placeholder="All reasons"
+                    value={filterReason}
+                    options={reasonOptions}
+                    onchange={handleFilterChange}
+                    data-filter="reason">
+                </lightning-combobox>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <lightning-input
+                    type="date"
+                    label="From"
+                    variant="label-hidden"
+                    value={filterDateFrom}
+                    onchange={handleFilterChange}
+                    data-filter="dateFrom">
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <lightning-input
+                    type="date"
+                    label="To"
+                    variant="label-hidden"
+                    value={filterDateTo}
+                    onchange={handleFilterChange}
+                    data-filter="dateTo">
+                </lightning-input>
+            </div>
+        </div>
+
+        <!-- Log table -->
+        <template lwc:if={isEmpty}>
+            <div class="slds-illustration slds-illustration_small slds-m-around_large">
+                <lightning-icon icon-name="utility:activity" size="large"></lightning-icon>
+                <div class="slds-illustration__body slds-m-top_medium">
+                    <h3 class="slds-text-heading_medium">No Logs Yet</h3>
+                    <p class="slds-text-body_regular">
+                        Evaluation events will stream in real time as flags are evaluated.
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:else>
+            <div class="log-table-wrap slds-m-horizontal_medium slds-m-bottom_medium">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout log-table" role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width:9rem">Time</th>
+                            <th scope="col" style="width:11rem">Flag Key</th>
+                            <th scope="col">User</th>
+                            <th scope="col" style="width:7rem">Result</th>
+                            <th scope="col" style="width:9rem">Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={displayedLogs} for:item="log">
+                            <tr key={log.id} class={log.rowClass}>
+                                <td class="log-time">{log.timeLabel}</td>
+                                <td>
+                                    <code class="log-flag-key">{log.flagKey}</code>
+                                </td>
+                                <td>
+                                    <div class="slds-grid slds-gutters_xx-small slds-grid_vertical-align-center">
+                                        <lightning-avatar
+                                            src={log.userAvatarUrl}
+                                            fallback-icon-name="standard:user"
+                                            size="x-small"
+                                            alternative-text={log.userId}
+                                            class="slds-col slds-no-flex">
+                                        </lightning-avatar>
+                                        <span class="slds-col log-user">{log.userLabel}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class={log.resultClass}>{log.result}</span>
+                                </td>
+                                <td>
+                                    <span class={log.reasonBadgeClass}>{log.reason}</span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <div slot="footer" class="slds-text-body_small slds-text-color_weak">
+            Showing {displayedCount} of {totalCount} events
+            <template lwc:if={hasNewLogs}>
+                <lightning-badge label={newLogsBadge} class="slds-m-left_x-small new-logs-badge"></lightning-badge>
+            </template>
+        </div>
+
+    </lightning-card>
+</template>

@@ -1,0 +1,354 @@
+<template>
+    <lightning-card title="Targeting Rules" icon-name="utility:rules">
+
+        <div slot="actions">
+            <lightning-button
+                label="Add Rule"
+                variant="brand"
+                icon-name="utility:add"
+                onclick={handleAddRule}>
+            </lightning-button>
+        </div>
+
+        <div class="slds-m-around_small">
+
+            <!-- Variant weight visualiser (only for Variant-type flags) -->
+            <template lwc:if={isVariantFlag}>
+                <div class="variant-section slds-m-bottom_medium">
+                    <div class="slds-grid slds-gutters slds-m-bottom_small">
+                        <div class="slds-col">
+                            <span class="slds-text-heading_small">Variant Weights</span>
+                        </div>
+                        <div class="slds-col slds-no-flex">
+                            <lightning-button
+                                label="Add Variant"
+                                icon-name="utility:add"
+                                size="small"
+                                onclick={handleAddVariant}>
+                            </lightning-button>
+                        </div>
+                    </div>
+
+                    <!-- Weight visualizer bar -->
+                    <div class="weight-bar slds-m-bottom_x-small">
+                        <template for:each={variantSegments} for:item="seg">
+                            <div
+                                key={seg.key}
+                                class="weight-bar__segment"
+                                style={seg.style}
+                                title={seg.tooltip}>
+                                <span class="weight-bar__label">{seg.key}</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="slds-text-body_small slds-text-color_weak" style={totalWeightStyle}>
+                        Total: {totalWeight}% {totalWeightWarning}
+                    </div>
+
+                    <!-- Variant rows -->
+                    <template for:each={localVariants} for:item="v">
+                        <div key={v.id} class="variant-row slds-grid slds-gutters slds-m-top_x-small">
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input
+                                    type="text"
+                                    label="Variant Key"
+                                    value={v.variantKey}
+                                    data-id={v.id}
+                                    data-field="variantKey"
+                                    onchange={handleVariantFieldChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input
+                                    type="number"
+                                    label="Weight (%)"
+                                    min="0"
+                                    max="100"
+                                    value={v.weight}
+                                    data-id={v.id}
+                                    data-field="weight"
+                                    onchange={handleVariantFieldChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label">Actions</label>
+                                    <div class="slds-form-element__control">
+                                        <lightning-button-icon
+                                            icon-name="utility:save"
+                                            alternative-text="Save variant"
+                                            data-id={v.id}
+                                            onclick={handleSaveVariant}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon
+                                            icon-name="utility:delete"
+                                            alternative-text="Delete variant"
+                                            variant="bare"
+                                            class="slds-m-left_xx-small"
+                                            data-id={v.id}
+                                            onclick={handleDeleteVariant}>
+                                        </lightning-button-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-m-top_small">
+                        <lightning-helptext
+                            content="Weights must sum to 100 for deterministic percentage assignment.">
+                        </lightning-helptext>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Loading spinner -->
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Saving…" size="small"></lightning-spinner>
+            </template>
+
+            <!-- Empty rules state -->
+            <template lwc:elseif={noRules}>
+                <div class="slds-m-vertical_medium slds-text-align_center slds-text-color_weak">
+                    <lightning-icon icon-name="utility:rules" size="medium"></lightning-icon>
+                    <p class="slds-m-top_x-small">No targeting rules. All users see the default value.</p>
+                    <p class="slds-text-body_small">Click "Add Rule" to create your first targeting rule.</p>
+                </div>
+            </template>
+
+            <!-- Rule list (draggable) -->
+            <template lwc:else>
+                <ul class="rule-list" ondragover={handleDragOver} ondrop={handleDrop}>
+                    <template for:each={localRules} for:item="rule">
+                        <li
+                            key={rule.id}
+                            class={rule.liClass}
+                            draggable="true"
+                            data-id={rule.id}
+                            ondragstart={handleDragStart}
+                            ondragenter={handleDragEnter}
+                            ondragleave={handleDragLeave}
+                            ondragend={handleDragEnd}>
+
+                            <!-- Drag handle -->
+                            <div class="rule-handle" title="Drag to reorder">
+                                <lightning-icon icon-name="utility:drag_and_drop" size="xx-small"></lightning-icon>
+                            </div>
+
+                            <!-- Priority badge -->
+                            <div class="rule-priority">
+                                <span class="priority-badge">{rule.priority}</span>
+                            </div>
+
+                            <!-- Rule type + value summary -->
+                            <div class="rule-body">
+                                <div class="rule-type-row">
+                                    <span class="rule-type-badge">{rule.ruleType}</span>
+                                    <template lwc:if={rule.isScheduled}>
+                                        <span class="rule-scheduled-badge">Scheduled</span>
+                                    </template>
+                                    <template lwc:if={rule.hasVariantValue}>
+                                        <span class="rule-variant-chip">→ {rule.variantValue}</span>
+                                    </template>
+                                </div>
+                                <div class="rule-value-preview">{rule.valueSummary}</div>
+                                <template lwc:if={rule.isScheduled}>
+                                    <div class="rule-schedule-text">
+                                        {rule.scheduleSummary}
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Active toggle -->
+                            <div class="rule-active">
+                                <lightning-input
+                                    type="toggle"
+                                    label="Active"
+                                    variant="label-hidden"
+                                    checked={rule.isActive}
+                                    data-id={rule.id}
+                                    onchange={handleRuleActiveToggle}>
+                                </lightning-input>
+                            </div>
+
+                            <!-- Edit / delete -->
+                            <div class="rule-actions">
+                                <lightning-button-icon
+                                    icon-name="utility:edit"
+                                    alternative-text="Edit rule"
+                                    size="small"
+                                    data-id={rule.id}
+                                    onclick={handleEditRule}>
+                                </lightning-button-icon>
+                                <lightning-button-icon
+                                    icon-name="utility:delete"
+                                    alternative-text="Delete rule"
+                                    size="small"
+                                    variant="bare"
+                                    class="slds-m-left_xx-small"
+                                    data-id={rule.id}
+                                    onclick={handleDeleteRule}>
+                                </lightning-button-icon>
+                            </div>
+
+                        </li>
+                    </template>
+                </ul>
+
+                <!-- Save reorder button (appears after drag) -->
+                <template lwc:if={reorderDirty}>
+                    <div class="slds-m-top_small slds-grid slds-gutters_x-small">
+                        <lightning-button
+                            label="Save Rule Order"
+                            variant="brand"
+                            icon-name="utility:save"
+                            onclick={handleSaveReorder}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Discard"
+                            onclick={handleDiscardReorder}
+                            class="slds-m-left_x-small">
+                        </lightning-button>
+                    </div>
+                </template>
+            </template>
+
+        </div>
+    </lightning-card>
+
+    <!-- Add / Edit rule modal -->
+    <template lwc:if={showRuleModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open" aria-modal="true">
+            <div class="slds-modal__container">
+
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">{ruleModalTitle}</h2>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        class="slds-modal__close"
+                        onclick={handleCloseRuleModal}>
+                    </lightning-button-icon>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-grid slds-gutters slds-wrap">
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox
+                                label="Rule Type"
+                                value={editRule.ruleType}
+                                options={ruleTypeOptions}
+                                onchange={handleEditRuleTypeChange}
+                                required>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="number"
+                                label="Priority (lower = higher priority)"
+                                min="0"
+                                value={editRule.priority}
+                                onchange={handleEditFieldChange}
+                                data-field="priority">
+                            </lightning-input>
+                        </div>
+
+                        <!-- Dynamic rule value input based on type -->
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <template lwc:if={isPercentageRuleType}>
+                                <div>
+                                    <label class="slds-form-element__label">
+                                        Rollout Percentage: {editRule.ruleValue}%
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        value={editRule.ruleValue}
+                                        class="percentage-slider"
+                                        data-field="ruleValue"
+                                        onchange={handleEditFieldChange} />
+                                    <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                        Uses SHA-256 hash of userId + flagKey for consistent assignment
+                                    </div>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <lightning-input
+                                    type="text"
+                                    label={ruleValueLabel}
+                                    placeholder={ruleValuePlaceholder}
+                                    value={editRule.ruleValue}
+                                    data-field="ruleValue"
+                                    onchange={handleEditFieldChange}>
+                                </lightning-input>
+                            </template>
+                        </div>
+
+                        <!-- Variant value (only for Variant-type flags) -->
+                        <template lwc:if={isVariantFlag}>
+                            <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                                <lightning-combobox
+                                    label="Returns Variant"
+                                    value={editRule.variantValue}
+                                    options={variantOptions}
+                                    onchange={handleEditFieldChange}
+                                    data-field="variantValue">
+                                </lightning-combobox>
+                            </div>
+                        </template>
+
+                        <!-- Scheduled dates -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                            <lightning-input
+                                type="datetime-local"
+                                label="Start Date (optional)"
+                                value={editRule.startDate}
+                                data-field="startDate"
+                                onchange={handleEditFieldChange}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                            <lightning-input
+                                type="datetime-local"
+                                label="End Date (optional)"
+                                value={editRule.endDate}
+                                data-field="endDate"
+                                onchange={handleEditFieldChange}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <lightning-input
+                                type="toggle"
+                                label="Active"
+                                checked={editRule.isActive}
+                                data-field="isActive"
+                                onchange={handleEditToggleChange}>
+                            </lightning-input>
+                        </div>
+
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCloseRuleModal}></lightning-button>
+                    <lightning-button
+                        label="Save Rule"
+                        variant="brand"
+                        onclick={handleSaveRule}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" onclick={handleCloseRuleModal}></div>
+    </template>
+
+</template>

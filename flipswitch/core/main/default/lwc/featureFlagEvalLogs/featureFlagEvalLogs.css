@@ -1,0 +1,147 @@
+/* ── Streaming indicator ──────────────────────────────────────────────────── */
+.streaming-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #706e6b;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    background: #e0e5ee;
+}
+
+.streaming-indicator_live {
+    background: #cdefc4;
+    color: #04844b;
+}
+
+.streaming-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #706e6b;
+    flex-shrink: 0;
+}
+
+.streaming-dot_live {
+    background: #04844b;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(0.8);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Log table ────────────────────────────────────────────────────────────── */
+.log-table-wrap {
+    max-height: 520px;
+    overflow-y: auto;
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+}
+
+.log-table {
+    table-layout: fixed;
+}
+
+.log-time {
+    font-size: 0.72rem;
+    color: #706e6b;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.log-flag-key {
+    font-family: monospace;
+    font-size: 0.75rem;
+    background: #f3f2f2;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.log-user {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Row states ───────────────────────────────────────────────────────────── */
+.log-row--alert {
+    background: #fef0ef;
+}
+
+/* ── Result values ────────────────────────────────────────────────────────── */
+.result-value {
+    font-weight: 700;
+    font-size: 0.75rem;
+    font-family: monospace;
+}
+
+.result-value_enabled {
+    color: #04844b;
+}
+
+.result-value_disabled {
+    color: #706e6b;
+}
+
+/* ── Reason badges ────────────────────────────────────────────────────────── */
+.reason-badge {
+    display: inline-block;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reason-badge_rule {
+    background: #e8f0fe;
+    color: #0176d3;
+}
+
+.reason-badge_default {
+    background: #e0e5ee;
+    color: #3e3e3c;
+}
+
+.reason-badge_emergencydisabled {
+    background: #c23934;
+    color: white;
+}
+
+.reason-badge_expired {
+    background: #fde8c7;
+    color: #b05604;
+}
+
+.reason-badge_cache {
+    background: #ece7f2;
+    color: #5a1ba9;
+}
+
+.reason-badge_error {
+    background: #fddde5;
+    color: #c23934;
+}
+
+/* ── New logs badge ───────────────────────────────────────────────────────── */
+.new-logs-badge {
+    background: #0176d3;
+    color: white;
+}

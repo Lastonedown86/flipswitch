@@ -1,0 +1,13 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+    </template>
+    <template if:false={isLoading}>
+        <template if:true={isEnabled}>
+            <slot name="enabled"></slot>
+        </template>
+        <template if:false={isEnabled}>
+            <slot name="disabled"></slot>
+        </template>
+    </template>
+</template>

@@ -1,0 +1,205 @@
+<template>
+    <lightning-card title="Analytics" icon-name="utility:chart">
+
+        <!-- Date range + flag selector controls -->
+        <div slot="actions" class="slds-grid slds-gutters_xx-small">
+            <div class="slds-col">
+                <lightning-input
+                    type="date"
+                    label="From"
+                    variant="label-hidden"
+                    value={startDate}
+                    onchange={handleStartDateChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-col">
+                <lightning-input
+                    type="date"
+                    label="To"
+                    variant="label-hidden"
+                    value={endDate}
+                    onchange={handleEndDateChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-no-flex">
+                <lightning-button
+                    label="Refresh"
+                    icon-name="utility:refresh"
+                    onclick={handleRefresh}>
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- No flag selected prompt -->
+        <template lwc:if={noFlagSelected}>
+            <div class="slds-illustration slds-illustration_small slds-m-around_large">
+                <lightning-icon icon-name="utility:chart" size="large"></lightning-icon>
+                <div class="slds-illustration__body slds-m-top_medium">
+                    <h3 class="slds-text-heading_medium">Select a Flag</h3>
+                    <p class="slds-text-body_regular">
+                        Choose a flag from the Dashboard tab to view analytics.
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:elseif={isLoading}>
+            <div class="slds-m-around_large">
+                <lightning-spinner alternative-text="Loading analytics" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template lwc:elseif={hasError}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-around_medium" role="alert">
+                <p>{errorMessage}</p>
+            </div>
+        </template>
+
+        <template lwc:elseif={analytics}>
+            <div class="slds-m-around_medium">
+
+                <!-- Summary KPI strip -->
+                <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col">
+                        <div class="kpi-tile">
+                            <span class="kpi-tile__value">{analytics.totalEvaluations}</span>
+                            <span class="kpi-tile__label">Total Evaluations</span>
+                        </div>
+                    </div>
+                    <div class="slds-col">
+                        <div class="kpi-tile">
+                            <span class="kpi-tile__value">{analytics.uniqueUsers}</span>
+                            <span class="kpi-tile__label">Unique Users</span>
+                        </div>
+                    </div>
+                    <div class="slds-col">
+                        <div class="kpi-tile kpi-tile--danger">
+                            <span class="kpi-tile__value">{analytics.circuitBreakerTrips}</span>
+                            <span class="kpi-tile__label">Circuit Breaker Trips</span>
+                        </div>
+                    </div>
+                    <div class="slds-col">
+                        <div class="kpi-tile">
+                            <span class="kpi-tile__value">{variantCount}</span>
+                            <span class="kpi-tile__label">Variants</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-gutters">
+
+                    <!-- Left: Variant distribution donut -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="chart-card">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small">
+                                Variant Distribution
+                            </h3>
+
+                            <template lwc:if={hasVariants}>
+                                <!-- SVG donut chart (no external library needed) -->
+                                <div class="donut-container">
+                                    <svg viewBox="0 0 200 200" class="donut-svg" role="img" aria-label="Variant distribution donut chart">
+                                        <template for:each={donutSegments} for:item="seg">
+                                            <circle
+                                                key={seg.key}
+                                                cx="100"
+                                                cy="100"
+                                                r="70"
+                                                fill="none"
+                                                stroke={seg.color}
+                                                stroke-width="40"
+                                                stroke-dasharray={seg.dashArray}
+                                                stroke-dashoffset={seg.dashOffset}
+                                                transform="rotate(-90 100 100)">
+                                            </circle>
+                                        </template>
+                                        <!-- Center label -->
+                                        <text x="100" y="95" text-anchor="middle" class="donut-center-value">
+                                            {analytics.totalEvaluations}
+                                        </text>
+                                        <text x="100" y="113" text-anchor="middle" class="donut-center-label">
+                                            total
+                                        </text>
+                                    </svg>
+                                </div>
+
+                                <!-- Legend -->
+                                <div class="donut-legend">
+                                    <template for:each={variantLegendItems} for:item="item">
+                                        <div key={item.key} class="legend-item">
+                                            <span class="legend-dot" style={item.dotStyle}></span>
+                                            <span class="legend-key">{item.key}</span>
+                                            <span class="legend-count">{item.count}</span>
+                                            <span class="legend-pct">{item.percentage}%</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <p class="slds-text-color_weak slds-text-align_center">
+                                    No variant data for this period.
+                                </p>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Right: Unique users per variant (horizontal bars) -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="chart-card">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small">
+                                Unique Users per Variant
+                            </h3>
+                            <template lwc:if={hasVariants}>
+                                <template for:each={uniqueUserBars} for:item="bar">
+                                    <div key={bar.key} class="hbar-row">
+                                        <span class="hbar-label">{bar.key}</span>
+                                        <div class="hbar-track">
+                                            <div class="hbar-fill" style={bar.style}></div>
+                                        </div>
+                                        <span class="hbar-value">{bar.uniqueUsers}</span>
+                                    </div>
+                                </template>
+                            </template>
+                            <template lwc:else>
+                                <p class="slds-text-color_weak slds-text-align_center">
+                                    No data for this period.
+                                </p>
+                            </template>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Daily evaluation volume (sparkline-style bar chart) -->
+                <div class="chart-card slds-m-top_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        Evaluation Volume (Daily)
+                    </h3>
+                    <template lwc:if={hasDailyStats}>
+                        <div class="sparkline-container">
+                            <template for:each={sparklineBars} for:item="bar">
+                                <div
+                                    key={bar.date}
+                                    class="sparkline-bar"
+                                    style={bar.style}
+                                    title={bar.tooltip}>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="sparkline-axis">
+                            <span>{sparklineFirstDate}</span>
+                            <span>{sparklineLastDate}</span>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <p class="slds-text-color_weak slds-text-align_center">
+                            No daily data for this period.
+                        </p>
+                    </template>
+                </div>
+
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

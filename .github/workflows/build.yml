@@ -1,0 +1,185 @@
+name: Build
+
+env:
+  SF_DISABLE_AUTOUPDATE: true
+  SF_SKIP_NEW_VERSION_CHECK: true
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'flipswitch/**'
+      - '.github/workflows/**'
+      - 'config/scratch-orgs/**'
+      - 'sfdx-project.json'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'flipswitch/**'
+      - '.github/workflows/**'
+      - 'config/scratch-orgs/**'
+      - 'sfdx-project.json'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  # ─── Stage 1: Code Quality ─────────────────────────────────────────────────
+  code-quality:
+    name: 'Run Code Quality Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 'Restore node_modules cache'
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: 'Install npm dependencies'
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 'Verify LWC with ESLint'
+        run: npm run lint
+
+      - name: 'Verify formatting with Prettier'
+        run: npm run prettier:verify
+
+  # ─── Stage 2: LWC Jest Tests ───────────────────────────────────────────────
+  lwc-tests:
+    name: 'Run LWC Jest Tests'
+    needs: [code-quality]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 'Restore node_modules cache'
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: 'Install npm dependencies'
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 'Run LWC Tests'
+        run: npm run test:lwc
+
+      - name: 'Upload LWC code coverage to Codecov'
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: false
+          flags: LWC
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ─── Stage 3: Apex Validation (Developer Org) ─────────────────────────────
+  apex-validation:
+    name: 'Validate Apex in Dev Org'
+    needs: [code-quality]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 'Restore node_modules cache'
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: 'Install npm dependencies'
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 'Install Salesforce CLI'
+        run: npm install --global @salesforce/cli
+
+      - name: 'Authenticate Dev Org'
+        run: |
+          echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias dev-org --set-default
+          rm ./auth-url.txt
+
+      - name: 'Validate Core Source (check-only deploy + tests)'
+        run: sf project deploy validate --concise --source-dir ./flipswitch/core/ --test-level RunLocalTests
+
+  # ─── Stage 4: Create Package Version (main only) ───────────────────────────
+  create-package-version:
+    name: 'Create Package Version'
+    needs: [lwc-tests, apex-validation]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 'Setup Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 'Restore node_modules cache'
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+
+      - name: 'Install npm dependencies'
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 'Install Salesforce CLI'
+        run: npm install --global @salesforce/cli
+
+      - name: 'Authenticate DevHub'
+        run: |
+          echo "${{ secrets.SF_AUTH_URL }}" > ./auth-url.txt
+          sf org login sfdx-url --sfdx-url-file ./auth-url.txt --alias devhub --set-default --set-default-dev-hub
+          rm ./auth-url.txt
+
+      - name: 'Create Package Version'
+        id: create-version
+        run: |
+          RESULT=$(npm run package:version:create 2>&1)
+          echo "$RESULT"
+          VERSION_ID=$(echo "$RESULT" | python3 -c "import sys,json; data=json.load(sys.stdin); print(data['result']['SubscriberPackageVersionId'])" 2>/dev/null || echo "")
+          echo "version_id=$VERSION_ID" >> $GITHUB_OUTPUT
+
+      - name: 'Promote Package Version'
+        if: steps.create-version.outputs.version_id != ''
+        run: sf package version promote --no-prompt --package "${{ steps.create-version.outputs.version_id }}"

@@ -1,0 +1,192 @@
+/* ── Rule list ────────────────────────────────────────────────────────────── */
+.rule-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ── Rule row ─────────────────────────────────────────────────────────────── */
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+    background: white;
+    cursor: default;
+    transition: box-shadow 0.15s, background 0.1s;
+}
+
+.rule-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.rule-item--inactive {
+    opacity: 0.55;
+    background: #f8f9fa;
+}
+
+.rule-item--dragging {
+    opacity: 0.4;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+
+.rule-item--drag-over {
+    border-color: #0176d3;
+    background: #e8f0fe;
+    box-shadow: 0 0 0 2px #0176d3;
+}
+
+/* ── Drag handle ──────────────────────────────────────────────────────────── */
+.rule-handle {
+    cursor: grab;
+    color: #c9c9c9;
+    flex-shrink: 0;
+    padding: 0 0.25rem;
+}
+
+.rule-handle:active {
+    cursor: grabbing;
+}
+
+/* ── Priority badge ───────────────────────────────────────────────────────── */
+.rule-priority {
+    flex-shrink: 0;
+}
+
+.priority-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: #e0e5ee;
+    color: #3e3e3c;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* ── Rule body ────────────────────────────────────────────────────────────── */
+.rule-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.rule-type-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.rule-type-badge {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #0176d3;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.rule-scheduled-badge {
+    display: inline-block;
+    background: #fde8c7;
+    color: #b05604;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.rule-variant-chip {
+    display: inline-block;
+    background: #ece7f2;
+    color: #5a1ba9;
+    border-radius: 0.875rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.rule-value-preview {
+    font-size: 0.78rem;
+    color: #706e6b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.15rem;
+}
+
+.rule-schedule-text {
+    font-size: 0.72rem;
+    color: #b05604;
+    margin-top: 0.1rem;
+}
+
+/* ── Active toggle / actions ──────────────────────────────────────────────── */
+.rule-active {
+    flex-shrink: 0;
+}
+
+.rule-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ── Save reorder strip ───────────────────────────────────────────────────── */
+/* (uses SLDS grid — no extra CSS needed) */
+
+/* ── Weight visualizer ────────────────────────────────────────────────────── */
+.variant-section {
+    border: 1px solid #e0e5ee;
+    border-radius: 6px;
+    padding: 0.75rem;
+    background: #f8f9fa;
+}
+
+.weight-bar {
+    display: flex;
+    height: 28px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #e0e5ee;
+}
+
+.weight-bar__segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.3s;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.weight-bar__label {
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    padding: 0 0.2rem;
+}
+
+/* ── Percentage slider ────────────────────────────────────────────────────── */
+.percentage-slider {
+    width: 100%;
+    margin-top: 0.5rem;
+    accent-color: #0176d3;
+}
+
+/* ── Variant row ──────────────────────────────────────────────────────────── */
+.variant-row {
+    border-bottom: 1px dashed #e0e5ee;
+    padding-bottom: 0.4rem;
+}
